@@ -2,7 +2,7 @@
 
 # log1mexp <- function (x)
 # {
-#     i <- x < -0.5671439
+#     i <- x < -0.56714329040978384
 #     value <- x
 #     value[i] <- log1p(-exp(x[i]))
 #     value[!i] <- log(-expm1(x[!i]))

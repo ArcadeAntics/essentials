@@ -26,7 +26,7 @@
 #define ML_NAN (0.0 / 0.0)
 
 
-#define my_log1mexp(X) ((X < -0.5671439) ? log1p(-exp(X)) : log(-expm1(X)))
+#define my_log1mexp(X) (((X) < -0.56714329040978384) ? log1p(-exp(X)) : log(-expm1(X)))
 
 
 double dgev5(double x, double mu, double sigma, double xi,

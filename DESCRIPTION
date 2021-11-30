@@ -1,0 +1,14 @@
+Package: essentials
+Type: Package
+Title: Essential Functions not Included in Base R
+Version: 0.2.0
+Author: Andrew Simmons
+Maintainer: Andrew Simmons <akwsimmo@gmail.com>
+Description: Functions for converting objects to scalars (vectors of length 1) 
+    and a more inclusive definition of data that can be interpreted as numbers 
+    (numeric and complex alike).
+License: MIT + file LICENSE
+Imports: graphics, grDevices, methods, utils
+Suggests: this.path
+Enhances: tcltk
+Encoding: UTF-8

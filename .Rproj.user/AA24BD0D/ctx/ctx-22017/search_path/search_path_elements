@@ -1,0 +1,11 @@
+.GlobalEnv
+tools:rstudio
+package:datasets
+package:utils
+package:grDevices
+package:graphics
+package:stats
+package:this.path
+package:methods
+Autoloads
+package:base

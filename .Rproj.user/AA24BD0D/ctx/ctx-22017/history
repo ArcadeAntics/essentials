@@ -1,0 +1,184 @@
+progressBars <- list()
+addProgressBar <- function (name, def)
+{
+name <- as.character(as.symbol(name))
+def <- match.fun(def)
+progressBars[[name]] <<- def
+invisible()
+}
+addProgressBar("tk",
+function(title = "R progress bar",
+label = "", min = 0, max = 1, initial = 0, width = 445L,
+...)
+{
+tcltk::tkProgressBar(title = title, label = label, min = min,
+max = max, initial = initial, width = width)
+})
+addProgressBar("txt",
+function(min = 0, max = 1, initial = 0, char = "=", width = NA,
+title, label, style = 1, file = "", ...)
+{
+utils::txtProgressBar(min = min, max = max, initial = initial,
+char = char, width = width, title = title, label = label,
+style = style, file = file)
+})
+addProgressBar("win",
+function(title = tryCatch({
+paste0(basename(this.path()), " - R progress bar")
+}, this.pathUnavailableError = function(c) "R progress bar"),
+label = "", min = 0, max = 1, initial = 0, width = 300L,
+...)
+{
+utils::winProgressBar(title = title, label = label, min = min,
+max = max, initial = initial, width = width)
+})
+progressBars
+progressBars <- list()
+addProgressBar <- function (name, def)
+{
+name <- as.character(as.symbol(name))
+def <- match.fun(def)
+progressBars[[name]] <<- def
+invisible()
+}
+addProgressBar("tk",
+function(title = "R progress bar",
+label = "", min = 0, max = 1, initial = 0, width = 445L,
+...)
+{
+tcltk::tkProgressBar(title = title, label = label, min = min,
+max = max, initial = initial, width = width)
+})
+addProgressBar("txt",
+function(min = 0, max = 1, initial = 0, char = "=", width = NA,
+title, label, style = 1, file = "", ...)
+{
+utils::txtProgressBar(min = min, max = max, initial = initial,
+char = char, width = width, title = title, label = label,
+style = style, file = file)
+})
+addProgressBar("win",
+function(title = "R progress bar",
+label = "", min = 0, max = 1, initial = 0, width = 300L,
+...)
+{
+utils::winProgressBar(title = title, label = label, min = min,
+max = max, initial = initial, width = width)
+})
+progressBars <- list()
+progressBars <- list()
+addProgressBar <- function (name, def)
+{
+name <- as.character(as.symbol(name))
+def <- match.fun(def)
+progressBars[[name]] <<- def
+invisible()
+}
+addProgressBar("tk",
+function(title = "R progress bar",
+label = "", min = 0, max = 1, initial = 0, width = 445L,
+...)
+{
+tcltk::tkProgressBar(title = title, label = label, min = min,
+max = max, initial = initial, width = width)
+})
+addProgressBar("txt",
+function(min = 0, max = 1, initial = 0, char = "=", width = NA,
+title, label, style = 1, file = "", ...)
+{
+utils::txtProgressBar(min = min, max = max, initial = initial,
+char = char, width = width, title = title, label = label,
+style = style, file = file)
+})
+addProgressBar("win",
+function(title = "R progress bar",
+label = "", min = 0, max = 1, initial = 0, width = 300L,
+...)
+{
+utils::winProgressBar(title = title, label = label, min = min,
+max = max, initial = initial, width = width)
+})
+progressBars
+progressBars$tk
+sym <- as.symbol(name)
+as.list(progressBars$tk)
+as.function(as.list(progressBars$tk))
+tcltk::tkProgressBar
+as.function(as.list(progressBars$win))
+as.function(as.list(progressBars$txt))
+library(essentials)
+tcltk
+pb <- progressBar("tk", max = 100)
+for (i in 1:100) {
+increment(pb)
+}
+close(pb)
+pb <- progressBar("tk", max = 100)
+for (i in 1:100) {
+Sys.sleep(0.025)
+increment(pb)
+}
+close(pb)
+pb <- progressBar("tk", max = 100)
+for (i in 1:100) {
+Sys.sleep(0.025)
+increment(pb)
+}
+close(pb)
+pb <- progressBar("tk", max = 100)
+for (i in 1:100) {
+Sys.sleep(0.025)
+increment(pb)
+}
+close(pb)
+pb <- progressBar("tk", max = 100)
+for (i in 1:100) {
+Sys.sleep(0.01)
+increment(pb)
+}
+close(pb)
+pb <- progressBar("tk", max = 100)
+for (i in 1:100) {
+Sys.sleep(0.01)
+increment(pb)
+}
+close(pb)
+pb <- progressBar("tk", max = 100)
+for (i in 1:100) {
+Sys.sleep(0.01)
+increment(pb)
+}
+close(pb)
+pb <- progressBar("tk", max = 100)
+for (i in 1:100) {
+Sys.sleep(0.01)
+increment(pb)
+}
+close(pb)
+pb <- progressBar("tk", title = paste0(basename(this.path()), " - R progress bar"), max = 100)
+for (i in 1:100) {
+Sys.sleep(0.01)
+increment(pb)
+}
+close(pb)
+pb <- progressBar("tk", title = paste0(basename(this.path()), " - R progress bar"),
+max = 100)
+for (i in 1:100) {
+Sys.sleep(0.01)
+increment(pb)
+}
+close(pb)
+pb <- progressBar("tk", title = paste0(basename(this.path()), " - R progress bar"),
+max = 100)
+for (i in 1:100) {
+Sys.sleep(0.01)
+increment(pb)
+}
+close(pb)
+pb <- progressBar("tk", title = paste0(basename(this.path()), " - R progress bar"),
+max = 100)
+for (i in 1:100) {
+Sys.sleep(0.01)
+increment(pb)
+}
+close(pb)

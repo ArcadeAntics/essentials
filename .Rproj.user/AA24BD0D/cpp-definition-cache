@@ -1,0 +1,498 @@
+[
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/GeneralizedExtremeValue.c",
+        "file_last_write": 1629920338.0,
+        "definitions": [
+            {
+                "usr": "c:@F@dgev5",
+                "kind": 6,
+                "parent_name": "",
+                "name": "dgev5(double, double, double, double, int)",
+                "file": "C:/Users/andre/Documents/essentials/src/GeneralizedExtremeValue.c",
+                "line": 32,
+                "column": 8
+            },
+            {
+                "usr": "c:@F@pgev_both",
+                "kind": 6,
+                "parent_name": "",
+                "name": "pgev_both(double, double, double *, double *, int, int)",
+                "file": "C:/Users/andre/Documents/essentials/src/GeneralizedExtremeValue.c",
+                "line": 65,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@pgev6",
+                "kind": 6,
+                "parent_name": "",
+                "name": "pgev6(double, double, double, double, int, int)",
+                "file": "C:/Users/andre/Documents/essentials/src/GeneralizedExtremeValue.c",
+                "line": 103,
+                "column": 8
+            },
+            {
+                "usr": "c:@F@qgev6",
+                "kind": 6,
+                "parent_name": "",
+                "name": "qgev6(double, double, double, double, int, int)",
+                "file": "C:/Users/andre/Documents/essentials/src/GeneralizedExtremeValue.c",
+                "line": 131,
+                "column": 8
+            },
+            {
+                "usr": "c:@F@dgev",
+                "kind": 6,
+                "parent_name": "",
+                "name": "dgev(SEXP, SEXP, SEXP, SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/GeneralizedExtremeValue.c",
+                "line": 158,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@pgev",
+                "kind": 6,
+                "parent_name": "",
+                "name": "pgev(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/GeneralizedExtremeValue.c",
+                "line": 196,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@qgev",
+                "kind": 6,
+                "parent_name": "",
+                "name": "qgev(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/GeneralizedExtremeValue.c",
+                "line": 233,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@rgev",
+                "kind": 6,
+                "parent_name": "",
+                "name": "rgev(SEXP, SEXP, SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/GeneralizedExtremeValue.c",
+                "line": 271,
+                "column": 6
+            }
+        ]
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/defines.h",
+        "file_last_write": 1629157228.0,
+        "definitions": []
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/dowhile.c",
+        "file_last_write": 1631903888.0,
+        "definitions": [
+            {
+                "usr": "c:@F@do_dowhile",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_dowhile(SEXP, SEXP, SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/dowhile.c",
+                "line": 7,
+                "column": 6
+            }
+        ]
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/envvars.c",
+        "file_last_write": 1633711508.0,
+        "definitions": [
+            {
+                "usr": "c:@F@do_envvars",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_envvars(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/envvars.c",
+                "line": 8,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_getEnvvar",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_getEnvvar(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/envvars.c",
+                "line": 188,
+                "column": 6
+            }
+        ]
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/essentials.h",
+        "file_last_write": 1635728761.0,
+        "definitions": []
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/hypot.c",
+        "file_last_write": 1629159030.0,
+        "definitions": [
+            {
+                "usr": "c:@F@hypot2",
+                "kind": 6,
+                "parent_name": "",
+                "name": "hypot2(double, double)",
+                "file": "C:/Users/andre/Documents/essentials/src/hypot.c",
+                "line": 14,
+                "column": 8
+            },
+            {
+                "usr": "c:@F@do_phypot",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_phypot(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/hypot.c",
+                "line": 34,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_hypot",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_hypot(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/hypot.c",
+                "line": 297,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@IDW",
+                "kind": 6,
+                "parent_name": "",
+                "name": "IDW(SEXP, SEXP, SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/hypot.c",
+                "line": 406,
+                "column": 6
+            }
+        ]
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/init.c",
+        "file_last_write": 1635728795.0,
+        "definitions": [
+            {
+                "usr": "c:@F@R_init_essentials",
+                "kind": 6,
+                "parent_name": "",
+                "name": "R_init_essentials(DllInfo *)",
+                "file": "C:/Users/andre/Documents/essentials/src/init.c",
+                "line": 56,
+                "column": 24
+            }
+        ]
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/isMissingArg.c",
+        "file_last_write": 1629473905.0,
+        "definitions": [
+            {
+                "usr": "c:@F@do_isMissingArg",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_isMissingArg(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/isMissingArg.c",
+                "line": 5,
+                "column": 6
+            }
+        ]
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/plapply.c",
+        "file_last_write": 1637439405.0,
+        "definitions": [
+            {
+                "usr": "c:@F@do_plapply",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_plapply(SEXP, SEXP, SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/plapply.c",
+                "line": 369,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_pvapply",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_pvapply(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/plapply.c",
+                "line": 505,
+                "column": 6
+            }
+        ]
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/rk.c",
+        "file_last_write": 1629159061.0,
+        "definitions": [
+            {
+                "usr": "c:@F@RK4",
+                "kind": 6,
+                "parent_name": "",
+                "name": "RK4(SEXP, SEXP, SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/rk.c",
+                "line": 6,
+                "column": 6
+            }
+        ]
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/rowmatch.c",
+        "file_last_write": 1629079733.0,
+        "definitions": [
+            {
+                "usr": "c:@F@_match_transform",
+                "kind": 6,
+                "parent_name": "",
+                "name": "_match_transform(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/rowmatch.c",
+                "line": 7,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@match_transform",
+                "kind": 6,
+                "parent_name": "",
+                "name": "match_transform(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/rowmatch.c",
+                "line": 27,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@match_type",
+                "kind": 6,
+                "parent_name": "",
+                "name": "match_type(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/rowmatch.c",
+                "line": 48,
+                "column": 5
+            },
+            {
+                "usr": "c:@F@do_match_type",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_match_type(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/rowmatch.c",
+                "line": 55,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@as_data_frame",
+                "kind": 6,
+                "parent_name": "",
+                "name": "as_data_frame(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/rowmatch.c",
+                "line": 61,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@dim",
+                "kind": 6,
+                "parent_name": "",
+                "name": "dim(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/rowmatch.c",
+                "line": 71,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@nrow",
+                "kind": 6,
+                "parent_name": "",
+                "name": "nrow(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/rowmatch.c",
+                "line": 81,
+                "column": 5
+            },
+            {
+                "usr": "c:@F@fixup_lengthdim2",
+                "kind": 6,
+                "parent_name": "",
+                "name": "fixup_lengthdim2(SEXP, int, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/rowmatch.c",
+                "line": 87,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@row_split",
+                "kind": 6,
+                "parent_name": "",
+                "name": "row_split(SEXP, int, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/rowmatch.c",
+                "line": 103,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_rowmatchdataframe",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_rowmatchdataframe(SEXP, SEXP, SEXP, SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/rowmatch.c",
+                "line": 127,
+                "column": 6
+            }
+        ]
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+        "file_last_write": 1629158696.0,
+        "definitions": [
+            {
+                "usr": "c:@F@asComplex2",
+                "kind": 6,
+                "parent_name": "",
+                "name": "asComplex2(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 29,
+                "column": 10
+            },
+            {
+                "usr": "c:@F@asChar2",
+                "kind": 6,
+                "parent_name": "",
+                "name": "asChar2(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 45,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@asRaw",
+                "kind": 6,
+                "parent_name": "",
+                "name": "asRaw(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 57,
+                "column": 7
+            },
+            {
+                "usr": "c:@F@do_asscalarlogical",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_asscalarlogical(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 77,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_asscalarinteger",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_asscalarinteger(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 84,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_asscalarreal",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_asscalarreal(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 93,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_asscalarcomplex",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_asscalarcomplex(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 100,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_asscalarstring",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_asscalarstring(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 108,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_asscalarraw",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_asscalarraw(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 115,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_asscalarnumber",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_asscalarnumber(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 122,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_asscalar",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_asscalar(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 146,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@isScalar",
+                "kind": 6,
+                "parent_name": "",
+                "name": "isScalar(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 165,
+                "column": 5
+            },
+            {
+                "usr": "c:@F@do_isscalar",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_isscalar(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 183,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@as_numbers",
+                "kind": 6,
+                "parent_name": "",
+                "name": "as_numbers(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
+                "line": 238,
+                "column": 6
+            }
+        ]
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/testing.c",
+        "file_last_write": 1635649715.0,
+        "definitions": [
+            {
+                "usr": "c:@F@testing",
+                "kind": 6,
+                "parent_name": "",
+                "name": "testing(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/testing.c",
+                "line": 5,
+                "column": 6
+            }
+        ]
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/tryExcept.c",
+        "file_last_write": 1628652584.0,
+        "definitions": [
+            {
+                "usr": "c:@F@do_tryExcept_onexit_setup",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_tryExcept_onexit_setup(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/tryExcept.c",
+                "line": 5,
+                "column": 6
+            }
+        ]
+    }
+]

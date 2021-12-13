@@ -169,3 +169,14 @@ RungeKuttaMethod <- RK4 <- EMF({
 
 
 remove(EMT1, EMT2, EMT3, EMF)
+
+
+.RK4 <- function (independent, initialConditions, fun, ..., xname)
+{
+    fun <- match.fun(fun)
+    if (missing(xname))
+        xname <- deparse1(substitute(independent), collapse = "\n",
+            width.cutoff = 60L)
+    xname
+    # .Call(C_RK4, independent, initialConditions, fun, xname)
+}

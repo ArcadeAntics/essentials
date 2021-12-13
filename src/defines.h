@@ -1,5 +1,5 @@
 #define test4NumericArgument(X)                                \
-    switch(TYPEOF(X)) {                                        \
+    switch (TYPEOF(X)) {                                       \
     case INTSXP:                                               \
     case LGLSXP:                                               \
     case NILSXP:                                               \

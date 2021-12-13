@@ -1,52 +1,99 @@
 useDynLib(essentials, .registration = TRUE, .fixes = "C_")
 
 
-export(isMissingArg)
+importFrom(this.path, here)
+importFrom(this.path, this.dir2)
 
 
-importFrom(methods, coerce)
-exportClass(numbers)
-exportMethods(coerce)
+
+export(flat.list, hypot, phypot, listify, strip, strsplit2, IDW,
+    isMissingArg)
 
 
-export(as.scalar.logical)
-export(as.scalar.integer)
-export(as.scalar.real, as.scalar.double, as.scalar.numeric)
-export(as.scalar.complex)
-export(as.scalar.number)
-export(as.scalar.string, as.scalar.character)
-export(as.scalar.raw)
-export(as.scalar)
-export(is.scalar)
-export(aslength1)
+# ArgumentParser-class.R    ----
 
 
-export(numbers, is.numbers, as.numbers)
-S3method(is.numbers, default)
-S3method(as.numbers, default)
+importFrom(methods, classLabel, is, new)
+exportClasses("essentials_ArgumentParser")
+importFrom(this.path, this.path)
+export(ArgumentParser)
 
 
-export(IDW)
+S3method(print, "essentials_ArgumentParser")
 
 
-export(flat.list, hypot, phypot, listify, strip)
-export(wrapper)
+S3method("$", ParsedArgs)
+S3method("$<-", ParsedArgs)
+S3method(as.list, ParsedArgs)
+S3method(print, ParsedArgs)
+export(Commands, Missing)
 
 
-importFrom(utils, assignInMyNamespace)
-export("%while%", "%until%")  # do while loop
+# ASCII.R                   ----
 
 
-# dir.copy.R           ----
+importFrom(graphics, par, plot, text, axis)
+export(ASCII)
+
+
+# asWindowsbasename.R       ----
+
+
+export(asWindowsbasename)
+
+
+# commandArgs.R             ----
+
+
+S3method(print, formalCommandArg)
+
+
+# dedent.R                  ----
+
+
+export(dedent)
+
+
+# delayedAssign2.R          ----
+
+
+export(delayedAssign2)
+
+
+# dir.choose.R              ----
+
+
+export(dir.choose)
+
+
+# dir.copy.R                ----
 
 
 export(dir.copy)
 
 
-# envvars.R            ----
+# do.while.R                ----
+
+
+export("%while%", "%until%")
+
+
+# envvars.R                 ----
 
 
 export(envvars, getEnvvar)
+
+
+# extension.R               ----
+
+
+export(ext, extension, rm.ext, remove.extension)
+
+
+# file.open.R               ----
+
+
+export(file.open)
 
 
 # GeneralizedExtremeValue.R ----
@@ -55,7 +102,7 @@ export(envvars, getEnvvar)
 export(dgev, pgev, qgev, rgev)
 
 
-# graphics essentials  ----
+# graphics essentials       ----
 
 
 importFrom(graphics, par, plot.default, xinch, yinch)
@@ -69,7 +116,7 @@ importFrom(graphics, image, par)
 export(show.colors)
 
 
-# grDevices essentials ----
+# grDevices essentials      ----
 
 
 importFrom(grDevices, colorRamp, hcl.pals)
@@ -85,32 +132,39 @@ importFrom(grDevices, col2rgb, rgb)
 export(color.with.alpha, as.hex.code)
 
 
-# ASCII.R              ----
+# list.files2.R             ----
 
 
-importFrom(graphics, par, plot, text, axis)
-export(ASCII)
+export(list.files2, dir2)
 
 
-# asWindowsbasename.R  ----
+# normalizeAgainst.R        ----
 
 
-export(asWindowsbasename)
+importFrom(this.path, this.dir)
+export(normalizeAgainst, .normalizePath)
 
 
-# dir.choose.R         ----
+# numbers.R                 ----
 
 
-export(dir.choose)
+exportClass(numbers)
+importFrom(methods, coerce)
+exportMethods(coerce)
 
 
-# extension.R          ----
+export(numbers, is.numbers, as.numbers)
+S3method(is.numbers, default)
+S3method(as.numbers, default)
 
 
-export(ext, extension, rm.ext, remove.extension)
+# path.contract.R           ----
 
 
-# plapply.R            ----
+export(path.contract)
+
+
+# plapply.R                 ----
 
 
 export(.plapply, plapply)
@@ -118,7 +172,7 @@ export(.psapply, psapply)
 export(.pvapply, pvapply)
 
 
-# progressBar.R        ----
+# progressBar.R             ----
 
 
 export(setProgressBarMethod, progressBar, getProgress, setProgress, increment, decrement)
@@ -146,19 +200,39 @@ S3method(decrement, txtProgressBar)
 S3method(decrement, winProgressBar)
 
 
-# readlineQuoted.R     ----
+# pseduoglobalenv.R         ----
+
+
+export(pseudoglobalenv)
+
+
+# R.R                       ----
+
+
+export(python)
+export(R, Rcmd, Rscript, Rterm)
+
+
+# readArgs.R                ----
+
+
+export(has.ext, scan2, format4scan, setReadWriteArgsMethod)
+export(writeArgs, readArgs)
+
+
+# readlineQuoted.R          ----
 
 
 export(readlineQuoted)
 
 
-# regexencode.R        ----
+# regexencode.R             ----
 
 
 export(regexencode)
 
 
-# rowmatch             ----
+# rowmatch                  ----
 
 
 export(.duplicated.data.frame_transform)
@@ -169,7 +243,7 @@ export(row.match, row.match.data.frame, "%row.in%")
 exportMethods(row.match)
 
 
-# Runge-KuttaMethods.R ----
+# Runge-KuttaMethods.R      ----
 
 
 export(EulerMethod, RK1)
@@ -177,19 +251,59 @@ export(ImprovedEulerMethod, RK2)
 export(RungeKuttaMethod, RK4)
 
 
-# toProv.R             ----
+# scalars.R                 ----
+
+
+export(as.scalar.logical)
+export(as.scalar.integer)
+export(as.scalar.real, as.scalar.double, as.scalar.numeric)
+export(as.scalar.complex)
+export(as.scalar.number)
+export(as.scalar.string, as.scalar.character)
+export(as.scalar.raw)
+export(as.scalar)
+export(is.scalar)
+export(aslength1)
+
+
+# shEncode.R                ----
+
+
+export(shEncode, commandEncode, commandQuote)
+
+
+# shPrompt.R                ----
+
+
+export(shPrompt)
+
+
+# toProv.R                  ----
 
 
 export(toProv, toProv2, toProvince)
 
 
-# tryExcept.R          ----
+# tryExcept.R               ----
 
 
 export(tryExcept)
 
 
-# zap                  ----
+# withArgs.R                ----
+
+
+importFrom(this.path, this.path2)
+export(Args, withArgs)
+
+
+# wrapper.R                 ----
+
+
+export(wrapper)
+
+
+# zap                       ----
 
 
 importFrom(utils, read.table, read.csv, read.csv2, read.delim, read.delim2)

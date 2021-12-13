@@ -1,4 +1,5 @@
-library(essentials, include.only = c("%until%", "%while%"))
+`%until%` <- essentials::`%until%`
+`%while%` <- essentials::`%while%`
 
 
 # do while/until loops should respect 'return' statements
@@ -23,6 +24,6 @@ stopifnot(
 #
 # in this version, it should eval 'next', transfer control to 'cond' and then
 # finish the loop
-this.path::Rscript("--default-packages=essentials", exprs = this.path::dedent(r"{
+essentials::Rscript("--default-packages=essentials", exprs = essentials::dedent(r"{
     do(next) %until% (TRUE)
 }"), timeout = 1, mustWork = TRUE, quiet = TRUE)

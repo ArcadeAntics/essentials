@@ -2,7 +2,13 @@
 #include <Rinternals.h>
 
 
-#define UNIMPLEMENTED_TYPE(X, Y) error("unimplemented type '%s' in '%s'", type2char(TYPEOF(Y)), X);
+#define UNIMPLEMENTED_TYPE(X, Y) (error("unimplemented type '%s' in '%s'", type2char(TYPEOF(Y)), X))
+
+
+#define Rprint(X) (eval(lang2(install("print"), lang2(install("quote"), X)), R_BaseEnv))
+
+
+// #define debug
 
 
 SEXP do_envvars(SEXP args, SEXP visible)
@@ -16,10 +22,18 @@ SEXP do_envvars(SEXP args, SEXP visible)
 
     /* if zero arguments were provided */
     if (args == R_NilValue) {
+
+
+#ifdef debug
+        Rprintf("zero arguments were provided to '%s'", "envvars");
+#endif
+
+
         SEXP expr = PROTECT(lang1(install("Sys.getenv")));
         value = PROTECT(eval(expr, R_BaseEnv));
         value = PROTECT(coerceVector(value, VECSXP));
         setAttrib(value, R_ClassSymbol, R_NilValue);
+        LOGICAL(visible)[0] = 1;
         UNPROTECT(3);
         return value;
     }
@@ -27,9 +41,19 @@ SEXP do_envvars(SEXP args, SEXP visible)
         error("invalid '%s'", "args");
 
 
-    int n = length(args), vsbl = 0;
-    if (n == 1 && (isPairList(CAR(args)) || isVectorList(CAR(args)))
-        && TAG(args) == R_NilValue) {
+    int n    = length(args),
+        vsbl = 0,
+        np   = 0;
+    if (n == 1 &&
+        (isPairList(CAR(args)) || isVectorList(CAR(args))) &&
+        TAG(args) == R_NilValue) {
+
+
+#ifdef debug
+        Rprintf("one argument, a list or a pairlist, without a tag was provided to '%s'", "envvars");
+#endif
+
+
         args = CAR(args);
         n = length(args);
     }
@@ -41,20 +65,21 @@ SEXP do_envvars(SEXP args, SEXP visible)
     case LISTSXP:
         break;
     case VECSXP:
-        if (n > 0) argnames = getAttrib(args, R_NamesSymbol);
+        if (n > 0) {
+            argnames = getAttrib(args, R_NamesSymbol); np++;
+        }
         break;
     default:
         UNIMPLEMENTED_TYPE("envvars", args);
     }
-    PROTECT(argnames);
 
 
     if (n <= 0) {
-        value = PROTECT(allocVector(VECSXP, 0));
-        names = PROTECT(allocVector(STRSXP, 0));
+        value = PROTECT(allocVector(VECSXP, 0)); np++;
+        names = PROTECT(allocVector(STRSXP, 0)); np++;
         setAttrib(value, R_NamesSymbol, names);
         LOGICAL(visible)[0] = vsbl;
-        UNPROTECT(3);
+        UNPROTECT(np);
         return value;
     }
 
@@ -63,7 +88,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
 
 
     int nset = 0, nunset = 0;
-    PROTECT(names = allocVector(STRSXP, n));
+    PROTECT(names = allocVector(STRSXP, n)); np++;
     switch (TYPEOF(args)) {
     case LISTSXP:
         temp_args = args;
@@ -105,37 +130,59 @@ SEXP do_envvars(SEXP args, SEXP visible)
     }
 
 
+#ifdef debug
+    Rprintf("the names of the environment variables are:\n");
+    Rprint(names);
+    Rprintf("\n");
+#endif
+
+
     SEXP expr;
     PROTECT(expr = lang4(
         install("Sys.getenv"),
         names,
         ScalarString(NA_STRING),
         ScalarLogical(1)
-    ));
-    PROTECT(value = eval(expr, R_BaseEnv));
-    PROTECT(value = coerceVector(value, VECSXP));
+    ));                                               np++;
+
+
+#ifdef debug
+    Rprintf("the expression to get the environment variables is:\n");
+    Rprint(expr);
+    Rprintf("\n");
+#endif
+
+
+    PROTECT(value = eval(expr, R_BaseEnv));           np++;
+
+
+#ifdef debug
+    Rprintf("the expression evaluated to:\n");
+    Rprint(value);
+    Rprintf("\n");
+#endif
+
+
+    PROTECT(value = coerceVector(value, VECSXP));     np++;
     setAttrib(value, R_ClassSymbol, R_NilValue);
 
 
-    /* in some weird cases, 'ScalarLogical(1)' is FALSE instead of TRUE
-
-
-       envvars("name" = 5)
-       envvars("name")  # for some reason, the names are NULL here, add them manually
-       envvars("name")
-     */
-    if (getAttrib(value, R_NamesSymbol) == R_NilValue)
-        setAttrib(value, R_NamesSymbol, names);
+#ifdef debug
+    Rprintf("the object was coerced to:\n");
+    Rprint(value);
+    Rprintf("\n");
+#endif
 
 
     if (nset || nunset) {
         SEXP expr2;
-        PROTECT(expr  = allocVector(LANGSXP, nset + 1)); SEXP temp_setenv = CDR(expr);
-        PROTECT(expr2 = allocVector(LANGSXP, 2));
+        PROTECT(expr  = allocVector(LANGSXP, nset + 1)); SEXP temp_setenv = CDR(expr);             np++;
+        PROTECT(expr2 = allocVector(LANGSXP, 2));                                                  np++;
         SETCAR(expr , install("Sys.setenv"));
         SETCAR(expr2, install("Sys.unsetenv"));
         SEXP unsetenv_arg;
-        PROTECT(unsetenv_arg = allocVector(STRSXP, nunset)); int j = 0;
+        PROTECT(unsetenv_arg = allocVector(STRSXP, nunset));                                       np++;
+        int j = 0;
         switch (TYPEOF(args)) {
         case LISTSXP:
             for (SEXP temp_args = args; temp_args != R_NilValue; temp_args = CDR(temp_args)) {
@@ -169,18 +216,37 @@ SEXP do_envvars(SEXP args, SEXP visible)
             UNIMPLEMENTED_TYPE("envvars", args);
         }
         SETCADR(expr2, unsetenv_arg);
-        // eval(lang2(install("print"), lang2(install("quote"), expr )), R_BaseEnv);
-        // eval(lang2(install("print"), lang2(install("quote"), expr2)), R_BaseEnv);
-        if (nset)
+
+
+        if (nset) {
+
+
+#ifdef debug
+            Rprintf("the expression to set the environment variables is:\n");
+            Rprint(expr);
+            Rprintf("\n");
+#endif
+
+
             eval(expr, R_BaseEnv);
-        if (nunset)
+        }
+        if (nunset) {
+
+
+#ifdef debug
+            Rprintf("the expression to unset the environment variables is:\n");
+            Rprint(expr2);
+            Rprintf("\n");
+#endif
+
+
             eval(expr2, R_BaseEnv);
-        UNPROTECT(3);
+        }
     }
 
 
     LOGICAL(visible)[0] = vsbl;
-    UNPROTECT(5);
+    UNPROTECT(np);
     return value;
 }
 
@@ -191,6 +257,6 @@ SEXP do_getEnvvar(SEXP x, SEXP default_)
         install("Sys.getenv"),
         ScalarString(asChar(x)),
         ScalarString(asChar(default_)),
-        ScalarLogical(FALSE)
+        ScalarLogical(0)
     ), R_BaseEnv);
 }

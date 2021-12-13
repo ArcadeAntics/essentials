@@ -1,6 +1,6 @@
 envvars <- function (...)
 {
-    value <- .Call(C_envvars, pairlist(...), visible <- TRUE)
+    value <- .Call(C_envvars, pairlist(...), visible <- logical(1L))
     if (visible)
         value
     else invisible(value)

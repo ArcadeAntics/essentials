@@ -1,8 +1,0 @@
-essentials:::Check_This(
-    build = TRUE,
-    keep.source = TRUE,
-
-    check = TRUE, as.cran = TRUE,
-
-    chdir = TRUE
-)

@@ -66,4 +66,4 @@ andre@DESKTOP-VR312SR:~/essentials/essentials.Rcheck/tests_i386$ Rscript -e "wri
 > 
 > proc.time()
    user  system elapsed 
-   0.18    0.06    3.92 
+   0.18    0.09    3.92 

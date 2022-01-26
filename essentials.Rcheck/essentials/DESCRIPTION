@@ -13,6 +13,6 @@ URL: https://github.com/ArcadeAntics/essentials
 BugReports: https://github.com/ArcadeAntics/essentials/issues
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2022-01-12 08:27:27 UTC; andre
-Built: R 4.1.2; x86_64-w64-mingw32; 2022-01-12 08:28:01 UTC; windows
+Packaged: 2022-01-26 01:33:56 UTC; andre
+Built: R 4.1.2; x86_64-w64-mingw32; 2022-01-26 01:35:23 UTC; windows
 Archs: i386, x64

@@ -283,14 +283,14 @@ Warning in text.default(x = rep(xvals, 16), y = rep(yvals, each = 16), labels = 
 > 
 > 
 > essentials::Rscript("--default-packages=NULL", FILE, args = pi)
-andre@DESKTOP-VR312SR:~/essentials/essentials.Rcheck/examples_i386$ Rscript "--default-packages=NULL" "C:\Users\andre\AppData\Local\Temp\RtmpstR9vm/working_dir\Rtmpk5FMOS\file13e4e651d4f" "3.1415926535897931"
+andre@DESKTOP-VR312SR:~/essentials/essentials.Rcheck/examples_i386$ Rscript "--default-packages=NULL" "C:\Users\andre\AppData\Local\Temp\Rtmpm4mB3T/working_dir\RtmpCKka3t\file2c0c5a4e48a0" "3.1415926535897931"
 > commandArgs()
-[1] "C:\\PROGRA~1\\R\\R-4.1.2\\bin\\i386\\Rterm.exe"                                                    
-[2] "--no-echo"                                                                                         
-[3] "--no-restore"                                                                                      
-[4] "--file=C:\\Users\\andre\\AppData\\Local\\Temp\\RtmpstR9vm/working_dir\\Rtmpk5FMOS\\file13e4e651d4f"
-[5] "--args"                                                                                            
-[6] "3.1415926535897931"                                                                                
+[1] "C:\\PROGRA~1\\R\\R-4.1.2\\bin\\i386\\Rterm.exe"                                                     
+[2] "--no-echo"                                                                                          
+[3] "--no-restore"                                                                                       
+[4] "--file=C:\\Users\\andre\\AppData\\Local\\Temp\\Rtmpm4mB3T/working_dir\\RtmpCKka3t\\file2c0c5a4e48a0"
+[5] "--args"                                                                                             
+[6] "3.1415926535897931"                                                                                 
 > essentials::Args()
 [1] "3.1415926535897931"
 
@@ -301,7 +301,7 @@ Process finished with exit code 0
  [2] "LANGUAGE=en"                                                                  
  [3] "_R_CHECK_INTERNALS2_=1"                                                       
  [4] "R_ENVIRON_USER='no_such_file'"                                                
- [5] "R_LIBS=C:\\Users\\andre\\AppData\\Local\\Temp\\RtmpstR9vm\\RLIBS_28405dd42c1b"
+ [5] "R_LIBS=C:\\Users\\andre\\AppData\\Local\\Temp\\Rtmpm4mB3T\\RLIBS_16042c443580"
  [6] "R_ENVIRON_USER='no_such_file'"                                                
  [7] "R_LIBS_USER='no_such_dir'"                                                    
  [8] "R_LIBS_SITE='no_such_dir'"                                                    
@@ -2601,7 +2601,7 @@ Yay! The arguments were written and read correctly!
 [13] "<U+0001D4D7>"                                                                                                                            
 [14] "this would be 'rather' annoying to quote for a `shell` on $Unix$,\nand even \"more\" so on Windows because of the \\\"double\\\" quotes!"
 > essentials::Rscript("--default-packages=NULL", script, args = paste0("@", FILE))
-andre@DESKTOP-VR312SR:~/essentials/essentials.Rcheck/examples_i386$ Rscript "--default-packages=NULL" "C:\Users\andre\AppData\Local\Temp\RtmpstR9vm/working_dir\Rtmpk5FMOS\file13e47d157b74" "@C:\Users\andre\AppData\Local\Temp\RtmpstR9vm\working_dir\Rtmpk5FMOS\args13e434fc2cdf.Rargs"
+andre@DESKTOP-VR312SR:~/essentials/essentials.Rcheck/examples_i386$ Rscript "--default-packages=NULL" "C:\Users\andre\AppData\Local\Temp\Rtmpm4mB3T/working_dir\RtmpCKka3t\file2c0c38d777f9" "@C:\Users\andre\AppData\Local\Temp\Rtmpm4mB3T\working_dir\RtmpCKka3t\args2c0c8a736f8.Rargs"
 > parser <- essentials::ArgumentParser()
 > parser$add.argument("args", nargs = "*")
 > pargs <- parser$parse.args()
@@ -3129,7 +3129,7 @@ andre@DESKTOP-VR312SR:~/essentials/essentials.Rcheck/examples_i386$
 +     letters, pi, exp(1)
 + )
 > this.path::this.path()
-[1] "C:/Users/andre/AppData/Local/Temp/RtmpstR9vm/working_dir/Rtmpk5FMOS/file13e4284b1575"
+[1] "C:/Users/andre/AppData/Local/Temp/Rtmpm4mB3T/working_dir/RtmpCKka3t/file2c0c4d95542e"
 attr(,"this.path.n")
 [1] 2
 > essentials::Args()
@@ -3148,7 +3148,7 @@ attr(,"this.path.n")
 +     letters, pi + 1i * exp(1)
 + )
 > this.path::this.path()
-[1] "C:/Users/andre/AppData/Local/Temp/RtmpstR9vm/working_dir/Rtmpk5FMOS/file13e4284b1575"
+[1] "C:/Users/andre/AppData/Local/Temp/Rtmpm4mB3T/working_dir/RtmpCKka3t/file2c0c4d95542e"
 attr(,"this.path.n")
 [1] 2
 > essentials::Args()
@@ -3294,7 +3294,7 @@ evaluated second optional argument to FUN
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  2.33 0.14 4.95 NA NA 
+Time elapsed:  2.38 0.14 5.02 NA NA 
 > grDevices::dev.off()
 null device 
           1 

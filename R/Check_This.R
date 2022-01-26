@@ -18,15 +18,34 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
 
 
 Check_This <- function (
+    force = FALSE,
+    keep.empty.dirs = FALSE,
     build.vignettes = TRUE, no.build.vignettes = !build.vignettes,
     manual = TRUE, no.manual = !manual,
     resave.data = FALSE, no.resave.data = FALSE,
+    compact.vignettes = FALSE,
+    compression = NULL,
+    md5 = FALSE,
+    log = FALSE,
 
+    clean = FALSE,
+    preclean = FALSE,
+    debug = FALSE,
+    library = NULL,
+    configure = TRUE, no.configure = !configure,
+    docs = TRUE, no.docs = !docs,
+    html = FALSE, no.html = FALSE,
+    latex = FALSE,
+    example = FALSE,
+    fake = FALSE,
+    no.lock = FALSE, lock = FALSE,
+    pkglock = FALSE,
     build = FALSE,
     multiarch = TRUE, no.multiarch = !multiarch,
     keep.source = NA,
 
-    check = TRUE, as.cran = FALSE,
+    check = TRUE,
+    as.cran = FALSE,
 
     chdir = FALSE, file = here())
 {
@@ -95,6 +114,8 @@ Check_This <- function (
 
 
     build.args <- c(
+        if (force) "--force",
+        if (keep.empty.dirs) "--keep-empty-dirs",
         if (no.build.vignettes) "--no-build-vignettes",
         if (no.manual)          "--no-manual",
         switch2(resave.data, TRUE.expr = {
@@ -104,12 +125,41 @@ Check_This <- function (
                 "--no-resave-data"
         }, alt.expr = {
             paste0("--resave-data=", match.arg(resave.data, c("no", "best", "gzip")))
-        })
+        }),
+        switch2(compact.vignettes, TRUE.expr = {
+            "--compact-vignettes"
+        }, alt.expr = {
+            paste0("--compact-vignettes=", match.arg(compact.vignettes, c("no", "qpdf", "gs", "gs+qpdf", "both")))
+        }),
+        if (!is.null(compression))
+            paste0("--compression=", match.arg(compression, c("gzip", "none", "bzip2", "xz"))),
+        if (md5) "--md5",
+        if (log) "--log"
     )
 
 
     keep.source
     INSTALL.args <- c(
+        if (clean) "--clean",
+        if (preclean) "--preclean",
+        if (debug) "--debug",
+        if (!is.null(library))
+            paste0("--library=", as.scalar.string(library)),
+        if (no.configure) "--no-configure",
+        if (no.docs) "--no-docs",
+        if (html)
+            "--html"
+        else if (no.html)
+            "--no-html",
+        if (latex) "--latex",
+        if (example) "--example",
+        if (fake) "--fake",
+        if (no.lock)
+            "--no-lock"
+        else if (lock)
+            "--lock"
+        else if (pkglock)
+            "--pkglock",
         if (build) "--build",
         if (no.multiarch) "--no-multiarch",
         tryCatch({

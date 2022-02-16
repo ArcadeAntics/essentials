@@ -104,7 +104,7 @@
     },
     {
         "file": "C:/Users/andre/Documents/essentials/src/envvars.c",
-        "file_last_write": 1639188647.0,
+        "file_last_write": 1644986317.0,
         "definitions": [
             {
                 "usr": "c:@F@do_envvars",
@@ -112,7 +112,7 @@
                 "parent_name": "",
                 "name": "do_envvars(SEXP, SEXP)",
                 "file": "C:/Users/andre/Documents/essentials/src/envvars.c",
-                "line": 14,
+                "line": 17,
                 "column": 6
             },
             {
@@ -121,14 +121,14 @@
                 "parent_name": "",
                 "name": "do_getEnvvar(SEXP, SEXP)",
                 "file": "C:/Users/andre/Documents/essentials/src/envvars.c",
-                "line": 254,
+                "line": 396,
                 "column": 6
             }
         ]
     },
     {
         "file": "C:/Users/andre/Documents/essentials/src/essentials.h",
-        "file_last_write": 1635728761.0,
+        "file_last_write": 1644641609.0,
         "definitions": []
     },
     {
@@ -175,7 +175,7 @@
     },
     {
         "file": "C:/Users/andre/Documents/essentials/src/init.c",
-        "file_last_write": 1635728795.0,
+        "file_last_write": 1644641633.0,
         "definitions": [
             {
                 "usr": "c:@F@R_init_essentials",
@@ -183,7 +183,7 @@
                 "parent_name": "",
                 "name": "R_init_essentials(DllInfo *)",
                 "file": "C:/Users/andre/Documents/essentials/src/init.c",
-                "line": 56,
+                "line": 58,
                 "column": 24
             }
         ]
@@ -466,6 +466,30 @@
                 "name": "as_numbers(SEXP, SEXP)",
                 "file": "C:/Users/andre/Documents/essentials/src/scalars.c",
                 "line": 238,
+                "column": 6
+            }
+        ]
+    },
+    {
+        "file": "C:/Users/andre/Documents/essentials/src/seq.c",
+        "file_last_write": 1644658981.0,
+        "definitions": [
+            {
+                "usr": "c:@F@do_colon",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_colon(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/seq.c",
+                "line": 9,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_seq",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_seq(SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/seq.c",
+                "line": 21,
                 "column": 6
             }
         ]

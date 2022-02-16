@@ -42,6 +42,8 @@ static const R_CallMethodDef callRoutines[] = {
     {"plapply"                , (DL_FUNC) &do_plapply               , 4},
     {"pvapply"                , (DL_FUNC) &do_pvapply               , 6},
 
+    {"seq"                    , (DL_FUNC) &do_seq                   , 2},
+
     {NULL, NULL, 0}
 };
 

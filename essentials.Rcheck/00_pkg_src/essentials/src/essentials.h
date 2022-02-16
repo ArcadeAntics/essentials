@@ -47,3 +47,5 @@ extern SEXP rgev(SEXP n, SEXP mu, SEXP sigma, SEXP xi);
 extern SEXP do_plapply(SEXP X, SEXP FUN, SEXP dots_as_DOTSXP, SEXP rho);
 extern SEXP do_pvapply(SEXP X, SEXP FUN, SEXP FUN_VALUE, SEXP USE_NAMES,
     SEXP dots_as_DOTSXP, SEXP rho);
+
+extern SEXP do_seq(SEXP args, SEXP missings);

@@ -1,5 +1,5 @@
 pattern <- function (x)
-sprintf("((^|[^%%])(%%%%)*)%%\\(%s\\)s", x)
+sprintf("((^|[^%%])(%%%%)*)%%\\(%s\\)", x)
 
 
 replacement <- function (x)

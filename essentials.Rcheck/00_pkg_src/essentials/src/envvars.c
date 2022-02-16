@@ -253,10 +253,15 @@ SEXP do_envvars(SEXP args, SEXP visible)
 
 SEXP do_getEnvvar(SEXP x, SEXP default_)
 {
-    return eval(lang4(
-        install("Sys.getenv"),
-        ScalarString(asChar(x)),
-        ScalarString(asChar(default_)),
-        ScalarLogical(0)
-    ), R_BaseEnv);
+    SEXP
+        Sys_getenv = PROTECT(install("Sys.getenv")),
+        xx         = PROTECT(ScalarString(asChar(x))),
+        unset      = PROTECT(ScalarString(asChar(default_))),
+        names      = PROTECT(ScalarLogical(0));
+    SEXP value = eval(
+        lang4(Sys_getenv, xx, unset, names),
+        R_BaseEnv
+    );
+    UNPROTECT(4);
+    return value;
 }

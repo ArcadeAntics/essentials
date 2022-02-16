@@ -22,8 +22,9 @@ a character string holding an environment variable name.
   }
   \item{default}{
 if the specified environment variable is not set, this value is returned. This
-facilitates retrieving an option and checking whether it is set and setting it
-separately if not. Note that this is converted to a character string.
+facilitates retrieving an environment variable and checking whether it is set
+and setting it separately if not. Note that this is converted to a character
+string.
   }
 }
 \details{
@@ -48,11 +49,12 @@ invisibly).
 \seealso{
 \code{\link[base:environment variables]{Environment Variables}}
 }
+%\examples{
+%# this example runs incredibly weird using 'example', best
+%# to copy and paste this text within the R console and run
+%# it from there
+%\dontrun{
 \examples{
-# this example runs incredibly weird using 'example', best
-# to copy and paste this text within the R console and run
-# it from there
-\dontrun{
 oenv <- envvars(); utils::str(oenv)  # oenv is a named list
 
 getEnvvar("PATH") == envvars()$PATH  # the latter is slower, needs more memory
@@ -70,4 +72,4 @@ envvars(old.env)
 
 envvars(oenv)  # reset (all) initial environment variables
 envvars("LANGAUGE")
-}}
+}%}

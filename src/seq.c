@@ -6,6 +6,7 @@
 
 
 
+// call s1:s2
 SEXP do_colon(SEXP s1, SEXP s2)
 {
     PROTECT(s1);
@@ -18,6 +19,22 @@ SEXP do_colon(SEXP s1, SEXP s2)
 }
 
 
+
+
+
+SEXP asMaybeInteger(double r, Rboolean missing, SEXP x)
+{
+    if (missing || TYPEOF(x) == INTSXP || TYPEOF(x) == LGLSXP ||
+        (r <= INT_MAX && r >= INT_MIN && r == (int)r))
+        return ScalarInteger(r);
+    return ScalarReal(r);
+}
+
+
+
+
+
+// seq2(from, to, by, length.out, along.with, endpoint)
 SEXP do_seq(SEXP args, SEXP missings)
 {
     SEXP value;
@@ -64,29 +81,46 @@ SEXP do_seq(SEXP args, SEXP missings)
         error("only one of 'length.out' and 'along.with' can be used");
 
 
-    Rboolean One = ((5 - missing_from - missing_to - missing_by - missing_length_out - missing_along_with) == 1);
+    /* the user provided exactly one of from, to, by, length.out, along.with */
+    Rboolean One = (missing_from + missing_to + missing_by + missing_length_out + missing_along_with) == 4;
 
 
+    /* if (the user only provided from) */
     if (One && !missing_from) {
+
+
         R_xlen_t lf = xlength(from);
+
+
+        /* if (from is a length-1 numeric vector) */
         if (lf == 1 && (TYPEOF(from) == INTSXP || TYPEOF(from) == REALSXP)) {
+
+
+            /* do something like seq_len(), but ignore negative numbers */
             double rfrom = asReal(from);
             if (!R_FINITE(rfrom))
                 error("'from' must be a finite number");
-            if ((rfrom >= 1 && endpoint) || (rfrom >= 2))
-                return do_colon(ScalarReal(1.0), ScalarReal(
-                    rfrom
-                    /*
-                    endpoint ? rfrom : (rfrom - 1)
-                     */
-                ));
+            if (rfrom >= 1)
+                return do_colon(ScalarReal(1.0), ScalarReal(rfrom));
             else return allocVector(INTSXP, 0);
         }
+
+
+        /* do something like seq_along() */
         else if (lf >= 1)
             return do_colon(ScalarReal(1.0), ScalarReal(lf));
         else return allocVector(INTSXP, 0);
     }
+
+
+    /* if (provided along.with) */
     if (!missing_along_with) {
+
+
+        /*
+            get the length of along.with
+            if along.with is the only argument, quickly return
+        */
         lout = xlength(along_with);
         if (One) {
             if (lout >= 1)
@@ -94,17 +128,35 @@ SEXP do_seq(SEXP args, SEXP missings)
             else return allocVector(INTSXP, 0);
         }
     }
+
+
+    /* if (provided length_out) */
     else if (!missing_length_out) {
         double rout = asReal(length_out);
         if (ISNAN(rout))
             error("invalid 'length.out', must not be NA");
         if (xlength(length_out) != 1)
             warning("first element used of 'length.out' argument");
-        lout = (length_out < 0) ? 0 : ((R_xlen_t) ceil(rout));
+        if (length_out <= 0)
+            lout = 0;
+        else {
+            rout = ceil(rout);
+#ifdef LONG_VECTOR_SUPPORT
+            if (rout > (double) R_XLEN_T_MAX)
+#else
+            if (rout > (double) INT_MAX)
+#endif
+                error("result would be too long a vector");
+            lout = (R_xlen_t) rout;
+        }
     }
 
 
+    /* if (length.out and along.with weren't provided) */
     if (lout == NA_INTEGER) {
+
+
+        /* fill in the default values for 'from' and 'to' */
         double rfrom, rto;
         if (missing_from) rfrom = 1.0;
         else {
@@ -120,14 +172,43 @@ SEXP do_seq(SEXP args, SEXP missings)
             if (!R_FINITE(rto))
                 error("'to' must be a finite number");
         }
-        if (missing_by)
-            return do_colon(ScalarReal(rfrom), ScalarReal(
-                endpoint ? rto : ( (rto >= rfrom) ? (rto - 1) : (rto + 1) )
-            ));
+
+
+        /* if (not provided by), just do from:to */
+        if (missing_by) {
+
+
+            /* if (user wants endpoint), just do from:to as normal*/
+            if (endpoint)
+                return do_colon(ScalarReal(rfrom), ScalarReal(rto));
+
+
+            /* the user does not want the endpoint */
+            if (rfrom == rto)
+                return allocVector(INTSXP, 0);
+
+
+            int increasing = (rto > rfrom);
+            double r = increasing ? (rto - rfrom) : (rfrom - rto);
+            if (r > R_XLEN_T_MAX)
+                error("result would be too long a vector");
+
+
+            R_xlen_t n = (R_xlen_t) (r + FLT_EPSILON);
+            if (rfrom + ((double)n) >= rto) {
+                rto -= increasing ? 1 : -1;
+                if (rfrom == rto || increasing != (rto > rfrom))
+                    return asMaybeInteger(rfrom, missing_from, from);
+            }
+            return do_colon(ScalarReal(rfrom), ScalarReal(rto));
+        }
+
+
+
         if (xlength(by) != 1) error("'by' must be of length 1");
         double del = rto - rfrom;
         if (del == 0.0 && rto == 0.0) {
-            return endpoint ? to : allocVector(INTSXP, 0);
+            return endpoint ? asMaybeInteger(rto, missing_to, to) : allocVector(INTSXP, 0);
         }
         double n, rby = asReal(by);
         Rboolean finite_del = R_FINITE(del);
@@ -137,7 +218,7 @@ SEXP do_seq(SEXP args, SEXP missings)
         if (!R_FINITE(n)) {
             if (del == 0.0 && rby == 0.0) {
                 return endpoint ?
-                    (missing_from ? ScalarReal(rfrom) : from) :
+                    asMaybeInteger(rfrom, missing_from, from) :
                     allocVector(INTSXP, 0);
             }
             else error("invalid '(to - from)/by)'");
@@ -145,13 +226,18 @@ SEXP do_seq(SEXP args, SEXP missings)
         if (finite_del && fabs(del)/fmax2(fabs(rto), fabs(rfrom)) < 100 * DBL_EPSILON) {
             if (!endpoint && del == 0.0)
                 return allocVector(INTSXP, 0);
-            return missing_from ? ScalarReal(rfrom) : from;
+            return asMaybeInteger(rfrom, missing_from, from);
             /*
             return endpoint ?
-                (missing_from ? ScalarReal(rfrom) : from) :
+                asMaybeInteger(rfrom, missing_from, from) :
                 allocVector(INTSXP, 0);
              */
         }
+
+
+        /*
+            with the introduction of 'endpoint', it is now difficult to know
+         */
         R_xlen_t nn;
         double final;
         if ((missing_from || TYPEOF(from) == INTSXP) &&

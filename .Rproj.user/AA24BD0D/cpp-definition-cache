@@ -472,7 +472,7 @@
     },
     {
         "file": "C:/Users/andre/Documents/essentials/src/seq.c",
-        "file_last_write": 1644658981.0,
+        "file_last_write": 1645046631.0,
         "definitions": [
             {
                 "usr": "c:@F@do_colon",
@@ -480,7 +480,16 @@
                 "parent_name": "",
                 "name": "do_colon(SEXP, SEXP)",
                 "file": "C:/Users/andre/Documents/essentials/src/seq.c",
-                "line": 9,
+                "line": 10,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@asMaybeInteger",
+                "kind": 6,
+                "parent_name": "",
+                "name": "asMaybeInteger(double, Rboolean, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/seq.c",
+                "line": 25,
                 "column": 6
             },
             {
@@ -489,7 +498,7 @@
                 "parent_name": "",
                 "name": "do_seq(SEXP, SEXP)",
                 "file": "C:/Users/andre/Documents/essentials/src/seq.c",
-                "line": 21,
+                "line": 38,
                 "column": 6
             }
         ]

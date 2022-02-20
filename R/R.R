@@ -50,9 +50,13 @@
 
 
 python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
-    args = NULL, chdir = FALSE, ...)
+    args = NULL, chdir = FALSE, ..., name = "python")
 {
-    name <- "python"
+    if (!missing(name)) {
+        if (!is.character(name) || length(name) != 1)
+            stop("invalid 'name' argument")
+        name <- shEncode(name)
+    }
     if (is.character(file) || is.null(file)) {
         if (length(file) == 0) file <- NULL
         else {
@@ -71,7 +75,7 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
                 on.exit(setwd(owd))
                 setwd(path)
             }
-            file <- shEncode(file, windows.type = name)
+            file <- shEncode(file, windows.type = "python")
         }
     }
     else stop("invalid 'file' argument")
@@ -81,7 +85,7 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
         if (length(command) == 0) command <- NULL
         else {
             command <- paste(command, collapse = "\n")
-            command <- paste("-c", shEncode(command, windows.type = name))
+            command <- paste("-c", shEncode(command, windows.type = "python"))
         }
     }
     else stop("invalid 'command' argument")
@@ -94,7 +98,7 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
                 warning("first element used of 'module' argument")
                 module <- module[[1L]]
             }
-            module <- paste("-m", shEncode(module, windows.type = name))
+            module <- paste("-m", shEncode(module, windows.type = "python"))
         }
     }
     else stop("invalid 'module' argument")
@@ -105,11 +109,11 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
 
 
     args <- asArgs(args)
-    args <- shEncode(args, windows.type = name)
+    args <- shEncode(args, windows.type = "python")
 
 
     options <- asArgs(options)
-    options <- shEncode(options, windows.type = name)
+    options <- shEncode(options, windows.type = "python")
     options <- c(name, options, command, module, file, args)
     command <- paste(options, collapse = " ")
     .system(command = command, ...)

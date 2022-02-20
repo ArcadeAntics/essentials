@@ -207,6 +207,19 @@ seq2 <- function (from = NULL, to = NULL, by = NULL, length.out = NULL,
 
     essentials:::seq2(60, length.out = 20, endpoint = FALSE)
 
+
+    essentials:::seq2(-0.5, 0.5 - .Machine$double.eps/2, endpoint = FALSE)
+    essentials:::seq2(-0.5, 0.5 - .Machine$double.eps/2, endpoint = TRUE )
+    essentials:::seq2(-0.5, 0.5 - .Machine$double.eps/2, endpoint = FALSE, by = 1)
+    essentials:::seq2(-0.5, 0.5 - .Machine$double.eps/2, endpoint = TRUE , by = 1)
+    essentials:::seq2(-0.5, 0.5                        , endpoint = FALSE)
+    essentials:::seq2(-0.5, 0.5                        , endpoint = TRUE )
+    essentials:::seq2(-0.5, 0.5                        , endpoint = FALSE, by = 1)
+    essentials:::seq2(-0.5, 0.5                        , endpoint = TRUE , by = 1)
+    essentials:::seq2(-0.5, 0.5 + .Machine$double.eps/2, endpoint = FALSE)
+    essentials:::seq2(-0.5, 0.5 + .Machine$double.eps/2, endpoint = TRUE )
+    essentials:::seq2(-0.5, 0.5 + .Machine$double.eps/2, endpoint = FALSE, by = 1)
+    essentials:::seq2(-0.5, 0.5 + .Machine$double.eps/2, endpoint = TRUE , by = 1)
     }"
 
     args <- list(from, to, by, length.out, along.with, endpoint)

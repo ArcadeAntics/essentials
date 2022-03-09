@@ -84,7 +84,7 @@
     },
     {
         "file": "C:/Users/andre/Documents/essentials/src/defines.h",
-        "file_last_write": 1638561726.0,
+        "file_last_write": 1646866069.0,
         "definitions": []
     },
     {
@@ -128,7 +128,7 @@
     },
     {
         "file": "C:/Users/andre/Documents/essentials/src/essentials.h",
-        "file_last_write": 1644641609.0,
+        "file_last_write": 1646866033.0,
         "definitions": []
     },
     {
@@ -175,7 +175,7 @@
     },
     {
         "file": "C:/Users/andre/Documents/essentials/src/init.c",
-        "file_last_write": 1644641633.0,
+        "file_last_write": 1646866086.0,
         "definitions": [
             {
                 "usr": "c:@F@R_init_essentials",
@@ -183,7 +183,7 @@
                 "parent_name": "",
                 "name": "R_init_essentials(DllInfo *)",
                 "file": "C:/Users/andre/Documents/essentials/src/init.c",
-                "line": 58,
+                "line": 61,
                 "column": 24
             }
         ]
@@ -204,8 +204,59 @@
         ]
     },
     {
+        "file": "C:/Users/andre/Documents/essentials/src/mfor.c",
+        "file_last_write": 1646867195.0,
+        "definitions": [
+            {
+                "usr": "c:@F@do_length",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_length(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/mfor.c",
+                "line": 8,
+                "column": 10
+            },
+            {
+                "usr": "c:@F@do_lengths",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_lengths(SEXP, R_xlen_t, const char *)",
+                "file": "C:/Users/andre/Documents/essentials/src/mfor.c",
+                "line": 29,
+                "column": 12
+            },
+            {
+                "usr": "c:@F@get_commonLength",
+                "kind": 6,
+                "parent_name": "",
+                "name": "get_commonLength(R_xlen_t *, R_xlen_t)",
+                "file": "C:/Users/andre/Documents/essentials/src/mfor.c",
+                "line": 68,
+                "column": 10
+            },
+            {
+                "usr": "c:@F@do_mfor",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_mfor(SEXP, SEXP, SEXP, SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/mfor.c",
+                "line": 85,
+                "column": 6
+            },
+            {
+                "usr": "c:@F@do_is_mfor_done",
+                "kind": 6,
+                "parent_name": "",
+                "name": "do_is_mfor_done(SEXP)",
+                "file": "C:/Users/andre/Documents/essentials/src/mfor.c",
+                "line": 298,
+                "column": 6
+            }
+        ]
+    },
+    {
         "file": "C:/Users/andre/Documents/essentials/src/plapply.c",
-        "file_last_write": 1641945250.0,
+        "file_last_write": 1646685790.0,
         "definitions": [
             {
                 "usr": "c:@F@do_plapply",

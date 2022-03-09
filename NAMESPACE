@@ -138,6 +138,12 @@ export(color.with.alpha, as.hex.code)
 export(list.files2, dir2)
 
 
+# mfor.R                    ----
+
+
+export(mfor)
+
+
 # normalizeAgainst.R        ----
 
 

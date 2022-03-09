@@ -1,5 +1,5 @@
 essentials:::Check_This(  # essentials
-    build = TRUE,
+    build = TRUE, multiarch = FALSE,
 
     check = FALSE, as.cran = TRUE,
 

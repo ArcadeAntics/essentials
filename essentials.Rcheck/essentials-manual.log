@@ -1,7 +1,7 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (MiKTeX 21.2) (preloaded format=pdflatex 2021.3.18)  10 MAR 2022 12:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (MiKTeX 21.2) (preloaded format=pdflatex 2021.3.18)  10 MAR 2022 12:38
 entering extended mode
-**C:/Users/andre/AppData/Local/Temp/RtmpGWWr7W/Rd2pdf346874384709/Rd2.tex
-(C:/Users/andre/AppData/Local/Temp/RtmpGWWr7W/Rd2pdf346874384709/Rd2.tex
+**C:/Users/andre/AppData/Local/Temp/RtmpERLtcI/Rd2pdf2fe4fbb6916/Rd2.tex
+(C:/Users/andre/AppData/Local/Temp/RtmpERLtcI/Rd2pdf2fe4fbb6916/Rd2.tex
 LaTeX2e <2020-10-01> patch level 4
 L3 programming layer <2021-02-18> xparse <2020-03-03>
 (C:\Users\andre\AppData\Local\Programs\MiKTeX\tex/latex/base\book.cls
@@ -850,12 +850,12 @@ Package rerunfilecheck Info: File `Rd2.out' has not changed.
  ) 
 Here is how much of TeX's memory you used:
  9351 strings out of 479334
- 138313 string characters out of 2857084
+ 138302 string characters out of 2857084
  431007 words of memory out of 3000000
  26001 multiletter control sequences out of 15000+200000
  442406 words of font info for 68 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 88i,6n,90p,308b,616s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 88i,6n,90p,307b,616s stack positions out of 5000i,500n,10000p,200000b,50000s
 pdfTeX warning (dest): name{Rfn.readRDS} has been referenced but does not exi
 st, replaced by a fixed one
 

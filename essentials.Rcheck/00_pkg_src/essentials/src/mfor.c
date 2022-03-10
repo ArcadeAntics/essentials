@@ -86,12 +86,12 @@ SEXP do_mfor(SEXP rho, SEXP p, SEXP is_done)
     int np = 0;
 
 
-    SEXP dots = PROTECT(findVarInFrame(rho, R_DotsSymbol));  np++;
+    SEXP dots = findVarInFrame(rho, R_DotsSymbol);
     if (dots == R_UnboundValue)
         error("invalid 'rho'; should never happen, please report!");
 
 
-    int n_args = length(dots),
+    int n_args = ((dots == R_MissingArg) ? 0 : length(dots)),
         n_vars = n_args - 2;
 
 

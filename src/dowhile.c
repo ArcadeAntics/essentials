@@ -54,7 +54,11 @@ SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
        they must wrap calls to '=' with parenthesis, but we know what they
        meant, so might as well fix it quietly */
     else if (!isNull(TAG(CDR(expr))))
-        expr = PROTECT(lang3(install("="), TAG(CDR(expr)), CADR(expr)));
+        expr = PROTECT(lang3(
+            install("="),
+            TAG(CDR(expr)),
+            CADR(expr)
+        ));
         /*
         error("invalid 'expr', do not name the expression within do()\n  if you intended to use '=' within do() like:\n\n  do(var = expr) %s (cond)\n\n  use '<-' instead or wrap with parenthesis like:\n\n  do(var <- expr) %s (cond)\n  do((var = expr)) %s (cond)",
             fun, fun, fun);
@@ -187,10 +191,26 @@ SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
            expr
        }
      */
-    PROTECT(expr = lang2(install("repeat"), lang3(R_BraceSymbol,
-        lang4(install("if"), lang3(R_Bracket2Symbol, aenv, mkString(name)),
-            lang4(install("assign"), mkString(name), ScalarLogical(FALSE), aenv),
- /* else */ u ? lang3(install("if"), cond,
+    PROTECT(expr = lang2(
+        install("repeat"),
+        lang3(
+            R_BraceSymbol,
+            lang4(
+ /* if   */     install("if"),
+ /* cond */         lang3(
+                    R_Bracket2Symbol,
+                    aenv,
+                    mkString(name)
+                ),
+ /* expr */     lang4(
+                    install("assign"),
+                    mkString(name),
+                    ScalarLogical(FALSE),
+                    aenv
+                ),
+ /* alt.expr */ u ? lang3(
+                    install("if"),
+                    cond,
                     lang1(install("break"))) :
 
 
@@ -205,10 +225,16 @@ SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
                    * a string ("T", "TRUE", "True", "true", "F", "FALSE", "False", "false")
                    * a raw byte (since '!' is defined differently for that class)
                    * any other classed objects (might have a method for '!') */
-                lang4(install("if"), cond,
+                lang4(
+                    install("if"),
+                    cond,
                     lang1(R_BraceSymbol),
-         /* else */ lang1(install("break")))),
-        expr)));
+         /* else */ lang1(install("break"))
+                )
+            ),
+            expr
+        )
+    ));
 
 
     // UNPROTECT(3); return expr;

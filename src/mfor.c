@@ -120,10 +120,6 @@ SEXP do_mfor(SEXP rho, SEXP p, SEXP is_done)
 
     if (!isNull(TAG(x)))
         error("invalid 'seqs', should not be named");
-    /*
-    if (!isNull(TAG(CDR(x))))
-        error("invalid 'expr', should not be named");
-     */
 
 
     seqs = PROTECT(eval(CAR(x), p));  np++;

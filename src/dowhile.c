@@ -197,7 +197,7 @@ SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
             R_BraceSymbol,
             lang4(
  /* if   */     install("if"),
- /* cond */         lang3(
+ /* cond */     lang3(
                     R_Bracket2Symbol,
                     aenv,
                     mkString(name)

@@ -24,6 +24,8 @@ stopifnot(
 #
 # in this version, it should eval 'next', transfer control to 'cond' and then
 # finish the loop
-essentials::Rscript("--default-packages=essentials", exprs = essentials::dedent(r"{
-    do(next) %until% (TRUE)
-}"), timeout = 1, mustWork = TRUE, quiet = TRUE)
+essentials::Rscript(
+    options = c("--default-packages=essentials", "--vanilla"),
+    exprs = "do(next) %until% (TRUE)",
+    timeout = 1, mustWork = TRUE, quiet = TRUE
+)

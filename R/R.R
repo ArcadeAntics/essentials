@@ -21,7 +21,7 @@
         Sys.setenv(R_ESSENTIALS_QUIET = quiet)
     }
     if (!quiet) cat(shPrompt(), command, "\n", sep = "")
-    value <- system(command, intern = intern, ...)
+    value <- system(command = command, intern = intern, ...)
     if (intern) value
     else {
         if (!value || isFALSE(mustWork)) {

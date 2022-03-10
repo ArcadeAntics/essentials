@@ -10,7 +10,7 @@ Make sure you have \href{https://www.python.org/downloads/}{python} installed.
 }
 \usage{
 python(options = NULL, command = NULL, module = NULL, file = NULL,
-    args = NULL, chdir = FALSE, ...)
+    args = NULL, chdir = FALSE, ..., name = "python")
 }
 \arguments{
   \item{options}{
@@ -48,6 +48,13 @@ is temporarily changed to the directory containing \code{file} for evaluating.
 %   }
   \item{\dots}{
 further arguments passed to \code{\link[base]{system}()}.
+  }
+  \item{name}{
+the name or path of the Python executable to use. By default, it will use the
+Python executable found on \env{Path}. Specifying \code{name} can allow you to
+select a different version of Python to run, or select a version of Python tied
+to another application (for example: ArcGIS comes with a Python executable and
+the ArcPy module).
   }
 %   \item{quiet}{
 % logical. Should the command-line / / terminal prompt and exit message be printed

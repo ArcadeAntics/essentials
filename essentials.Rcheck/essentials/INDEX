@@ -1,0 +1,67 @@
+.plapply                Apply a Function to Multiple List or Vector
+                        Arguments
+ASCII                   ASCII Characters
+Args                    Extract Arguments Supplied to a Script / / From
+                        an Object of Class "ParsedArgs"
+ArgumentParser          Argument Parser
+Commands                Extract Commands From an Object of Class
+                        "ParsedArgs"
+GeneralizedExtremeValue
+                        The Generalized Extreme Value Distribution
+InverseDistanceWeighting
+                        Inverse Distance Weighting
+Missing                 Does an Argument have a Value?
+R                       Start a New R Session
+Runge-Kutta Methods     Runge-Kutta Methods
+add.argument            Declare a Formal Argument for an Argument
+                        Parser
+add.help                Add Common Arguments to an ArgumentParser
+add.subparsers          Declare a List of Sub-Commands for an
+                        'ArgumentParser'.
+as.colorRampPalette     Color Interpolation
+as.scalar               Scalars
+asWindowsbasename       Create a Basename Valid in Windows
+aslength1               Subset the First Element of a Vector
+color.with.alpha        Color Opacity
+dedent                  Remove Common Leading Whitespace
+delayedAssign2          Delay Evaluation
+do.while                Do While/Until Loops in R
+envvars                 Environment Variables
+essentials-package      Essential Functions not Included in Base R
+file.open               Open a File or URL
+flat.list               Combine Values into a Flat List (a List with no
+                        List Elements)
+hcl.colors2             Color Palettes
+hypot                   Hypotenuse
+legend.dimensions       Size of a Legend
+list.files2             List the Files in a Directory/Folder
+listify                 Create a List from an Object
+mfor                    Multivariate For Loop
+normalizeAgainst        Normalize File Paths Against a Different
+                        Directory
+numbers                 Number Vectors
+numbers-class           Class '"numbers"'
+parse.args              Parse the Command-Line Arguments into an
+                        Environment
+path.contract           Contract File Paths
+plapply                 Apply a Function to Multiple List or Vector
+                        Arguments
+progressBar             Progress Bars
+pseudoglobalenv         Pseudo Global Environment
+python                  Start a New Python Session
+readArgs                Read/Write Command-Line Arguments from/to a
+                        File
+rowmatch                Row Matching
+setReadWriteArgsMethod
+                        Create and Save a Method for Reading/Writing
+                        Command-Line Arguments from/to a File
+shEncode                Quote Strings for Use in OS Shells
+shPrompt                Replicate the Command-Line / / Terminal Prompts
+                        Seen on a Few Common Shells
+strip                   Remove Leading and Trailing White Spaces
+toProv                  Convert the Provinces and Territories of Canada
+                        to their Names or Postal Abbreviations
+tryExcept               Condition Handling and Recovery
+withArgs                Source R Code, Providing Arguments to the
+                        Script
+wrapper                 Wrapper Functions

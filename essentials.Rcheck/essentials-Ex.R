@@ -1192,23 +1192,27 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 
 ### ** Examples
 
-# when exactly one variable is specified, the behaviour is similar to for
+# when exactly one variable is specified,
+# the behaviour is similar to 'for'
 mfor(i, 1:5, print(1:i))
 
 
-# mfor works on classed objects, for does not
+# 'mfor' works on classed objects, 'for' does not
 mfor(date, Sys.time() + 0:9, print(date))
 
 
 # sequences are recycled as necessary,
 # with a warning for fractional recycling
-mfor(i, j, k, list(1:4, 6:10, 11:15), print(c(i = i, j = j, k = k)))
+mfor(i, j, k, list(1:4, 6:10, 11:15), {
+    print(c(i = i, j = j, k = k))
+})
 
 
 # mfor works well with data frames
-mfor(          col              , cex         , main                              ,
-    data.frame(palette.colors(3), c(1, 1.5, 2), c("title 1", "title 2", "title 3")),
-    graphics::plot(x = 1:5, col = col, cex = cex, main = main, pch = 16)
+mfor(          col              , cex, main               ,
+    data.frame(palette.colors(3), 1:3, paste("title", 1:3)),
+    graphics::plot(x = 1:5, col = col, cex = cex, main = main,
+        pch = 16)
 )
 
 

@@ -277,12 +277,12 @@ Warning in text.default(x = rep(xvals, 16), y = rep(yvals, each = 16), labels = 
 > 
 > 
 > essentials::Rscript("--default-packages=NULL", FILE, args = pi)
-andre@DESKTOP-VR312SR:~/essentials/essentials.Rcheck/examples_x64$ Rscript "--default-packages=NULL" "C:\Users\andre\AppData\Local\Temp\RtmpiarAmf/working_dir\Rtmps1KGXd\fileae852fc3214" "3.1415926535897931"
+andre@DESKTOP-VR312SR:~/essentials/essentials.Rcheck/examples_x64$ Rscript "--default-packages=NULL" "C:\Users\andre\AppData\Local\Temp\RtmpGWWr7W/working_dir\RtmpoJapKd\fileff02e806dab" "3.1415926535897931"
 > commandArgs()
 [1] "C:\\PROGRA~1\\R\\R-4.1.2\\bin\\x64\\Rterm.exe"                                                     
 [2] "--no-echo"                                                                                         
 [3] "--no-restore"                                                                                      
-[4] "--file=C:\\Users\\andre\\AppData\\Local\\Temp\\RtmpiarAmf/working_dir\\Rtmps1KGXd\\fileae852fc3214"
+[4] "--file=C:\\Users\\andre\\AppData\\Local\\Temp\\RtmpGWWr7W/working_dir\\RtmpoJapKd\\fileff02e806dab"
 [5] "--args"                                                                                            
 [6] "3.1415926535897931"                                                                                
 > essentials::Args()
@@ -295,7 +295,7 @@ Process finished with exit code 0
  [2] "LANGUAGE=en"                                                                  
  [3] "_R_CHECK_INTERNALS2_=1"                                                       
  [4] "R_ENVIRON_USER='no_such_file'"                                                
- [5] "R_LIBS=C:\\Users\\andre\\AppData\\Local\\Temp\\RtmpiarAmf\\RLIBS_305c331b59a2"
+ [5] "R_LIBS=C:\\Users\\andre\\AppData\\Local\\Temp\\RtmpGWWr7W\\RLIBS_34687286280c"
  [6] "R_ENVIRON_USER='no_such_file'"                                                
  [7] "R_LIBS_USER='no_such_dir'"                                                    
  [8] "R_LIBS_SITE='no_such_dir'"                                                    
@@ -1790,14 +1790,14 @@ List of 139
  $ RMARKDOWN_MATHJAX_PATH                       : chr "C:/Program Files/RStudio/resources/mathjax-27"
  $ RSTUDIO                                      : chr "1"
  $ RSTUDIO_CONSOLE_COLOR                        : chr "256"
- $ RSTUDIO_CONSOLE_WIDTH                        : chr "88"
+ $ RSTUDIO_CONSOLE_WIDTH                        : chr "180"
  $ RSTUDIO_MSYS_SSH                             : chr "C:/Program Files/RStudio/bin/msys-ssh-1000-18"
  $ RSTUDIO_PANDOC                               : chr "C:/Program Files/RStudio/bin/pandoc"
  $ RSTUDIO_PROGRAM_MODE                         : chr "desktop"
- $ RSTUDIO_SESSION_PORT                         : chr "29480"
+ $ RSTUDIO_SESSION_PORT                         : chr "10660"
  $ RSTUDIO_USER_IDENTITY                        : chr "andre"
  $ RSTUDIO_WINUTILS                             : chr "C:/Program Files/RStudio/bin/winutils"
- $ RS_LOCAL_PEER                                : chr "\\\\.\\pipe\\29480-rsession"
+ $ RS_LOCAL_PEER                                : chr "\\\\.\\pipe\\10660-rsession"
  $ RS_RPOSTBACK_PATH                            : chr "C:/Program Files/RStudio/bin/rpostback"
  $ RS_SHARED_SECRET                             : chr "63341846741"
  $ RTOOLS40_HOME                                : chr "C:\\rtools40"
@@ -1813,7 +1813,7 @@ List of 139
  $ R_GZIPCMD                                    : chr "gzip"
  $ R_HOME                                       : chr "C:/PROGRA~1/R/R-4.1.2"
  $ R_INCLUDE_DIR                                : chr "C:/PROGRA~1/R/R-4.1.2/include"
- $ R_LIBS                                       : chr "C:\\Users\\andre\\AppData\\Local\\Temp\\RtmpiarAmf\\RLIBS_305c331b59a2"
+ $ R_LIBS                                       : chr "C:\\Users\\andre\\AppData\\Local\\Temp\\RtmpGWWr7W\\RLIBS_34687286280c"
  $ R_LIBS_SITE                                  : chr "'no_such_dir'"
  $ R_LIBS_USER                                  : chr "'no_such_dir'"
  $ R_OSTYPE                                     : chr "windows"
@@ -1837,7 +1837,7 @@ List of 139
  $ TERM                                         : chr "xterm-256color"
  $ TEXINPUTS                                    : chr ".;;C:/PROGRA~1/R/R-4.1.2/share/texmf/tex/latex;"
  $ TMP                                          : chr "C:\\Users\\andre\\AppData\\Local\\Temp"
- $ TMPDIR                                       : chr "C:\\Users\\andre\\AppData\\Local\\Temp\\RtmpiarAmf/working_dir"
+ $ TMPDIR                                       : chr "C:\\Users\\andre\\AppData\\Local\\Temp\\RtmpGWWr7W/working_dir"
  $ USERDOMAIN                                   : chr "DESKTOP-VR312SR"
  $ USERDOMAIN_ROAMINGPROFILE                    : chr "DESKTOP-VR312SR"
   [list output truncated]
@@ -2273,7 +2273,8 @@ data frame with 0 columns and 0 rows
 > 
 > ### ** Examples
 > 
-> # when exactly one variable is specified, the behaviour is similar to for
+> # when exactly one variable is specified,
+> # the behaviour is similar to 'for'
 > mfor(i, 1:5, print(1:i))
 [1] 1
 [1] 1 2
@@ -2282,24 +2283,26 @@ data frame with 0 columns and 0 rows
 [1] 1 2 3 4 5
 > 
 > 
-> # mfor works on classed objects, for does not
+> # 'mfor' works on classed objects, 'for' does not
 > mfor(date, Sys.time() + 0:9, print(date))
-[1] "2022-03-09 20:42:21 EST"
-[1] "2022-03-09 20:42:22 EST"
-[1] "2022-03-09 20:42:23 EST"
-[1] "2022-03-09 20:42:24 EST"
-[1] "2022-03-09 20:42:25 EST"
-[1] "2022-03-09 20:42:26 EST"
-[1] "2022-03-09 20:42:27 EST"
-[1] "2022-03-09 20:42:28 EST"
-[1] "2022-03-09 20:42:29 EST"
-[1] "2022-03-09 20:42:30 EST"
+[1] "2022-03-10 12:19:58 EST"
+[1] "2022-03-10 12:19:59 EST"
+[1] "2022-03-10 12:20:00 EST"
+[1] "2022-03-10 12:20:01 EST"
+[1] "2022-03-10 12:20:02 EST"
+[1] "2022-03-10 12:20:03 EST"
+[1] "2022-03-10 12:20:04 EST"
+[1] "2022-03-10 12:20:05 EST"
+[1] "2022-03-10 12:20:06 EST"
+[1] "2022-03-10 12:20:07 EST"
 > 
 > 
 > # sequences are recycled as necessary,
 > # with a warning for fractional recycling
-> mfor(i, j, k, list(1:4, 6:10, 11:15), print(c(i = i, j = j, k = k)))
-Warning in mfor(i, j, k, list(1:4, 6:10, 11:15), print(c(i = i, j = j, k = k))) :
+> mfor(i, j, k, list(1:4, 6:10, 11:15), {
++     print(c(i = i, j = j, k = k))
++ })
+Warning in mfor(i, j, k, list(1:4, 6:10, 11:15), { :
   a sequence will be fractionally recycled
  i  j  k 
  1  6 11 
@@ -2314,9 +2317,10 @@ Warning in mfor(i, j, k, list(1:4, 6:10, 11:15), print(c(i = i, j = j, k = k))) 
 > 
 > 
 > # mfor works well with data frames
-> mfor(          col              , cex         , main                              ,
-+     data.frame(palette.colors(3), c(1, 1.5, 2), c("title 1", "title 2", "title 3")),
-+     graphics::plot(x = 1:5, col = col, cex = cex, main = main, pch = 16)
+> mfor(          col              , cex, main               ,
++     data.frame(palette.colors(3), 1:3, paste("title", 1:3)),
++     graphics::plot(x = 1:5, col = col, cex = cex, main = main,
++         pch = 16)
 + )
 > 
 > 
@@ -2765,7 +2769,7 @@ Yay! The arguments were written and read correctly!
 [13] "<U+0001D4D7>"                                                                                                                            
 [14] "this would be 'rather' annoying to quote for a `shell` on $Unix$,\nand even \"more\" so on Windows because of the \\\"double\\\" quotes!"
 > essentials::Rscript("--default-packages=NULL", script, args = paste0("@", FILE))
-andre@DESKTOP-VR312SR:~/essentials/essentials.Rcheck/examples_x64$ Rscript "--default-packages=NULL" "C:\Users\andre\AppData\Local\Temp\RtmpiarAmf/working_dir\Rtmps1KGXd\fileae812731e4b" "@C:\Users\andre\AppData\Local\Temp\RtmpiarAmf\working_dir\Rtmps1KGXd\argsae81325b5e.Rargs"
+andre@DESKTOP-VR312SR:~/essentials/essentials.Rcheck/examples_x64$ Rscript "--default-packages=NULL" "C:\Users\andre\AppData\Local\Temp\RtmpGWWr7W/working_dir\RtmpoJapKd\fileff059a477c1" "@C:\Users\andre\AppData\Local\Temp\RtmpGWWr7W\working_dir\RtmpoJapKd\argsff0157c28fe.Rargs"
 > parser <- essentials::ArgumentParser()
 > parser$add.argument("args", nargs = "*")
 > pargs <- parser$parse.args()
@@ -3293,7 +3297,7 @@ andre@DESKTOP-VR312SR:~/essentials/essentials.Rcheck/examples_x64$
 +     letters, pi, exp(1)
 + )
 > this.path::this.path()
-[1] "C:/Users/andre/AppData/Local/Temp/RtmpiarAmf/working_dir/Rtmps1KGXd/fileae846c4511f"
+[1] "C:/Users/andre/AppData/Local/Temp/RtmpGWWr7W/working_dir/RtmpoJapKd/fileff030dd1795"
 attr(,"this.path.n")
 [1] 2
 > essentials::Args()
@@ -3312,7 +3316,7 @@ attr(,"this.path.n")
 +     letters, pi + 1i * exp(1)
 + )
 > this.path::this.path()
-[1] "C:/Users/andre/AppData/Local/Temp/RtmpiarAmf/working_dir/Rtmps1KGXd/fileae846c4511f"
+[1] "C:/Users/andre/AppData/Local/Temp/RtmpGWWr7W/working_dir/RtmpoJapKd/fileff030dd1795"
 attr(,"this.path.n")
 [1] 2
 > essentials::Args()
@@ -3458,7 +3462,7 @@ evaluated second optional argument to FUN
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  2.67 0.14 5.14 NA NA 
+Time elapsed:  2.66 0.17 5.22 NA NA 
 > grDevices::dev.off()
 null device 
           1 

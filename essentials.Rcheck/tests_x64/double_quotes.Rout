@@ -66,4 +66,4 @@ andre@DESKTOP-VR312SR:~/essentials/essentials.Rcheck/tests_x64$ Rscript -e "writ
 > 
 > proc.time()
    user  system elapsed 
-   0.20    0.01    3.92 
+   0.14    0.12    3.92 

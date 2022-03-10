@@ -312,4 +312,4 @@ for usage information for each command.
 > 
 > proc.time()
    user  system elapsed 
-   0.50    0.09    0.59 
+   0.54    0.07    0.59 

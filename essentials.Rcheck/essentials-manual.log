@@ -1,7 +1,7 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (MiKTeX 21.2) (preloaded format=pdflatex 2021.3.18)  9 MAR 2022 20:42
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (MiKTeX 21.2) (preloaded format=pdflatex 2021.3.18)  10 MAR 2022 12:20
 entering extended mode
-**C:/Users/andre/AppData/Local/Temp/RtmpiarAmf/Rd2pdf305cab055b2/Rd2.tex
-(C:/Users/andre/AppData/Local/Temp/RtmpiarAmf/Rd2pdf305cab055b2/Rd2.tex
+**C:/Users/andre/AppData/Local/Temp/RtmpGWWr7W/Rd2pdf346874384709/Rd2.tex
+(C:/Users/andre/AppData/Local/Temp/RtmpGWWr7W/Rd2pdf346874384709/Rd2.tex
 LaTeX2e <2020-10-01> patch level 4
 L3 programming layer <2021-02-18> xparse <2020-03-03>
 (C:\Users\andre\AppData\Local\Programs\MiKTeX\tex/latex/base\book.cls
@@ -545,36 +545,36 @@ Overfull \hbox (68.27946pt too wide) in paragraph at lines 2260--2264
 [34] [35] [36]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 2416.
+(textcomp)             Default family used instead on input line 2420.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 2416.
+(textcomp)             Default family used instead on input line 2420.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 2417.
+(textcomp)             Default family used instead on input line 2421.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 2417.
+(textcomp)             Default family used instead on input line 2421.
  [37] [38]
-Overfull \hbox (1.8566pt too wide) in paragraph at lines 2553--2555
+Overfull \hbox (1.8566pt too wide) in paragraph at lines 2557--2559
 []\T1/ptm/m/n/10 An um-brella for-mal class en-com-pass-ing all ob-jects in-ter
 -pretable as num-bers. This in-cludes \T1/zi4/m/n/10 integer\T1/ptm/m/n/10 ,
  []
 
 
-Overfull \hbox (2.02739pt too wide) in paragraph at lines 2566--2569
+Overfull \hbox (2.02739pt too wide) in paragraph at lines 2570--2573
 []\T1/ptm/m/n/10 A method is de-fined to co-erce an ar-bi-trary ob-ject to a nu
 m-bers vec-tor by call-ing [][]\T1/zi4/m/n/10 as.numbers[][][]\T1/ptm/m/n/10 .
  []
 
 [39]
-Overfull \hbox (7.04851pt too wide) in paragraph at lines 2638--2641
+Overfull \hbox (7.04851pt too wide) in paragraph at lines 2642--2645
 []\T1/ptm/m/n/10 On Win-dows, paths are case in-sen-si-tive, so some-thing like
  `\T1/zi4/m/n/10 C:\Users\effective_user\Documents\T1/ptm/m/n/10 '
  []
 
 
-Overfull \hbox (108.28847pt too wide) in paragraph at lines 2649--2654
+Overfull \hbox (108.28847pt too wide) in paragraph at lines 2653--2658
 []\T1/ptm/m/n/10 Additionally, on Win-dows, the file sep-a-ra-tor may be ei-the
 r \T1/zi4/m/n/10 "/" \T1/ptm/m/n/10 or \T1/zi4/m/n/10 "\\"\T1/ptm/m/n/10 , for 
 ex-am-ple `\T1/zi4/m/n/10 C:\Users\effective_user\Documents\T1/ptm/m/n/10 '
@@ -583,24 +583,24 @@ ex-am-ple `\T1/zi4/m/n/10 C:\Users\effective_user\Documents\T1/ptm/m/n/10 '
 [40]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 2689.
+(textcomp)             Default family used instead on input line 2693.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 2689.
+(textcomp)             Default family used instead on input line 2693.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 2690.
+(textcomp)             Default family used instead on input line 2694.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 2690.
+(textcomp)             Default family used instead on input line 2694.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 2691.
+(textcomp)             Default family used instead on input line 2695.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 2691.
+(textcomp)             Default family used instead on input line 2695.
 
-Overfull \hbox (3.19894pt too wide) in paragraph at lines 2702--2707
+Overfull \hbox (3.19894pt too wide) in paragraph at lines 2706--2711
 []\T1/zi4/m/n/10 plapply\T1/ptm/m/n/10 , \T1/zi4/m/n/10 psapply\T1/ptm/m/n/10 ,
  and \T1/zi4/m/n/10 pvapply \T1/ptm/m/n/10 are mul-ti-vari-ate (\T1/ptm/b/n/10 
 p\T1/ptm/m/n/10 arallel) ver-sions of [][]\T1/zi4/m/n/10 lapply[][][]\T1/ptm/m/
@@ -608,20 +608,20 @@ n/10 , [][]\T1/zi4/m/n/10 sapply[][][]\T1/ptm/m/n/10 , and [][]\T1/zi4/m/n/10 v
 apply[][][]\T1/ptm/m/n/10 .
  []
 
-[41] [42] [43] [44] [45] [46]
-Overfull \hbox (19.88727pt too wide) in paragraph at lines 3247--3251
-[]\T1/ptm/m/n/10 Arguments are read us-ing [][]\T1/zi4/m/n/10 scan[][][]\T1/ptm
-/m/n/10 , de-lim-ited/separated
- []
-
-[47]
-Overfull \hbox (2.3173pt too wide) in paragraph at lines 3253--3257
+[41] [42] [43] [44] [45] [46] [47]
+Overfull \hbox (19.88727pt too wide) in paragraph at lines 3251--3255
 []\T1/ptm/m/n/10 Arguments are read us-ing [][]\T1/zi4/m/n/10 scan[][][]\T1/ptm
 /m/n/10 , de-lim-ited/separated
  []
 
 
-Overfull \hbox (2.01698pt too wide) in paragraph at lines 3259--3266
+Overfull \hbox (2.3173pt too wide) in paragraph at lines 3257--3261
+[]\T1/ptm/m/n/10 Arguments are read us-ing [][]\T1/zi4/m/n/10 scan[][][]\T1/ptm
+/m/n/10 , de-lim-ited/separated
+ []
+
+
+Overfull \hbox (2.01698pt too wide) in paragraph at lines 3263--3270
 []\T1/ptm/m/n/10 Arguments are read us-ing [][]\T1/zi4/m/n/10 scan[][][]\T1/ptm
 /m/n/10 , de-lim-ited/separated by `white-
  []
@@ -629,10 +629,10 @@ Overfull \hbox (2.01698pt too wide) in paragraph at lines 3259--3266
 [48]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 3345.
+(textcomp)             Default family used instead on input line 3349.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 3345.
+(textcomp)             Default family used instead on input line 3349.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
@@ -641,7 +641,7 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [50]
 [51]
-Overfull \hbox (9.85004pt too wide) in paragraph at lines 3505--3509
+Overfull \hbox (9.85004pt too wide) in paragraph at lines 3509--3513
 []\T1/zi4/m/n/10 row.match.data.frame \T1/ptm/m/n/10 is the method used for \T1
 /zi4/m/n/10 row.match \T1/ptm/m/n/10 when one of \T1/zi4/m/n/10 x\T1/ptm/m/n/10
  , \T1/zi4/m/n/10 table \T1/ptm/m/n/10 and \T1/zi4/m/n/10 incomparables
@@ -655,45 +655,45 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [55]
 [56]
-Overfull \hbox (18.75977pt too wide) in paragraph at lines 3863--3867
+Overfull \hbox (18.75977pt too wide) in paragraph at lines 3867--3871
 []\T1/ptm/m/n/10 a func-tion ac-cept-ing ar-gu-ments \T1/zi4/m/n/10 x\T1/ptm/m/
 n/10 , \T1/zi4/m/n/10 comments\T1/ptm/m/n/10 , \T1/zi4/m/n/10 nlines.between.co
 mment.and.args\T1/ptm/m/n/10 ,
  []
 
-Package textcomp Info: Symbol \textasciigrave not provided by
-(textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 3889.
-Package textcomp Info: Symbol \textasciigrave not provided by
-(textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 3893.
 [57]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 3903.
- [58]
+(textcomp)             Default family used instead on input line 3893.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4017.
+(textcomp)             Default family used instead on input line 3897.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4017.
- [59]
-Overfull \hbox (0.45975pt too wide) in paragraph at lines 4074--4082
+(textcomp)             Default family used instead on input line 3907.
+ [58] [59]
+Package textcomp Info: Symbol \textasciigrave not provided by
+(textcomp)             font family zi4 in TS1 encoding.
+(textcomp)             Default family used instead on input line 4021.
+Package textcomp Info: Symbol \textasciigrave not provided by
+(textcomp)             font family zi4 in TS1 encoding.
+(textcomp)             Default family used instead on input line 4021.
+ [60]
+Overfull \hbox (0.45975pt too wide) in paragraph at lines 4078--4086
 \T1/ptm/m/n/10 one of the above choices, \T1/zi4/m/n/10 type \T1/ptm/m/n/10 is 
 de-ter-mined by [][]\T1/zi4/m/n/10 .Platform[][][]$OS.type \T1/ptm/m/n/10 and [
 ][]\T1/zi4/m/n/10 capabilities[][][]("aqua")\T1/ptm/m/n/10 . 
  []
 
-[60] [61]
-Overfull \hbox (10.24097pt too wide) in paragraph at lines 4204--4206
+[61]
+Overfull \hbox (10.24097pt too wide) in paragraph at lines 4208--4210
 []\T1/zi4/m/n/10 P.E.I.\T1/ptm/m/n/10 , \T1/zi4/m/n/10 Î.-P.-É.\T1/ptm/m/n/10 ,
  \T1/zi4/m/n/10 PEI\T1/ptm/m/n/10 , \T1/zi4/m/n/10 Île du Prince-Édouard\T1/ptm
 /m/n/10 , \T1/zi4/m/n/10 Île Prince-Édouard 
  []
 
 
-Overfull \hbox (41.32092pt too wide) in paragraph at lines 4214--4218
+Overfull \hbox (41.32092pt too wide) in paragraph at lines 4218--4222
 []\T1/zi4/m/n/10 Newfoundland & Labrador\T1/ptm/m/n/10 , \T1/zi4/m/n/10 Newfoun
 dland\T1/ptm/m/n/10 , \T1/zi4/m/n/10 Terre-Neuve-et-Labrador\T1/ptm/m/n/10 ,
  []
@@ -701,38 +701,11 @@ dland\T1/ptm/m/n/10 , \T1/zi4/m/n/10 Terre-Neuve-et-Labrador\T1/ptm/m/n/10 ,
 [62]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4272.
+(textcomp)             Default family used instead on input line 4276.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4272.
- [63]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [64]
-Package textcomp Info: Symbol \textasciigrave not provided by
-(textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4389.
-Package textcomp Info: Symbol \textasciigrave not provided by
-(textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4389.
-Package textcomp Info: Symbol \textasciigrave not provided by
-(textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4390.
-Package textcomp Info: Symbol \textasciigrave not provided by
-(textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4390.
-Package textcomp Info: Symbol \textasciigrave not provided by
-(textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4391.
-Package textcomp Info: Symbol \textasciigrave not provided by
-(textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4391.
-Package textcomp Info: Symbol \textasciigrave not provided by
-(textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4392.
-Package textcomp Info: Symbol \textasciigrave not provided by
-(textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4392.
+(textcomp)             Default family used instead on input line 4276.
+ [63] [64]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
 (textcomp)             Default family used instead on input line 4393.
@@ -753,7 +726,16 @@ Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             Default family used instead on input line 4395.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4398.
+(textcomp)             Default family used instead on input line 4396.
+Package textcomp Info: Symbol \textasciigrave not provided by
+(textcomp)             font family zi4 in TS1 encoding.
+(textcomp)             Default family used instead on input line 4396.
+Package textcomp Info: Symbol \textasciigrave not provided by
+(textcomp)             font family zi4 in TS1 encoding.
+(textcomp)             Default family used instead on input line 4397.
+Package textcomp Info: Symbol \textasciigrave not provided by
+(textcomp)             font family zi4 in TS1 encoding.
+(textcomp)             Default family used instead on input line 4397.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
 (textcomp)             Default family used instead on input line 4398.
@@ -762,42 +744,60 @@ Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             Default family used instead on input line 4398.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4398.
+(textcomp)             Default family used instead on input line 4399.
+Package textcomp Info: Symbol \textasciigrave not provided by
+(textcomp)             font family zi4 in TS1 encoding.
+(textcomp)             Default family used instead on input line 4399.
+Package textcomp Info: Symbol \textasciigrave not provided by
+(textcomp)             font family zi4 in TS1 encoding.
+(textcomp)             Default family used instead on input line 4402.
+Package textcomp Info: Symbol \textasciigrave not provided by
+(textcomp)             font family zi4 in TS1 encoding.
+(textcomp)             Default family used instead on input line 4402.
+Package textcomp Info: Symbol \textasciigrave not provided by
+(textcomp)             font family zi4 in TS1 encoding.
+(textcomp)             Default family used instead on input line 4402.
+Package textcomp Info: Symbol \textasciigrave not provided by
+(textcomp)             font family zi4 in TS1 encoding.
+(textcomp)             Default family used instead on input line 4402.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [65]
-[66]
-Overfull \hbox (9.73888pt too wide) in paragraph at lines 4507--4510
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [66]
+Overfull \hbox (9.73888pt too wide) in paragraph at lines 4511--4514
 []\T1/ptm/m/n/10 using [][]\T1/zi4/m/n/10 sprintf[][][]("0x%02x",) \T1/ptm/m/n/
 10 (can eas-ily con-vert back to raw with [][]\T1/zi4/m/n/10 as.raw[][][]()
  []
 
 
-Overfull \hbox (27.93736pt too wide) in paragraph at lines 4517--4520
+Overfull \hbox (27.93736pt too wide) in paragraph at lines 4521--4524
 []\T1/ptm/m/n/10 The ar-gu-ments will then be un-listed, and all at-tributes wi
 ll be re-moved. Ar-gu-ments that are \T1/zi4/m/n/10 NA_character_
  []
 
+[67]
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4552.
+(textcomp)             Default family used instead on input line 4556.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4552.
+(textcomp)             Default family used instead on input line 4556.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4563.
+(textcomp)             Default family used instead on input line 4567.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4563.
+(textcomp)             Default family used instead on input line 4567.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4564.
+(textcomp)             Default family used instead on input line 4568.
 Package textcomp Info: Symbol \textasciigrave not provided by
 (textcomp)             font family zi4 in TS1 encoding.
-(textcomp)             Default family used instead on input line 4564.
-[67] (Rd2.ind [68]
+(textcomp)             Default family used instead on input line 4568.
+ [68] (Rd2.ind [69]
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
 (Font)              using `T1/zi4/m/n' instead on input line 11.
@@ -829,19 +829,19 @@ Overfull \hbox (30.8567pt too wide) in paragraph at lines 58--60
 []\T1/zi4/m/it/10 add.version,essentials_ArgumentParser-method 
  []
 
-[69
+[70
 
 ]
 Overfull \hbox (25.8567pt too wide) in paragraph at lines 261--263
 []\T1/zi4/m/it/10 parse.args,essentials_ArgumentParser-method 
  []
 
-[70]
+[71]
 Overfull \hbox (0.8567pt too wide) in paragraph at lines 311--313
 []\T1/zi4/m/it/10 row.match,data.frame,data.frame-method 
  []
 
-[71]) (Rd2.aux)
+[72]) (Rd2.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -849,13 +849,13 @@ Package rerunfilecheck Info: File `Rd2.out' has not changed.
 (rerunfilecheck)             Checksum: A6ABBB87EEFC2C1FB690855907878572;5309.
  ) 
 Here is how much of TeX's memory you used:
- 9350 strings out of 479334
- 138295 string characters out of 2857084
+ 9351 strings out of 479334
+ 138313 string characters out of 2857084
  431007 words of memory out of 3000000
  26001 multiletter control sequences out of 15000+200000
  442406 words of font info for 68 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 88i,6n,90p,307b,616s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 88i,6n,90p,308b,616s stack positions out of 5000i,500n,10000p,200000b,50000s
 pdfTeX warning (dest): name{Rfn.readRDS} has been referenced but does not exi
 st, replaced by a fixed one
 
@@ -1169,9 +1169,9 @@ KTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/andre/AppData/Local/Programs/Mi
 KTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/andre/AppData/Local/Programs/Mi
 KTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/andre/AppData/Local/Programs/Mi
 KTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (71 pages, 517259 bytes).
+Output written on Rd2.pdf (72 pages, 516808 bytes).
 PDF statistics:
- 1748 PDF objects out of 2073 (max. 8388607)
- 647 named destinations out of 1000 (max. 500000)
+ 1749 PDF objects out of 2073 (max. 8388607)
+ 648 named destinations out of 1000 (max. 500000)
  409 words of extra memory for PDF output out of 10000 (max. 10000000)
 

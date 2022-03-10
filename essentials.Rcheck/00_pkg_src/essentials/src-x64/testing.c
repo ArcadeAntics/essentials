@@ -4,6 +4,14 @@
 
 SEXP testing(SEXP x)
 {
+    if (TYPEOF(x) != ENVSXP)
+        error("invalid 'x', must be an environment");
+    SEXP dots = findVarInFrame(x, install("..."));
+    if (dots == R_UnboundValue)
+        error("invalid 'x', doesn't contain ... object");
+    return PREXPR(CAR(dots));
+
+
     double k = asReal(x);
     R_xlen_t n = (R_xlen_t) k;
     Rprintf("x                     = %.0f\n", k);

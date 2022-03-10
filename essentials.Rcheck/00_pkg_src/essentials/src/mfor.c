@@ -31,7 +31,7 @@ R_xlen_t * do_lengths(SEXP x, R_xlen_t length_x, const char *name)
     /* find lengths(x), and convert to a R_xlen_t array */
 
 
-    SEXP expr = PROTECT(lang2(  /* lengths(X) */
+    SEXP expr = PROTECT(lang2(  /* lengths(x) */
         install("lengths"),
         lang2(
             install("quote"),
@@ -67,13 +67,12 @@ R_xlen_t * do_lengths(SEXP x, R_xlen_t length_x, const char *name)
 
 R_xlen_t get_commonLength(R_xlen_t *lengths, R_xlen_t length)
 {
-    R_xlen_t commonLength = 1;
+    R_xlen_t commonLength = 0;
     for (R_xlen_t i = 0; i < length; i++) {
-        if (commonLength) {
-            if (lengths[i] == 0 || lengths[i] > commonLength)
-                commonLength = lengths[i];
-        }
-        else break;
+        if (lengths[i] == 0)
+            return lengths[i];
+        else if (lengths[i] > commonLength)
+            commonLength = lengths[i];
     }
     return commonLength;
 }
@@ -82,30 +81,51 @@ R_xlen_t get_commonLength(R_xlen_t *lengths, R_xlen_t length)
 
 
 
-SEXP do_mfor(SEXP args, SEXP rho, SEXP p, SEXP is_done)
+SEXP do_mfor(SEXP rho, SEXP p, SEXP is_done)
 {
     int np = 0;
 
 
-    args = CDR(args);
-    int n_args = length(args);
-    int n_vars = n_args - 2;
-    SEXP vars, seqs, expr, updaters, tmp, seqs_symbol, i_symbol;
-    seqs_symbol = PROTECT(install("seqs"));  np++;
-    i_symbol = PROTECT(install("i"));  np++;
-    vars = PROTECT(allocVector(VECSXP, n_vars));  np++;
+    SEXP dots = PROTECT(findVarInFrame(rho, R_DotsSymbol));  np++;
+    if (dots == R_UnboundValue)
+        error("invalid 'rho'; should never happen, please report!");
 
 
-    tmp = args;
-    for (int i = 0; i < n_vars; i++, tmp = CDR(tmp)) {
-        if (!isSymbol(CAR(tmp)))
-            error("non-symbol loop variables");
-        SET_VECTOR_ELT(vars, i, CAR(tmp));
+    int n_args = length(dots),
+        n_vars = n_args - 2;
+
+
+    if (n_args < 3)
+        error(
+            (n_args == 1) ? "%d argument passed to 'mfor' which requires at least 3" :
+                           "%d arguments passed to 'mfor' which requires at least 3",
+            n_args
+        );
+
+
+    SEXP vars, seqs, expr, updaters, x, tmp, seqs_symbol, i_symbol;
+    seqs_symbol = PROTECT(install("seqs"));              np++;
+    i_symbol    = PROTECT(install("i"));                 np++;
+    vars        = PROTECT(allocVector(VECSXP, n_vars));  np++;
+
+
+    x = dots;
+    for (int i = 0; i < n_vars; i++, x = CDR(x)) {
+        tmp = PREXPR(CAR(x));
+        if (!isSymbol(tmp) || tmp == R_MissingArg)
+            error("non-symbol loop variable, argument %d", i + 1);
+        SET_VECTOR_ELT(vars, i, tmp);
     }
 
 
-    seqs = PROTECT(eval(CAR(tmp), p));  np++;
-    expr = CADR(tmp);
+    if (!isNull(TAG(x)))
+        error("invalid 'seqs', should not be named");
+    if (!isNull(TAG(CDR(x))))
+        error("invalid 'expr', should not be named");
+
+
+    seqs = PROTECT(eval(CAR(x), p));  np++;
+    expr = PREXPR(CADR(x));
 
 
     Rboolean do_eval = 1;

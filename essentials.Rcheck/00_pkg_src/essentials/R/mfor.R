@@ -132,22 +132,4 @@ omfor <- function (...)
 
 
 mfor <- function (...)
-{
-    if ((Nargs <- nargs()) < 3L)
-        stop(
-            sprintf(
-                ngettext(
-                    Nargs,
-                    "%s argument passed to 'mfor' which requires at least 3",
-                    "%s arguments passed to 'mfor' which requires at least 3"
-                ),
-                Nargs
-            )
-        )
-    invisible(.Call(C_mfor,
-        substitute(list(...)),  # all of the (unevaluated) arguments to 'mfor'
-        environment(),
-        parent.frame(),         # the environment in which we will evaluate the for loop
-        .is.mfor.done
-    ))
-}
+invisible(.Call(C_mfor, environment(), parent.frame(), .is.mfor.done))

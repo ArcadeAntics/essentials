@@ -16,6 +16,7 @@ is.mfor.done <- function (rho)
 .Call(C_is.mfor.done, rho)
 
 
+# original R implementation of 'mfor'
 omfor <- function (...)
 {
     if ((Nargs <- nargs()) < 3L)

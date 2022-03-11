@@ -108,7 +108,7 @@ SEXP do_mfor(SEXP rho, SEXP p)
 
 
     int np = 0,
-        n_args = ((dots == R_MissingArg) ? 0 : length(dots)),
+        n_args = ((TYPEOF(dots) == DOTSXP) ? length(dots) : 0),
         n_vars = n_args - 2;
 
 

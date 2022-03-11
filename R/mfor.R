@@ -12,8 +12,8 @@
 # }
 
 
-.is.mfor.done <- function (rho)
-.Call(C_.is.mfor.done, rho)
+is.mfor.done <- function (rho)
+.Call(C_is.mfor.done, rho)
 
 
 omfor <- function (...)
@@ -105,8 +105,8 @@ omfor <- function (...)
         }
     }
     if (!skip.eval) {
-        loop.expr <- bquote(repeat {
-            if (.(.is.mfor.done)(.(environment())))
+        loop_expr <- bquote(repeat {
+            if (.(is.mfor.done)(.(environment())))
                 break
             .(expr)
         })
@@ -125,11 +125,19 @@ omfor <- function (...)
     lapply(as.character(vars), assign, value = NULL, envir = p, inherits = FALSE)
 
 
+    # return(pairlist(
+    #     vars = vars,
+    #     seqs = seqs,
+    #     expr = expr,
+    #     loop_expr = loop_expr
+    # ))
+
+
     if (skip.eval)
         invisible()
-    else eval(loop.expr, envir = p)
+    else eval(loop_expr, envir = p)
 }
 
 
 mfor <- function (...)
-invisible(.Call(C_mfor, environment(), parent.frame(), .is.mfor.done))
+invisible(.Call(C_mfor, environment(), parent.frame()))

@@ -51,4 +51,4 @@ extern SEXP do_pvapply(SEXP X, SEXP FUN, SEXP FUN_VALUE, SEXP USE_NAMES,
 extern SEXP do_seq(SEXP args, SEXP missings);
 
 extern SEXP do_is_mfor_done(SEXP rho);
-extern SEXP do_mfor(SEXP rho, SEXP p, SEXP is_done);
+extern SEXP do_mfor(SEXP rho, SEXP p);

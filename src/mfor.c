@@ -5,6 +5,12 @@
 
 
 
+#define SMTH_WRONG_W_MFOR(X) (error("object '%s' not found; something is very wrong with 'mfor', please report!", (X)))
+
+
+
+
+
 R_xlen_t do_length(SEXP x)
 {
     if (isObject(x)) {
@@ -81,17 +87,28 @@ R_xlen_t get_commonLength(R_xlen_t *lengths, R_xlen_t length)
 
 
 
-SEXP do_mfor(SEXP rho, SEXP p, SEXP is_done)
+SEXP do_mfor(SEXP rho, SEXP p)
 {
-    int np = 0;
+    if (TYPEOF(rho) != ENVSXP)
+        error("invalid 'rho'");
+    if (TYPEOF(p) != ENVSXP)
+        error("invalid 'p'");
+
+
+    SEXP is_mfor_done = findVarInFrame(ENCLOS(rho), install("is.mfor.done"));
+    if (is_mfor_done == R_UnboundValue ||
+        (TYPEOF(is_mfor_done) != PROMSXP &&
+         TYPEOF(is_mfor_done) != CLOSXP))
+        SMTH_WRONG_W_MFOR("is.mfor.done");
 
 
     SEXP dots = findVarInFrame(rho, R_DotsSymbol);
     if (dots == R_UnboundValue)
-        error("invalid 'rho'; should never happen, please report!");
+        SMTH_WRONG_W_MFOR("...");
 
 
-    int n_args = ((dots == R_MissingArg) ? 0 : length(dots)),
+    int np = 0,
+        n_args = ((dots == R_MissingArg) ? 0 : length(dots)),
         n_vars = n_args - 2;
 
 
@@ -152,9 +169,9 @@ SEXP do_mfor(SEXP rho, SEXP p, SEXP is_done)
         R_xlen_t n_seqs = do_length(seqs);
 
 
-        if (n_seqs != n_vars)
+        if (n_vars != n_seqs)
             error(
-                (n_seqs < n_vars) ?
+                (n_vars > n_seqs) ?
                     "not enough sequences to unpack (expected %.0f, got %.0f)" :
                       "too many sequences to unpack (expected %.0f, got %.0f)",
                                                    (double) n_vars,     (double) n_seqs
@@ -246,7 +263,7 @@ SEXP do_mfor(SEXP rho, SEXP p, SEXP is_done)
                 lang3(
                     install("if"),
                     lang2(
-                        is_done,
+                        is_mfor_done,
                         rho
                     ),
                     lang1(install("break"))
@@ -283,6 +300,22 @@ SEXP do_mfor(SEXP rho, SEXP p, SEXP is_done)
     }
 
 
+    /*
+    SEXP value = PROTECT(allocVector(LISTSXP, 4));  np++;
+    tmp = value;
+
+
+    SETCAR(tmp, vars     ); SET_TAG(tmp, install("vars"     )); tmp = CDR(tmp);
+    SETCAR(tmp, seqs     ); SET_TAG(tmp, install("seqs"     )); tmp = CDR(tmp);
+    SETCAR(tmp, expr     ); SET_TAG(tmp, install("expr"     )); tmp = CDR(tmp);
+    SETCAR(tmp, loop_expr); SET_TAG(tmp, install("loop_expr"));
+
+
+    UNPROTECT(np);
+    return value;
+     */
+
+
     for (int i = 0; i < n_vars; i++) {
         defineVar(
             VECTOR_ELT(vars, i),
@@ -292,28 +325,12 @@ SEXP do_mfor(SEXP rho, SEXP p, SEXP is_done)
     }
 
 
-    /*
-    UNPROTECT(np);
-    return loop_expr;
-     */
-
     if (do_eval)
         eval(loop_expr, p);
 
 
     UNPROTECT(np);
     return R_NilValue;
-
-
-
-    SEXP value = PROTECT(allocVector(VECSXP, 3));  np++;
-    SET_VECTOR_ELT(value, 0, vars);
-    SET_VECTOR_ELT(value, 1, seqs);
-    SET_VECTOR_ELT(value, 2, expr);
-
-
-    UNPROTECT(np);
-    return value;
 }
 
 
@@ -322,22 +339,23 @@ SEXP do_mfor(SEXP rho, SEXP p, SEXP is_done)
 
 SEXP do_is_mfor_done(SEXP rho)
 {
-    const char *err_msg = "object '%s' not found, something is very wrong with 'mfor', please report!";
+    if (TYPEOF(rho) != ENVSXP)
+        error("invalid 'rho'");
 
 
     SEXP i = findVarInFrame(rho, install("i"));
     if (i == R_UnboundValue)
-        error(err_msg, "seqs");
+        SMTH_WRONG_W_MFOR("seqs");
 
 
     SEXP commonLength = findVarInFrame(rho, install("commonLength"));
     if (commonLength == R_UnboundValue)
-        error(err_msg, "commonLength");
+        SMTH_WRONG_W_MFOR("commonLength");
 
 
     SEXP realIndx = findVarInFrame(rho, install("realIndx"));
     if (realIndx == R_UnboundValue)
-        error(err_msg, "realIndx");
+        SMTH_WRONG_W_MFOR("realIndx");
 
 
     Rboolean _realIndx = LOGICAL(realIndx)[0];
@@ -351,22 +369,22 @@ SEXP do_is_mfor_done(SEXP rho)
 
     SEXP n_vars = findVarInFrame(rho, install("n_vars"));
     if (n_vars == R_UnboundValue)
-        error(err_msg, "n_vars");
+        SMTH_WRONG_W_MFOR("n_vars");
 
 
     SEXP vars = findVarInFrame(rho, install("vars"));
     if (vars == R_UnboundValue)
-        error(err_msg, "vars");
+        SMTH_WRONG_W_MFOR("vars");
 
 
     SEXP updaters = findVarInFrame(rho, install("updaters"));
     if (updaters == R_UnboundValue)
-        error(err_msg, "updaters");
+        SMTH_WRONG_W_MFOR("updaters");
 
 
     SEXP p = findVarInFrame(rho, install("p"));
     if (p == R_UnboundValue)
-        error(err_msg, "p");
+        SMTH_WRONG_W_MFOR("p");
 
 
     int _n_vars = INTEGER(n_vars)[0];

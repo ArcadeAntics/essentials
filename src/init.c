@@ -44,8 +44,8 @@ static const R_CallMethodDef callRoutines[] = {
 
     {"seq"                    , (DL_FUNC) &do_seq                   , 2},
 
-    {".is.mfor.done"          , (DL_FUNC) &do_is_mfor_done          , 1},
-    {"mfor"                   , (DL_FUNC) &do_mfor                  , 3},
+    {"is.mfor.done"           , (DL_FUNC) &do_is_mfor_done          , 1},
+    {"mfor"                   , (DL_FUNC) &do_mfor                  , 2},
 
     {NULL, NULL, 0}
 };

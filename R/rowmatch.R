@@ -31,8 +31,8 @@ rowmatch <- function (x, table, nomatch = NA_integer_, incomparables = NULL)
             }
         }
         if (length(dim(xx)) <= 2L)
-            as.matrix(x)
-        else as.array(x)
+            as.matrix(xx)
+        else as.array(xx)
     }
 
 

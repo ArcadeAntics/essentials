@@ -37,7 +37,7 @@ ext <- extension <- function (path, compression = FALSE, invert = FALSE)
 
 
     if (compression) {
-        pattern1 <- "^(.*[^/\\])(\\.[^/\\.]+(\\.(gz|bz2|xz)))$"
+        pattern1 <- "^(.*[^/\\])(\\.[^/\\.]+(\\.(gz|bz2|xz|tgz)))$"
         pattern2 <- "^(.*[^/\\])(\\.[^/\\.]+)$"
         if (invert) {
             i1 <- grepl(pattern1, path)

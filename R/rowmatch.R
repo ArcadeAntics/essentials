@@ -59,7 +59,7 @@ rowmatch <- function (x, table, nomatch = NA_integer_, incomparables = NULL)
     #
     # then return 'nomatch'
     if (!nrow(table) || length(dim(x)) != length(dim(table)) ||
-        any(dim(x) != dim(table)))
+        any(dim(x)[-1L] != dim(table)[-1L]))
         return(rep(nomatch, nrow(x)))
 
 
@@ -79,7 +79,7 @@ rowmatch <- function (x, table, nomatch = NA_integer_, incomparables = NULL)
         # or 'x' and 'incomparables' are not conformable
         # set 'incomparables' to NULL
         if (!nrow(incomparables) || length(dim(x)) != length(dim(incomparables)) ||
-            any(dim(x) != dim(incomparables)))
+            any(dim(x)[-1L] != dim(incomparables)[-1L]))
             incomparables <- NULL
         else incomparables <- fun(incomparables)
     }

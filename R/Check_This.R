@@ -17,7 +17,7 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
 }
 
 
-Check_This <- function (
+check_this <- function (
     force = FALSE,
     keep.empty.dirs = FALSE,
     build.vignettes = TRUE, no.build.vignettes = !build.vignettes,
@@ -254,6 +254,10 @@ Check_This <- function (
     }
     invisible(value)
 }
+
+
+Check_This <- function (...)
+.Defunct("check_this")
 
 
 # Check_This <- function (

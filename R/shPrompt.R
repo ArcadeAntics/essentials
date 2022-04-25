@@ -9,20 +9,25 @@
         }
     }
     type <- match.type(type, "'", arg.name, "' argument")
-    if (is.null(type)) type <- match.type(getOption(option.name), "'", option.name, "' option")
-    if (is.null(type)) type <- match.type(Sys.getenv(env.name), "'", env.name, "' environment variable")
-    if (!is.null(type)) {}
-    else if (.Platform$OS.type == "windows") {  # on Windows
-        type <- switch(basename(Sys.getenv("COMSPEC")),
-            cmd.exe = "cmd",
-            powershell.exe = "powershell",
-            "windows"
-        )
+    if (is.null(type)) {
+        type <- match.type(getOption(option.name), "'", option.name, "' option")
+        if (is.null(type)) {
+            type <- match.type(Sys.getenv(env.name), "'", env.name, "' environment variable")
+            if (is.null(type)) {
+                if (.Platform$OS.type == "windows") {  # on Windows
+                    type <- switch(basename(Sys.getenv("COMSPEC")),
+                        cmd.exe = "cmd",
+                        powershell.exe = "powershell",
+                        "windows"
+                    )
+                }
+                else if (on.macOS) {                   # on macOS (see ?capabilities)
+                    type <- "macOS"
+                }
+                else type <- "ubuntu"                  # on any other Linux flavour
+            }
+        }
     }
-    else if (capabilities("aqua")) {            # on macOS (see ?capabilities)
-        type <- "macOS"
-    }
-    else type <- "ubuntu"                       # on any other Linux flavour
 
 
     wd <- getwd()
@@ -60,7 +65,7 @@
         }
         else wd <- "NULL"
         sys.info <- Sys.info()
-        nodename <- if (capabilities("aqua"))
+        nodename <- if (on.macOS)
             sub("\\.(lan|local)$", "", sys.info[["nodename"]])
         else sys.info[["nodename"]]
         paste0(nodename, ":", wd, " ", sys.info[["effective_user"]], "$ ")
@@ -80,7 +85,7 @@
         }
         else wd <- "NULL"
         sys.info <- Sys.info()
-        nodename <- if (capabilities("aqua"))
+        nodename <- if (on.macOS)
             sub("\\.(lan|local)$", "", sys.info[["nodename"]])
         else sys.info[["nodename"]]
         x <- c("\033[38;5;70m", "\033[1m",
@@ -137,6 +142,7 @@
 evalq(envir = environment(.shPrompt), {
     types <- c("windows", "cmd", "powershell", "macOS", "bash", "ubuntu", "unix")
     table <- tolower(types)
+    delayedAssign("on.macOS", capabilities("aqua"))
 })
 
 

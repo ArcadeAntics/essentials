@@ -123,7 +123,7 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
 
 
 
-.R <- function (options, file, exprs, args, chdir, ..., name, extra)
+.R <- function (options, file, exprs, args, chdir, ..., name, windows.type, extra)
 {
     if (is.character(file) || is.null(file)) {
         if (length(file) == 0) file <- NULL
@@ -157,7 +157,7 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
                 on.exit(setwd(owd))
                 setwd(path)
             }
-            file <- shEncode(file, windows.type = name)
+            file <- shEncode(file, windows.type = windows.type)
             if (extra) file <- paste0("--file=", file)
         }
     }
@@ -166,7 +166,7 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
 
     if (is.character(exprs) || is.null(exprs)) {
         if (length(exprs) == 0) exprs <- NULL
-        else exprs <- paste("-e", shEncode(exprs, windows.type = name))
+        else exprs <- paste("-e", shEncode(exprs, windows.type = windows.type))
     }
     else stop("invalid 'exprs' argument")
 
@@ -177,14 +177,14 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
 
     args <- asArgs(args)
     if (length(args)) {
-        args <- shEncode(args, windows.type = name)
+        args <- shEncode(args, windows.type = windows.type)
         if (extra)
             args <- c("--args", args)
     }
 
 
     options <- asArgs(options)
-    options <- shEncode(options, windows.type = name)
+    options <- shEncode(options, windows.type = windows.type)
     options <- c(name, options, file, exprs, args)
     command <- paste(options, collapse = " ")
     .system(command = command, ...)
@@ -192,46 +192,72 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
 
 
 R <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
-    chdir = FALSE, ...)
+    chdir = FALSE, ..., name = "R")
 {
+    if (!missing(name)) {
+        if (!is.character(name) || length(name) != 1)
+            stop("invalid 'name' argument")
+        name <- shEncode(name)
+    }
     .R(options = options, file = file, exprs = exprs, args = args,
-        chdir = chdir, ..., name = "R", extra = TRUE)
+        chdir = chdir, ..., name = name, windows.type = "R",
+        extra = TRUE)
 }
 
 
-Rcmd <- function (options = NULL, command = "", args = NULL, ...)
+Rcmd <- function (options = NULL, command = "", args = NULL, ..., name = "R")
 {
+    if (!missing(name)) {
+        if (!is.character(name) || length(name) != 1)
+            stop("invalid 'name' argument")
+        name <- shEncode(name)
+    }
     options <- asArgs(options)
     options <- shEncode(options, windows.type = "R")
     command <- asArgs(command)[[1L]]
     command <- shEncode(command, windows.type = "Rterm")
     args <- asArgs(args)
     args <- shEncode(args, windows.type = "R CMD")
-    command <- paste(c("R", options, "CMD", command, args), collapse = " ")
+    command <- paste(c(name, options, "CMD", command, args), collapse = " ")
     .system(command = command, ...)
 }
 
 
-Rgui <- function (options = NULL, args = NULL, ...)
+Rgui <- function (options = NULL, args = NULL, ..., name = "Rgui")
 {
+    if (!missing(name)) {
+        if (!is.character(name) || length(name) != 1)
+            stop("invalid 'name' argument")
+        name <- shEncode(name)
+    }
     .R(options = options, file = NULL, exprs = NULL, args = args,
-        ..., name = "Rgui", extra = TRUE)
+        ..., name = name, windows.type = "Rgui", extra = TRUE)
 }
 
 
 Rscript <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
-    chdir = FALSE, ...)
+    chdir = FALSE, ..., name = "Rscript")
 {
+    if (!missing(name)) {
+        if (!is.character(name) || length(name) != 1)
+            stop("invalid 'name' argument")
+        name <- shEncode(name)
+    }
     .R(options = options, file = file, exprs = exprs, args = args,
-        chdir = chdir, ..., name = "Rscript", extra = FALSE)
+        chdir = chdir, ..., name = name, windows.type = "Rscript", extra = FALSE)
 }
 
 
 Rterm <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
-    chdir = FALSE, ...)
+    chdir = FALSE, ..., name = windows.type)
 {
+    windows.type <- if (.Platform$OS.type == "windows") "Rterm" else "R"
+    if (!missing(name)) {
+        if (!is.character(name) || length(name) != 1)
+            stop("invalid 'name' argument")
+        name <- shEncode(name)
+    }
     .R(options = options, file = file, exprs = exprs, args = args,
-        chdir = chdir, ..., name = if (.Platform$OS.type == "windows")
-            "Rterm"
-        else "R", extra = TRUE)
+        chdir = chdir, ..., name = name, windows.type = windows.type,
+        extra = TRUE)
 }

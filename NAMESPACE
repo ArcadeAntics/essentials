@@ -90,6 +90,12 @@ export(envvars, getEnvvar)
 export(ext, extension, rm.ext, remove.extension)
 
 
+# f.str.R                   ----
+
+
+export(f.str)
+
+
 # file.open.R               ----
 
 

@@ -76,12 +76,8 @@
 
         if (!is.null(wd)) {
             wd <- path.contract(wd)
-            if (.Platform$OS.type == "windows") {
+            if (.Platform$OS.type == "windows")
                 wd <- chartr("\\", "/", wd)
-                if (grepl(pattern <- paste0("^", normalizePath("/", "/", FALSE)),
-                    wd, ignore.case = TRUE))
-                    wd <- sub(pattern, "/", wd, ignore.case = TRUE)
-            }
         }
         else wd <- "NULL"
         sys.info <- Sys.info()

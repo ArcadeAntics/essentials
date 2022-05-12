@@ -115,11 +115,11 @@ legend.dimensions <- function (expr, envir = parent.frame(),
         print(value)
         cat("\n")
     }
-    if (!is.list(value) || !is.list(value$rect) ||
-        !is.numeric(value$rect$w) || !is.numeric(value$rect$h))
+    if (!is.list(value) || !is.list(value[["rect"]]) ||
+        !is.numeric(value[["rect"]][["w"]]) || !is.numeric(value[["rect"]][["h"]]))
         stop("invalid 'expr', did not evaluate to a form like 'graphics::legend'")
-    list(w = value$rect$w/xinch(warn.log = FALSE),
-         h = value$rect$h/yinch(warn.log = FALSE))
+    list(w = value[["rect"]][["w"]]/xinch(warn.log = FALSE),
+         h = value[["rect"]][["h"]]/yinch(warn.log = FALSE))
 }
 
 

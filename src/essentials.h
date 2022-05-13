@@ -52,3 +52,7 @@ extern SEXP do_seq(SEXP args, SEXP missings);
 
 extern SEXP do_is_mfor_done(SEXP rho);
 extern SEXP do_mfor(SEXP rho, SEXP p);
+
+extern SEXP do_as_env(SEXP envir, SEXP enclos, SEXP context);
+extern SEXP do_f_str_build_call(SEXP sprintf, SEXP fmt, SEXP exprs);
+extern SEXP do_f_str(SEXP sprintf, SEXP fmt, SEXP exprs, SEXP envir);

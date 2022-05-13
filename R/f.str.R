@@ -1,10 +1,14 @@
 ##options(keep.source = TRUE)
 
 
+as.env <- function (envir, enclos, context = parent.frame(2))
+.Call(C_as.env, envir, enclos, context)
+
+
 f.str <- function (x, envir = parent.frame(),
                       enclos = if (is.list(envir) || is.pairlist(envir))
                                    parent.frame() else baseenv(),
-    simplify = TRUE)
+    context = parent.frame(), simplify = TRUE)
 {
     # f.str                                                       R Docmentation
     #
@@ -138,8 +142,7 @@ f.str <- function (x, envir = parent.frame(),
 
 
     x <- as.character(x)
-    envir
-    enclos
+    envir <- as.env(envir, enclos, context)
     simplify <- if (simplify) TRUE else FALSE
 
 
@@ -154,24 +157,24 @@ f.str <- function (x, envir = parent.frame(),
 
 
     # locations of parenthesized subexpressions of 'pattern'
-    M <- gregexec(pattern, x, perl = TRUE)
+    m <- gregexec(pattern, x, perl = TRUE)
 
 
     # substrings of parenthesized subexpressions
-    Y <- regmatches(x, M)
+    y <- regmatches(x, m)
 
 
     # remove the dashes, delimiters, and expressions
-    FMT <- gsub(pattern, "\\1\\6", x, perl = TRUE)
+    fmts <- gsub(pattern, "\\1\\6", x, perl = TRUE)
 
 
     value <- lapply(seq_along(x), function(i) {
-        fmt <- FMT[[i]]
-        if (length(Y[[i]]) > 0) {
+        fmt <- fmts[[i]]
+        if (length(y[[i]]) > 0) {
 
 
             # select 'any character sequence' subexpressions (corresponding to which delimiters were used)
-            dots <- lapply(Y[[i]][4:6, ][M[[i]][4:6, ] != 0], function(yy) {
+            exprs <- lapply(y[[i]][4:6, ][m[[i]][4:6, ] != 0], function(yy) {
 
 
                 # parse to expression, must be length 1 or 2:
@@ -185,17 +188,8 @@ f.str <- function (x, envir = parent.frame(),
 
 
             # turn a list of a expressions into an expression
-            dots <- unlist(dots, recursive = FALSE, use.names = FALSE)
-            dots <- lapply(dots, eval, envir, enclos)  # then evaluate where requested
-
-
-            # build and execute the call, MAKING SURE TO PROTECT 'dots' FROM EARLY EVALUATION
-            do.call("sprintf", c(
-                fmt = quote(fmt),
-                lapply(seq_along(dots), function(i) {
-                    call("[[", quote(dots), i)
-                })
-            ))
+            exprs <- unlist(exprs, recursive = FALSE, use.names = FALSE)
+            .Call(C_f.str, sprintf, fmt, exprs, envir)  # evaluate where requested
         } else sprintf(fmt)
     })
 

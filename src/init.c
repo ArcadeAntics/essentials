@@ -47,6 +47,10 @@ static const R_CallMethodDef callRoutines[] = {
     {"is.mfor.done"           , (DL_FUNC) &do_is_mfor_done          , 1},
     {"mfor"                   , (DL_FUNC) &do_mfor                  , 2},
 
+    {"as.env"                 , (DL_FUNC) &do_as_env                , 3},
+    {"f.str_build.call"       , (DL_FUNC) &do_f_str_build_call      , 3},
+    {"f.str"                  , (DL_FUNC) &do_f_str                 , 4},
+
     {NULL, NULL, 0}
 };
 

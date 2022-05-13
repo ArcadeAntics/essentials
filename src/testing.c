@@ -6,6 +6,10 @@ SEXP testing(SEXP x)
 {
     if (TYPEOF(x) != ENVSXP)
         error("invalid 'x', must be an environment");
+
+
+    if (TYPEOF(x) != ENVSXP)
+        error("invalid 'x', must be an environment");
     SEXP dots = findVarInFrame(x, install("..."));
     if (dots == R_UnboundValue)
         error("invalid 'x', doesn't contain ... object");

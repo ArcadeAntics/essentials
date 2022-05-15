@@ -44,9 +44,8 @@ appear immediately after the closing delimiter.
 A field width or precision (but not both) may be indicated by an asterisk
 \verb{*}: see \strong{Examples} for two methods of specifying such an argument.
 
-These values should appear immediately before the \verb{\%} in the allowed
-conversion specifications with the formatting specifications and type
-immediately after.
+These values should appear immediately after the \verb{\%} in the conversion
+specifications, and immediately before the formatting specifications and type.
 }
 \value{
 For \code{f.str(simplify = FALSE)}, a list of the same length as \code{x}.
@@ -78,7 +77,8 @@ f.str(x, list(name = "Joe", age = 40, anniversary = as.Date("2001-10-12")))
 
 ## use a literal \% :
 
-f.str("\%(66.666).0f\%\% said yes (out of a sample of size \%(3).0f)")
+f.str("\%{sum(responses == 'yes')/length(responses) * 100}.0f\%\% said yes (out of a sample of size \%{length(responses)}.0f)",
+    list(responses = c("yes", "no", "yes")))%f.str("\%(66.666).0f\%\% said yes (out of a sample of size \%(3).0f)", list(responses = c("yes", "no", "yes")))
 
 ## re-use one argument three times, show difference between \%x and \%X
 xx <- f.str("\%(0:15)d \%1$x \%1$X")
@@ -99,7 +99,7 @@ f.str("precision \%(3;pi).*f, width '\%(8;pi)*.3f'")
 f.str("e with \%(n)2d digits = \%[exp(1)].*1$g")
 
 ## re-cycle arguments
-f.str("\%('test')s \%(1:3)d")
+f.str("\%(letters)s \%(1:13)d")
 
 ## binary output showing rounding/representation errors
 x <- seq(0, 1.0, 0.1); y <- c(0,.1,.2,.3,.4,.5,.6,.7,.8,.9,1)

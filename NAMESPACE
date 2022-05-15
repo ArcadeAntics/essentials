@@ -141,7 +141,7 @@ export(color.with.alpha, as.hex.code)
 # list.files2.R             ----
 
 
-export(list.files2, dir2)
+export(list.files2, dir2, list.dirs2)
 
 
 # mfor.R                    ----

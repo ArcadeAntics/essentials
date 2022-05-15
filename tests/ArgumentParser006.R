@@ -10,3 +10,6 @@ parser$add.argument("--beta")
 pargs <- parser$parse.args(
     c("--alpha", "testing", "--args", "--beta", "more")
 )
+print(pargs)
+print(essentials::Args(pargs))
+print(essentials::Args(pargs, "trailingOnly"))

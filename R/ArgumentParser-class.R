@@ -1,7 +1,7 @@
-install <- function (x)
+install <- function (...)
 {
-    unlist(lapply(x, function(xx) {
-        lapply(xx, function(xxx) {
+    unlist(lapply(list(...), function(xx) {
+        lapply(as.character(xx), function(xxx) {
             as.character(as.symbol(xxx))
         })
     }), use.names = FALSE)
@@ -407,7 +407,7 @@ add.argument = function (..., action = NULL, nargs = NULL, constant, default,
     metavariable = NA, destination = NA, exit = NA, wrap = TRUE, wrap.help = wrap, wrap.exit = wrap,
     overwrite = getOption("this.path.overwrite", NA))
 {
-    x <- install(list(...))
+    x <- install(...)
     if (!length(x))
         stop("... must not be empty")
     tags <- shorts <- longs <- character()
@@ -593,14 +593,74 @@ add.argument = function (..., action = NULL, nargs = NULL, constant, default,
     exi2 <- format.help(exit)
 
 
-    help.sub2 <- function(x) {
-        suppressWarnings(sprintf(help.sub(x, value),
-            .self$program, tags[1L], shorts[1L], longs[1L], action,
-            if (length(nargs) == 1) nargs else sprintf("c(%.0f, %.0f)", nargs[1], nargs[2]),
-            deparse1(value$constant, collapse = ""), deparse1(value$default, collapse = ""),
-            typ2, deparse1(value$choices, collapse = ""),
-            if (nargs[1] == 0) FALSE else TRUE,
-            metavariable, destination))
+    f.str.help <- !is.null(hel2) && grepl("%", hel2, fixed = TRUE)
+    f.str.exit <- grepl("%", exi2, fixed = TRUE)
+    if (f.str.help || f.str.exit) {
+##        print(parent.frame())
+        envir <- new.env(parent = parent.frame())
+
+
+        envir$PROGRAM <- .self$program
+
+
+        if (length(tags))
+            envir$NAME <- tags[1L]
+        else delayedAssign("NAME", stop("invalid 'help', cannot contain 'NAME' without a name"), assign.env = envir)
+
+
+        if (length(shorts))
+            envir$SHORTFLAG <- shorts[1L]
+        else delayedAssign("SHORTFLAG", stop("invalid 'help', cannot contain 'SHORTFLAG' without a short flag"), assign.env = envir)
+
+
+        if (length(longs))
+            envir$LONGFLAG <- longs[1L]
+        else delayedAssign("LONGFLAG", stop("invalid 'help', cannot contain 'LONGFLAG' without a long flag"), assign.env = envir)
+
+
+        envir$ACTION <- action
+
+
+        envir$NARGS <- if (length(nargs) == 1) nargs else sprintf("c(%.0f, %.0f)", nargs[1], nargs[2])
+
+
+        if (action == "store_const")
+            envir$CONSTANT <- deparse1(constant, "")
+        else delayedAssign("CONSTANT", stop("invalid 'help', cannot contain 'CONSTANT' without a 'constant' argument"), assign.env = envir)
+
+
+        if (!isMissingArg(default))
+            envir$DEFAULT <- deparse1(default, "")
+        else delayedAssign("DEFAULT", stop("invalid 'help', cannot contain 'DEFAULT' without a 'default' argument"), assign.env = envir)
+
+
+        envir$TYPE <- typ2
+
+
+        if (action %in% c("store", "append"))
+            envir$CHOICES <- deparse1(choices, "")
+        else delayedAssign("CHOICES", stop("invalid 'help', cannot contain 'CHOICES' withouth a 'choices' argument"), assign.env = envir)
+
+
+        envir$REQUIRED <- if (nargs[1] == 0) FALSE else TRUE
+
+
+        envir$METAVARIABLE <- metavariable
+
+
+        envir$DESTINATION <- destination
+
+
+        if (f.str.help) {
+            hel2 <- f.str(hel2, envir)
+            if (length(hel2) != 1)
+                stop("invalid 'help', did not evaluate to a character string when interpolated and formatted")
+        }
+        if (f.str.exit) {
+            exi2 <- f.str(exi2, envir)
+            if (length(exi2) != 1)
+                stop("invalid 'exit', did not evaluate to a character string when interpolated and formatted")
+        }
     }
 
 
@@ -610,17 +670,14 @@ add.argument = function (..., action = NULL, nargs = NULL, constant, default,
         value <- c(value, list(constant = constant))
 
 
-    # use 'environment()$default' instead of 'default' in case 'default' is the missing argument
-    value <- c(value, list(default = environment()$default, type = typ2))
+    # use 'environment()[["default"]]' instead of 'default' in case 'default' is the missing argument
+    value <- c(value, list(default = environment()[["default"]], type = typ2))
     if (action %in% c("store", "append"))
         value <- c(value, list(choices = choices))
     if (!is.null(hel2))
         value <- c(value, list(help = hel2))
     value <- c(value, list(metavariable = metavariable, destination = destination,
         exit = exi2, wrap.help = wrap.help, wrap.exit = wrap.exit))
-    if (!is.null(hel2))
-        value$help <- help.sub2(value$help)
-    value$exit <- help.sub2(value$exit)
     if (inherits(.self, "essentials_ArgumentGroup"))
         value$group <- c(.self$parent.IDs, list(.self$ID))
     else value$group <- list()

@@ -1,14 +1,16 @@
 ##options(keep.source = TRUE)
 
 
-as.env <- function (envir, enclos, context = parent.frame(2))
-.Call(C_as.env, envir, enclos, context)
+as.env <- function (envir = parent.frame(2),
+                    enclos = if (is.list(envir) || is.pairlist(envir))
+                                 parent.frame(2) else baseenv())
+.Call(C_as.env, envir, enclos, parent.frame(2))
 
 
 f.str <- function (x, envir = parent.frame(),
                       enclos = if (is.list(envir) || is.pairlist(envir))
                                    parent.frame() else baseenv(),
-    context = parent.frame(), simplify = TRUE)
+    simplify = TRUE)
 {
     # f.str                                                       R Docmentation
     #
@@ -142,7 +144,7 @@ f.str <- function (x, envir = parent.frame(),
 
 
     x <- as.character(x)
-    envir <- as.env(envir, enclos, context)
+    envir <- as.env(envir, enclos)
     simplify <- if (simplify) TRUE else FALSE
 
 
@@ -168,7 +170,7 @@ f.str <- function (x, envir = parent.frame(),
     fmts <- gsub(pattern, "\\1\\6", x, perl = TRUE)
 
 
-    value <- lapply(seq_along(x), function(i) {
+    value <- lapply(seq_along(fmts), function(i) {
         fmt <- fmts[[i]]
         if (length(y[[i]]) > 0) {
 
@@ -217,22 +219,3 @@ consecutiveTRUE <- function (x)
         stop("argument to 'consecutiveTRUE' is not logical")
     gregexpr("1+", paste(as.integer(x & !is.na(x)), collapse = ""))[[1L]]
 }
-
-
-##f.str(c(
-##    "testing %{'this'}s out",
-##    "this.path() = %{dQuote(this.path::this.path())}s",
-##    "exp() = %{exp(1)}f, pi = %(10;pi).*f, dnorm(1) = %[stats::dnorm(1)]f"
-##))
-
-
-##local({
-##    text <- f.str |> deparse(control = "useSource")
-##    i <- consecutiveTRUE(startsWith(text, "    #") & seq_along(text) > grep(pattern <- "^    # Examples:", text))
-##    i <- seq.int(i[[1L]], length.out = attr(i, "match.length")[[1L]])
-##    text <- sub("^    # ?", "", text[i])
-##    FILE <- tempfile(fileext = ".R")
-##    on.exit(unlink(FILE))
-##    writeLines(text, FILE)
-##    source(FILE, local = TRUE, echo = TRUE)
-##})

@@ -23,7 +23,6 @@ static const R_CallMethodDef callRoutines[] = {
     {"row.match.data.frame"   , (DL_FUNC) &do_rowmatchdataframe     , 5},
 
     {"match.type"             , (DL_FUNC) &do_match_type            , 2},
-    {"testing"                , (DL_FUNC) &testing                  , 1},
 
     {"isMissingArg"           , (DL_FUNC) &do_isMissingArg          , 2},
 
@@ -42,13 +41,13 @@ static const R_CallMethodDef callRoutines[] = {
     {"plapply"                , (DL_FUNC) &do_plapply               , 4},
     {"pvapply"                , (DL_FUNC) &do_pvapply               , 6},
 
-    {"seq"                    , (DL_FUNC) &do_seq                   , 2},
+    {"seq"                    , (DL_FUNC) &do_seq                   , 1},
 
     {"is.mfor.done"           , (DL_FUNC) &do_is_mfor_done          , 1},
     {"mfor"                   , (DL_FUNC) &do_mfor                  , 2},
 
+    {"mkPROMISE"              , (DL_FUNC) &do_mkPROMISE             , 2},
     {"as.env"                 , (DL_FUNC) &do_as_env                , 3},
-    {"f.str_build.call"       , (DL_FUNC) &do_f_str_build_call      , 3},
     {"f.str"                  , (DL_FUNC) &do_f_str                 , 4},
 
     {NULL, NULL, 0}
@@ -56,8 +55,8 @@ static const R_CallMethodDef callRoutines[] = {
 
 
 static const R_ExternalMethodDef externalRoutines[] = {
-    {"hypot"  , (DL_FUNC) &do_hypot  , -1},
-    {"phypot" , (DL_FUNC) &do_phypot , -1},
+    {"hypot" , (DL_FUNC) &do_hypot , -1},
+    {"phypot", (DL_FUNC) &do_phypot, -1},
     {NULL, NULL, 0}
 };
 

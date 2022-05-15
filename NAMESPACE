@@ -278,6 +278,12 @@ export(is.scalar)
 export(aslength1)
 
 
+# seq2.R                    ----
+
+
+export(seq2)
+
+
 # shEncode.R                ----
 
 

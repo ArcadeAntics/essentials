@@ -7,10 +7,6 @@ void delayedAssign(SEXP value, SEXP eval_env, SEXP assign_env)
     SEXP expr = PROTECT(lang5(
         install("delayedAssign"),
         mkString("x"),
-//        lang2(
-//            install("quote"),
-//            value
-//        ),
         value,
         eval_env,
         assign_env
@@ -152,20 +148,6 @@ SEXP do_as_env(SEXP envir, SEXP enclos, SEXP context)
 
 
     UNPROTECT(np);
-    return value;
-}
-
-
-SEXP do_f_str_build_call(SEXP sprintf, SEXP fmt, SEXP exprs)
-{
-    PROTECT_INDEX indx;
-    SEXP value = R_NilValue;
-    PROTECT_WITH_INDEX(value, &indx);
-    for (R_xlen_t j = xlength(exprs) - 1; j >= 0; j--)
-        REPROTECT(value = LCONS(VECTOR_ELT(exprs, j), value), indx);
-    REPROTECT(value = LCONS(fmt    , value), indx);
-    REPROTECT(value = LCONS(sprintf, value), indx);
-    UNPROTECT(1);
     return value;
 }
 

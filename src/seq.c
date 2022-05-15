@@ -6,6 +6,16 @@
 
 
 
+#define my_return(X) {                                                \
+    value = (X);                                                      \
+    UNPROTECT(np);                                                    \
+    return value;                                                     \
+}
+
+
+
+
+
 // call s1:s2
 SEXP do_colon(SEXP s1, SEXP s2)
 {
@@ -34,47 +44,81 @@ SEXP asMaybeInteger(double r, Rboolean missing, SEXP x)
 
 
 
-// seq2(from, to, by, length.out, along.with, endpoint)
-SEXP do_seq(SEXP args, SEXP missings)
+#define SMTH_WRONG_W_SEQ2(X) (error("object '%s' not found; something is very wrong with 'seq2', please report!", (X)))
+
+
+
+
+
+// seq2(from, to, by, length.out, along.with, endpoint, ...)
+SEXP do_seq(SEXP rho)
 {
+    if (TYPEOF(rho) != ENVSXP)
+        error("invalid 'rho'");
+
+
+    int np = 0;
+
+
+    SEXP from, to, by, length_out, along_with, R_endpoint;
+    Rboolean missing_from, missing_to, missing_by, missing_length_out,
+        missing_along_with, endpoint;
+
+
+    from = findVarInFrame(rho, install("from"));
+    if (from == R_UnboundValue)
+        SMTH_WRONG_W_SEQ2("from");
+    if (!(missing_from = (from == R_MissingArg))) {
+        from = PROTECT(eval(from, rho)); np++;
+    }
+
+
+    to = findVarInFrame(rho, install("to"));
+    if (to == R_UnboundValue)
+        SMTH_WRONG_W_SEQ2("to");
+    if (!(missing_to = (to == R_MissingArg))) {
+        to = PROTECT(eval(to, rho)); np++;
+    }
+
+
+    by = findVarInFrame(rho, install("by"));
+    if (by == R_UnboundValue)
+        SMTH_WRONG_W_SEQ2("by");
+    if (!(missing_by = (by == R_MissingArg))) {
+        by = PROTECT(eval(by, rho)); np++;
+    }
+
+
+    length_out = findVarInFrame(rho, install("length.out"));
+    if (length_out == R_UnboundValue)
+        SMTH_WRONG_W_SEQ2("length.out");
+    if (!(missing_length_out = (length_out == R_MissingArg))) {
+        length_out = PROTECT(eval(length_out, rho)); np++;
+    }
+
+
+    along_with = findVarInFrame(rho, install("along.with"));
+    if (along_with == R_UnboundValue)
+        SMTH_WRONG_W_SEQ2("along.with");
+    if (!(missing_along_with = (along_with == R_MissingArg))) {
+        along_with = PROTECT(eval(along_with, rho)); np++;
+    }
+
+
+    R_endpoint = findVarInFrame(rho, install("endpoint"));
+    if (R_endpoint == R_UnboundValue)
+        SMTH_WRONG_W_SEQ2("endpoint");
+    if (R_endpoint == R_MissingArg) {
+        endpoint = 1;
+    } else {
+        endpoint = asLogical(eval(R_endpoint, rho));
+        if (endpoint == NA_LOGICAL)
+            error("invalid 'endpoint' argument");
+    }
+
+
     SEXP value;
     R_xlen_t i, lout = NA_INTEGER;
-
-
-    if (TYPEOF(args) != VECSXP || xlength(args) != 6)
-        error("invalid 'args'");
-    if (TYPEOF(missings) != LGLSXP || xlength(missings) != 5)
-        error("invalid 'missings'");
-
-
-    SEXP
-        from       = VECTOR_ELT(args, 0),
-        to         = VECTOR_ELT(args, 1),
-        by         = VECTOR_ELT(args, 2),
-        length_out = VECTOR_ELT(args, 3),
-        along_with = VECTOR_ELT(args, 4);
-    Rboolean
-        endpoint   = asLogical(VECTOR_ELT(args, 5));
-
-
-    if (endpoint == NA_LOGICAL)
-        error("invalid 'endpoint' argument");
-
-
-    Rboolean
-        missing_from       = LOGICAL(missings)[0],
-        missing_to         = LOGICAL(missings)[1],
-        missing_by         = LOGICAL(missings)[2],
-        missing_length_out = LOGICAL(missings)[3],
-        missing_along_with = LOGICAL(missings)[4];
-
-
-    if (missing_from       == NA_LOGICAL ||
-        missing_to         == NA_LOGICAL ||
-        missing_by         == NA_LOGICAL ||
-        missing_length_out == NA_LOGICAL ||
-        missing_along_with == NA_LOGICAL)
-        error("invalid 'missings', contains NA");
 
 
     if (!missing_length_out && !missing_along_with)
@@ -101,15 +145,15 @@ SEXP do_seq(SEXP args, SEXP missings)
             if (!R_FINITE(rfrom))
                 error("'from' must be a finite number");
             if (rfrom >= 1)
-                return do_colon(ScalarReal(1.0), ScalarReal(rfrom));
-            else return allocVector(INTSXP, 0);
+                my_return(do_colon(ScalarReal(1.0), ScalarReal(rfrom)))
+            else my_return(allocVector(INTSXP, 0))
         }
 
 
         /* do something like seq_along() */
         else if (lf >= 1)
-            return do_colon(ScalarReal(1.0), ScalarReal(lf));
-        else return allocVector(INTSXP, 0);
+            my_return(do_colon(ScalarReal(1.0), ScalarReal(lf)))
+        else my_return(allocVector(INTSXP, 0))
     }
 
 
@@ -124,8 +168,8 @@ SEXP do_seq(SEXP args, SEXP missings)
         lout = xlength(along_with);
         if (One) {
             if (lout >= 1)
-                return do_colon(ScalarReal(1.0), ScalarReal(lout));
-            else return allocVector(INTSXP, 0);
+                my_return(do_colon(ScalarReal(1.0), ScalarReal(lout)))
+            else my_return(allocVector(INTSXP, 0))
         }
     }
 
@@ -180,12 +224,12 @@ SEXP do_seq(SEXP args, SEXP missings)
 
             /* if (user wants endpoint), just do from:to as normal*/
             if (endpoint)
-                return do_colon(ScalarReal(rfrom), ScalarReal(rto));
+                my_return(do_colon(ScalarReal(rfrom), ScalarReal(rto)))
 
 
             /* the user does not want the endpoint */
             if (rfrom == rto)
-                return allocVector(INTSXP, 0);
+                my_return(allocVector(INTSXP, 0))
 
 
             int increasing = (rto > rfrom);
@@ -198,35 +242,33 @@ SEXP do_seq(SEXP args, SEXP missings)
             if (rfrom + ((double)n) >= rto) {
                 rto -= increasing ? 1 : -1;
                 if (rfrom == rto || increasing != (rto > rfrom))
-                    return asMaybeInteger(rfrom, missing_from, from);
+                    my_return(asMaybeInteger(rfrom, missing_from, from))
             }
-            return do_colon(ScalarReal(rfrom), ScalarReal(rto));
+            my_return(do_colon(ScalarReal(rfrom), ScalarReal(rto)))
         }
 
 
 
         if (xlength(by) != 1) error("'by' must be of length 1");
         double del = rto - rfrom;
-        if (del == 0.0 && rto == 0.0) {
-            return endpoint ? asMaybeInteger(rto, missing_to, to) : allocVector(INTSXP, 0);
-        }
+        if (del == 0.0 && rto == 0.0)
+            my_return(endpoint ? asMaybeInteger(rto, missing_to, to) : allocVector(INTSXP, 0))
         double n, rby = asReal(by);
         Rboolean finite_del = R_FINITE(del);
         if (finite_del)
             n = del/rby;
         else n = rto/rby - rfrom/rby;
         if (!R_FINITE(n)) {
-            if (del == 0.0 && rby == 0.0) {
-                return endpoint ?
+            if (del == 0.0 && rby == 0.0)
+                my_return(endpoint ?
                     asMaybeInteger(rfrom, missing_from, from) :
-                    allocVector(INTSXP, 0);
-            }
+                    allocVector(INTSXP, 0))
             else error("invalid '(to - from)/by)'");
         }
         if (finite_del && fabs(del)/fmax2(fabs(rto), fabs(rfrom)) < 100 * DBL_EPSILON) {
             if (!endpoint && del == 0.0)
-                return allocVector(INTSXP, 0);
-            return asMaybeInteger(rfrom, missing_from, from);
+                my_return(allocVector(INTSXP, 0))
+            my_return(asMaybeInteger(rfrom, missing_from, from))
             /*
             return endpoint ?
                 asMaybeInteger(rfrom, missing_from, from) :
@@ -255,7 +297,7 @@ SEXP do_seq(SEXP args, SEXP missings)
                     nn -= 1;
             }
             if (nn < 0)
-                return allocVector(INTSXP, 0);
+                my_return(allocVector(INTSXP, 0))
 #ifdef LONG_VECTOR_SUPPORT
             if (nn > (R_xlen_t) R_XLEN_T_MAX)
 #else
@@ -266,7 +308,7 @@ SEXP do_seq(SEXP args, SEXP missings)
             ivalue = INTEGER(value);
             for (i = 0; i <= nn; i++)
                 ivalue[i] = (int) (ifrom + i * iby);
-            return value;
+            my_return(value)
         }
 
 
@@ -280,7 +322,7 @@ SEXP do_seq(SEXP args, SEXP missings)
                 nn -= 1;
         }
         if (nn < 0)
-            return allocVector(INTSXP, 0);
+            my_return(allocVector(INTSXP, 0))
 #ifdef LONG_VECTOR_SUPPORT
         if (nn > (R_xlen_t) R_XLEN_T_MAX)
 #else
@@ -303,12 +345,12 @@ SEXP do_seq(SEXP args, SEXP missings)
                 (rby < 0 && rvalue[nn] < rto))
                 rvalue[nn] = rto;
         }
-        return value;
+        my_return(value)
     }
     else if (lout < 1)
-        return allocVector(INTSXP, 0);
+        my_return(allocVector(INTSXP, 0))
     else if (One)
-        return do_colon(ScalarReal(1.0), ScalarReal((double) lout));
+        my_return(do_colon(ScalarReal(1.0), ScalarReal((double) lout)))
     else if (missing_by) {
         double rfrom, rto, rby = 0, temp;
         if (missing_to) {
@@ -346,7 +388,7 @@ SEXP do_seq(SEXP args, SEXP missings)
                 for (i = 1; i < lout - 1; i++) {
                     INTEGER(value)[i] = (int)(rfrom + (double)i*rby);
                 }
-            return value;
+            my_return(value)
         }
         else {
             value = allocVector(REALSXP, lout);
@@ -365,7 +407,7 @@ SEXP do_seq(SEXP args, SEXP missings)
                     }
                 }
             }
-            return value;
+            my_return(value)
         }
     }
     else if (missing_to) {
@@ -382,14 +424,14 @@ SEXP do_seq(SEXP args, SEXP missings)
             for (i = 0; i < lout; i++) {
                 INTEGER(value)[i] = (int)(rfrom + (double)i*rby);
             }
-            return value;
+            my_return(value)
         }
         else {
             value = allocVector(REALSXP, lout);
             for (i = 0; i < lout; i++) {
                 REAL(value)[i] = rfrom + (double)i*rby;
             }
-            return value;
+            my_return(value)
         }
     }
     else if (missing_from) {
@@ -410,7 +452,7 @@ SEXP do_seq(SEXP args, SEXP missings)
                 for (i = 0; i < lout; i++) {
                     INTEGER(value)[i] = (int)(rto - (double)(lout - i)*rby);
                 }
-            return value;
+            my_return(value)
         }
         else {
             value = allocVector(REALSXP, lout);
@@ -422,9 +464,9 @@ SEXP do_seq(SEXP args, SEXP missings)
                 for (i = 0; i < lout; i++) {
                     REAL(value)[i] = rto - (double)(lout - i)*rby;
                 }
-            return value;
+            my_return(value)
         }
     }
     error("too many arguments");
-    return R_NilValue;
+    my_return(R_NilValue)
 }

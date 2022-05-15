@@ -48,11 +48,11 @@ extern SEXP do_plapply(SEXP X, SEXP FUN, SEXP dots_as_DOTSXP, SEXP rho);
 extern SEXP do_pvapply(SEXP X, SEXP FUN, SEXP FUN_VALUE, SEXP USE_NAMES,
     SEXP dots_as_DOTSXP, SEXP rho);
 
-extern SEXP do_seq(SEXP args, SEXP missings);
+extern SEXP do_seq(SEXP rho);
 
 extern SEXP do_is_mfor_done(SEXP rho);
 extern SEXP do_mfor(SEXP rho, SEXP p);
 
+extern SEXP do_mkPROMISE(SEXP value, SEXP env);
 extern SEXP do_as_env(SEXP envir, SEXP enclos, SEXP context);
-extern SEXP do_f_str_build_call(SEXP sprintf, SEXP fmt, SEXP exprs);
 extern SEXP do_f_str(SEXP sprintf, SEXP fmt, SEXP exprs, SEXP envir);

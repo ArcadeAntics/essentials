@@ -1,7 +1,7 @@
 essentials:::check_this(  # essentials
     build = TRUE,
 
-    check = TRUE, as.cran = TRUE,
+    check = FALSE, as.cran = TRUE,
 
     chdir = TRUE
 )

@@ -1,12 +1,26 @@
-quoteLang <- function (cl)
+quoteLang <- function (cl, quote.R_MissingArg = FALSE)
 {
-    switch(typeof(cl), symbol = {
-        as.call(list(quote, cl))
-    }, language = {
-        if (inherits(cl, "formula"))
-            cl
-        else as.call(list(quote, cl))
-    }, cl)
+    if (quote.R_MissingArg) {
+        if (isMissingArg(cl))
+            as.call(list(quote, quote(expr = )))
+        else switch(typeof(cl), symbol = {
+            as.call(list(quote, cl))
+        }, language = {
+            if (inherits(cl, "formula"))
+                cl
+            else as.call(list(quote, cl))
+        }, cl)
+    } else  {
+        if (isMissingArg(cl))
+            quote(expr = )
+        else switch(typeof(cl), symbol = {
+            as.call(list(quote, cl))
+        }, language = {
+            if (inherits(cl, "formula"))
+                cl
+            else as.call(list(quote, cl))
+        }, cl)
+    }   
 }
 
 
@@ -17,7 +31,9 @@ do.expr <- function (expr)
         return(expr)
     what <- sexpr[[1L]]
     sargs <- as.list(sexpr)[-1L]
-    has.tag <- nzchar(names(sargs))
+    has.tag <- if (!is.null(nms <- names(sargs)))
+        nzchar(nms)
+    else logical(length(sargs))
     args <- vector("list", length(sargs))
     names(args) <- names(sargs)
     envir <- parent.frame()
@@ -52,6 +68,6 @@ do.expr <- function (expr)
 }
 
 
-x <- 1:3
-names(x) <- letters[1:3]
-do.expr( base::list(k = 1:4, `*`(x), `**`(x), what = "testing", quote(y)) )
+##x <- 1:3
+##names(x) <- letters[1:3]
+##do.expr( base::list(k = 1:4, `*`(x), `**`(x), what = "testing", quote(y)) )

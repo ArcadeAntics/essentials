@@ -1,22 +1,22 @@
-.format_eee <- function (expr, envir, enclos)
+as.ee <- function (expr, envir)
 {
     if (inherits(expr, "formula")) {
-        len <- length(expr)
-        if (len < 2)
-            stop("invalid first argument")
-        else if (len > 2)
-            warning("'expr' should be of length 2, see ?legend.dimensions")
         envir <- environment(expr)
         if (!is.environment(envir))
-            stop("invalid 'expr', environment(expr) must be an environment")
-        enclos <- baseenv()
+            stop("invalid 'expr', 'environment(expr)' must be an environment")
+        if (length(expr) != 2)
+            stop("'expr' should be of length 2, see ?legend.dimensions")
         expr <- expr[[2L]]
     }
-    else if (is.expression(expr))
-        expr <- aslength1(expr)[[1L]]
+    else {
+        if (!is.environment(envir))
+            stop("invalid 'envir', must be an environment")
+        if (is.expression(expr))
+            expr <- aslength1(expr)[[1L]]
+    }
     if (!is.call(expr))
         stop("invalid 'expr', must be a call, expression, or formula")
-    list(expr, envir, enclos)
+    list(expr, envir)
 }
 
 
@@ -26,7 +26,7 @@ legend.dimensions <- function (expr, envir = parent.frame(),
     trace = FALSE)
 {
     trace <- if (trace) TRUE else FALSE
-    x <- .format_eee(expr, envir, enclos)
+    ee <- as.ee(expr, as.env(envir, enclos))
 
 
     # do NOT prompt the user before a new page of output is started.
@@ -109,7 +109,7 @@ legend.dimensions <- function (expr, envir = parent.frame(),
         x = NA_real_, y = NA_real_,
         axes = FALSE, frame.plot = FALSE, ann = FALSE
     )
-    value <- eval(x[[1L]], x[[2L]], x[[3L]])
+    value <- eval(ee[[1L]], ee[[2L]])
     if (trace) {
         cat("'expr' evaluated to:\n")
         print(value)
@@ -127,13 +127,13 @@ add.legend <- function (expr, envir = parent.frame(),
                 enclos = if (is.list(envir) || is.pairlist(envir))
                              parent.frame() else baseenv())
 {
-    x <- .format_eee(expr, envir, enclos)
-    eval(x[[1L]], x[[2L]], x[[3L]])
+    ee <- as.ee(expr, as.env(envir, enclos))
+    eval(ee[[1L]], ee[[2L]])
 }
 
 
 legendPart <- function (expr)
-.format_eee(expr, NULL, NULL)[[1L]]
+as.ee(expr, environment())[[1L]]
 
 
 `legendPart<-` <- function (expr, value)
@@ -170,11 +170,13 @@ fix.ylog <- function (y)
 if (par("ylog")) 10^y else y
 
 
-as.ld <- function (x, envir, enclos)
+as.ld <- function (x, envir = parent.frame(),
+                enclos = if (is.list(envir) || is.pairlist(envir))
+                             parent.frame() else baseenv())
 {
-    if (is.list(x) && is.numeric(x$w) && is.numeric(x$h))
+    if (is.list(x) && is.numeric(x[["w"]]) && is.numeric(x[["h"]]))
         x
-    else legend.dimensions(x, envir, enclos)
+    else legend.dimensions(x, as.env(envir, enclos))
 }
 
 
@@ -183,7 +185,7 @@ adj.margins <- function (x, envir = parent.frame(),
                           parent.frame() else baseenv(),
     extra = 0.1, side = 4L)
 {
-    x <- as.ld(x, envir, enclos)
+    x <- as.ld(x, as.env(envir, enclos))
     side <- as.scalar.integer(side)
     if (!side %in% 1:4)
         stop("invalid 'side' argument")
@@ -193,13 +195,13 @@ adj.margins <- function (x, envir = parent.frame(),
 
     mai <- par("mai")
     switch(side, `1` = {
-        mai[1L] <- max(x$h) - extra
+        mai[1L] <- max(x[["h"]]) - extra
     }, `2` = {
-        mai[2L] <- max(x$w) - extra
+        mai[2L] <- max(x[["w"]]) - extra
     }, `3` = {
-        mai[3L] <- max(x$h) + extra
+        mai[3L] <- max(x[["h"]]) + extra
     }, `4` = {
-        mai[4L] <- max(x$w) + extra
+        mai[4L] <- max(x[["w"]]) + extra
     })
     par(mai = mai)
 }
@@ -210,7 +212,7 @@ location <- function (x, envir = parent.frame(),
                           parent.frame() else baseenv(),
     adj = 1, extra = 0.1, side = 4L)
 {
-    x <- as.ld(x, envir, enclos)
+    x <- as.ld(x, as.env(envir, enclos))
     side <- as.scalar.integer(side)
     if (!side %in% 1:4)
         stop("invalid 'side' argument")
@@ -256,7 +258,7 @@ location <- function (x, envir = parent.frame(),
 
 
                 # subtract the width of the legend
-                - graphics::xinch(.(max(x$w)), warn.log = FALSE))
+                - graphics::xinch(.(max(x[["w"]])), warn.log = FALSE))
 
 
         }
@@ -272,7 +274,7 @@ location <- function (x, envir = parent.frame(),
 
 
             # subtract the width of the legend, multiplied by 'adj'
-            - graphics::xinch(.(max(x$w) * adj), warn.log = FALSE))
+            - graphics::xinch(.(max(x[["w"]]) * adj), warn.log = FALSE))
 
 
     }, `2` = {
@@ -286,7 +288,7 @@ location <- function (x, envir = parent.frame(),
 
 
             # subtract the width of the legend
-            - graphics::xinch(.(max(x$w)), warn.log = FALSE))
+            - graphics::xinch(.(max(x[["w"]])), warn.log = FALSE))
 
 
     }, `4` = {
@@ -323,7 +325,7 @@ location <- function (x, envir = parent.frame(),
 
 
                 # add the height of the legend
-                + graphics::yinch(.(max(x$h)), warn.log = FALSE))
+                + graphics::yinch(.(max(x[["h"]])), warn.log = FALSE))
 
 
         else bquote(
@@ -338,7 +340,7 @@ location <- function (x, envir = parent.frame(),
 
 
             # add the height of the legend, multiplied by '1 - adj'
-            + graphics::yinch(.(max(x$h) * (1 - adj)), warn.log = FALSE))
+            + graphics::yinch(.(max(x[["h"]]) * (1 - adj)), warn.log = FALSE))
 
 
 
@@ -353,7 +355,7 @@ location <- function (x, envir = parent.frame(),
 
 
             # add the height of the legend
-            + graphics::yinch(.(max(x$h)), warn.log = FALSE))
+            + graphics::yinch(.(max(x[["h"]])), warn.log = FALSE))
 
 
     }, `1` = {

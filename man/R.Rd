@@ -11,15 +11,15 @@ Start a new \R session with the specified options.
 }
 \usage{
 R(options = NULL, file = NULL, exprs = NULL, args = NULL,
-    chdir = FALSE, ...)
+    chdir = FALSE, ..., name = "R")
 
-Rcmd(options = NULL, command = "", args = NULL, ...)
+Rcmd(options = NULL, command = "", args = NULL, ..., name = "R")
 
 Rscript(options = NULL, file = NULL, exprs = NULL, args = NULL,
-    chdir = FALSE, ...)
+    chdir = FALSE, ..., name = "Rscript")
 
 Rterm(options = NULL, file = NULL, exprs = NULL, args = NULL,
-    chdir = FALSE, ...)
+    chdir = FALSE, ..., name = windows.type)
 }
 \arguments{
   \item{options}{
@@ -75,6 +75,12 @@ is temporarily changed to the directory containing \code{file} for evaluating.
 %   }
   \item{\dots}{
 further arguments passed to \code{\link[base]{system}()}.
+  }
+  \item{name}{
+the name or path of the \R executable to use. By default, they will use the
+\R executable found on \env{Path}. Specifying \code{name} can allow you to
+select a different version of \R to run, or select a version of \R tied
+to another application.
   }
 %   \item{quiet}{
 % logical. Should the command-line / / terminal prompt and exit message be printed

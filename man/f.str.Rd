@@ -70,15 +70,21 @@ age <- 50
 anniversary <- as.Date("1991-10-12")
 
 ## all 3 delimiter pairs:
-f.str(x <- "My name is \%(name)s, my age next year is \%[age + 1]i, my anniversary is \%{format(anniversary, '\%A, \%B \%d, \%Y')}s.")
+f.str(x <- paste(
+    "My name is \%(name)s,",
+    "my age next year is \%[age + 1]i,",
+    "my anniversary is \%{format(anniversary, '\%A, \%B \%d, \%Y')}s."
+))
 
 ## evaluate in a different environment:
 f.str(x, list(name = "Joe", age = 40, anniversary = as.Date("2001-10-12")))
 
 ## use a literal \% :
 
-f.str("\%{sum(responses == 'yes')/length(responses) * 100}.0f\%\% said yes (out of a sample of size \%{length(responses)}.0f)",
-    list(responses = c("yes", "no", "yes")))%f.str("\%(66.666).0f\%\% said yes (out of a sample of size \%(3).0f)", list(responses = c("yes", "no", "yes")))
+f.str(paste(
+    "\%{sum(responses == 'yes')/length(responses) * 100}.0f\%\% said yes",
+    "(out of a sample of size \%{length(responses)}.0f)"
+), list(responses = c("yes", "no", "yes")))%f.str("\%(66.666).0f\%\% said yes (out of a sample of size \%(3).0f)", list(responses = c("yes", "no", "yes")))
 
 ## re-use one argument three times, show difference between \%x and \%X
 xx <- f.str("\%(0:15)d \%1$x \%1$X")

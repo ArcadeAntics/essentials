@@ -251,18 +251,20 @@ SEXP do_seq(SEXP rho)
 
         if (xlength(by) != 1) error("'by' must be of length 1");
         double del = rto - rfrom;
-        if (del == 0.0 && rto == 0.0)
+        if (del == 0.0 && rto == 0.0) {
             my_return(endpoint ? asMaybeInteger(rto, missing_to, to) : allocVector(INTSXP, 0))
+        }
         double n, rby = asReal(by);
         Rboolean finite_del = R_FINITE(del);
         if (finite_del)
             n = del/rby;
         else n = rto/rby - rfrom/rby;
         if (!R_FINITE(n)) {
-            if (del == 0.0 && rby == 0.0)
+            if (del == 0.0 && rby == 0.0) {
                 my_return(endpoint ?
                     asMaybeInteger(rfrom, missing_from, from) :
                     allocVector(INTSXP, 0))
+            }
             else error("invalid '(to - from)/by)'");
         }
         if (finite_del && fabs(del)/fmax2(fabs(rto), fabs(rfrom)) < 100 * DBL_EPSILON) {

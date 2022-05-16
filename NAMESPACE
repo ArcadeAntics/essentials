@@ -57,7 +57,7 @@ export(dedent)
 # delayedAssign2.R          ----
 
 
-export(delayedAssign2)
+export(delayedAssign2, mkPROMISE)
 
 
 # dir.choose.R              ----
@@ -70,6 +70,12 @@ export(dir.choose)
 
 
 export(dir.copy)
+
+
+# do.expr.R                 ----
+
+
+export(quoteLang, do.expr)
 
 
 # do.while.R                ----

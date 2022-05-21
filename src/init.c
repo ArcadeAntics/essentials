@@ -50,6 +50,8 @@ static const R_CallMethodDef callRoutines[] = {
     {"as.env"                 , (DL_FUNC) &do_as_env                , 3},
     {"f.str"                  , (DL_FUNC) &do_f_str                 , 4},
 
+    {"do.expr"                , (DL_FUNC) &do_do_expr               , 2},
+
     {NULL, NULL, 0}
 };
 

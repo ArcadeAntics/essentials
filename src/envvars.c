@@ -1,11 +1,6 @@
 #include <R.h>
 #include <Rinternals.h>
-
-
-#define UNIMPLEMENTED_TYPE(X, Y) (error("unimplemented type '%s' in '%s'", type2char(TYPEOF(Y)), X))
-
-
-#define Rprint(X) (eval(lang2(install("print"), lang2(install("quote"), X)), R_BaseEnv))
+#include "defines.h"
 
 
 // #define debug
@@ -204,7 +199,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
 
 #ifdef debug
     Rprintf("the names of the environment variables are:\n");
-    Rprint(names);
+    R_print(names);
     Rprintf("\n");
 #endif
 
@@ -227,7 +222,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
 
 #ifdef debug
     Rprintf("the expression to get the environment variables is:\n");
-    Rprint(expr);
+    R_print(expr);
     Rprintf("\n");
 #endif
 
@@ -237,7 +232,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
 
 #ifdef debug
     Rprintf("the expression evaluated to:\n");
-    Rprint(value);
+    R_print(value);
     Rprintf("\n");
 #endif
 
@@ -248,7 +243,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
 
 #ifdef debug
     Rprintf("the object was coerced to:\n");
-    Rprint(value);
+    R_print(value);
     Rprintf("\n");
 #endif
 
@@ -361,7 +356,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
 
 #ifdef debug
             Rprintf("the expression to set the environment variables is:\n");
-            Rprint(expr);
+            R_print(expr);
             Rprintf("\n");
 #endif
 
@@ -373,7 +368,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
 
 #ifdef debug
             Rprintf("the expression to unset the environment variables is:\n");
-            Rprint(expr2);
+            R_print(expr2);
             Rprintf("\n");
 #endif
 

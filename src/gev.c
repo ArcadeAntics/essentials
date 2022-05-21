@@ -1,6 +1,7 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
+#include "defines.h"
 
 
 #define give_log log_p
@@ -9,18 +10,6 @@
 #define R_D__e (log_p ? -1.0 : exp(-1.0))
 #define R_DT_0 (lower_tail ? R_D__0 : R_D__1)
 #define R_DT_1 (lower_tail ? R_D__1 : R_D__0)
-
-
-#define test4NumericArgument(X)                                \
-    switch(TYPEOF(X)) {                                        \
-    case INTSXP:                                               \
-    case LGLSXP:                                               \
-    case NILSXP:                                               \
-    case REALSXP:                                              \
-        break;                                                 \
-    default:                                                   \
-        error("Non-numeric argument to mathematical function");\
-    }
 
 
 #define ML_NAN (0.0 / 0.0)

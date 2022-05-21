@@ -60,15 +60,15 @@ do.expr( list(k = 1:4, `**`(x)) )  # with names
 ## (with unknown number of dimensions)
 
 ndim <- sample(3:4, size = 1)
-dim <- sample(3:6, size = ndim)
+dim <- sample(3:4, size = ndim, replace = TRUE)
 x <- array(seq_len(prod(dim)), dim)
 
 ## select rows whose sums are less than the mean row sum
 sums <- rowSums(x)
 i <- sums < mean(sums)
-indexes <- rep(list(i, quote(expr = )), c(1, length(dim(x)) - 1))
-do.expr( x[`*`(indexes)] )
+missing_indexes <- rep(list(quote(expr = )), length(dim(x)) - 1)
+do.expr( x[i, `*`(missing_indexes)] )
 
 ## easy to add more arguments, such as 'drop'
-do.expr( x[`*`(indexes), drop = FALSE] )
+do.expr( x[i, `*`(missing_indexes), drop = FALSE] )
 }

@@ -56,3 +56,5 @@ extern SEXP do_mfor(SEXP rho, SEXP p);
 extern SEXP do_mkPROMISE(SEXP value, SEXP env);
 extern SEXP do_as_env(SEXP envir, SEXP enclos, SEXP context);
 extern SEXP do_f_str(SEXP sprintf, SEXP fmt, SEXP exprs, SEXP envir);
+
+SEXP do_do_expr(SEXP sexpr, SEXP rho);

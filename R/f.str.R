@@ -2,14 +2,14 @@
 
 
 as.env <- function (envir = parent.frame(2),
-                    enclos = if (is.list(envir) || is.pairlist(envir))
-                                 parent.frame(2) else baseenv())
+          enclos = if (is.list(envir) || is.pairlist(envir))
+                       parent.frame(2) else baseenv())
 .Call(C_as.env, envir, enclos, parent.frame(2))
 
 
-f.str <- function (x, envir = parent.frame(),
-                      enclos = if (is.list(envir) || is.pairlist(envir))
-                                   parent.frame() else baseenv(),
+f.str.old <- function (x, envir = parent.frame(),
+             enclos = if (is.list(envir) || is.pairlist(envir))
+                          parent.frame() else baseenv(),
     simplify = TRUE)
 {
     # f.str                                                       R Docmentation
@@ -78,7 +78,7 @@ f.str <- function (x, envir = parent.frame(),
     # conversion specifications with the formatting specifications and type
     # immediately after.
     #
-    # 
+    #
     #
     #
     #
@@ -134,7 +134,7 @@ f.str <- function (x, envir = parent.frame(),
     #
     # ## Asterisk and argument re-use, 'e' example reiterated:
     # f.str("e with %(n)2d digits = %[exp(1)].*1$g")
-    # 
+    #
     # ## re-cycle arguments
     # f.str("%('test')s %(1:3)d")
     #
@@ -191,7 +191,7 @@ f.str <- function (x, envir = parent.frame(),
 
             # turn a list of a expressions into an expression
             exprs <- unlist(exprs, recursive = FALSE, use.names = FALSE)
-            .Call(C_f.str, sprintf, fmt, exprs, envir)  # evaluate where requested
+            .Call(C_f.str.old, sprintf, fmt, exprs, envir)  # evaluate where requested
         } else sprintf(fmt)
     })
 
@@ -211,6 +211,13 @@ f.str <- function (x, envir = parent.frame(),
         else value
     } else value
 }
+
+
+f.str <- function (x, envir = parent.frame(),
+             enclos = if (is.list(envir) || is.pairlist(envir))
+                          parent.frame() else baseenv(),
+    simplify = TRUE)
+.Call(C_f.str, x, as.env(envir, enclos), simplify)
 
 
 consecutiveTRUE <- function (x)

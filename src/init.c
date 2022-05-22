@@ -48,7 +48,8 @@ static const R_CallMethodDef callRoutines[] = {
 
     {"mkPROMISE"              , (DL_FUNC) &do_mkPROMISE             , 2},
     {"as.env"                 , (DL_FUNC) &do_as_env                , 3},
-    {"f.str"                  , (DL_FUNC) &do_f_str                 , 4},
+    {"f.str.old"              , (DL_FUNC) &do_f_str_old             , 4},
+    {"f.str"                  , (DL_FUNC) &do_f_str                 , 3},
 
     {"do.expr"                , (DL_FUNC) &do_do_expr               , 2},
 

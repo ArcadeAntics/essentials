@@ -152,7 +152,7 @@ SEXP do_as_env(SEXP envir, SEXP enclos, SEXP context)
 }
 
 
-SEXP do_f_str(SEXP sprintf, SEXP fmt, SEXP exprs, SEXP envir)
+SEXP do_f_str_old(SEXP sprintf, SEXP fmt, SEXP exprs, SEXP envir)
 {
     PROTECT_INDEX indx;
     SEXP expr = R_NilValue;
@@ -163,5 +163,168 @@ SEXP do_f_str(SEXP sprintf, SEXP fmt, SEXP exprs, SEXP envir)
     REPROTECT(expr = LCONS(sprintf, expr), indx);
     SEXP value = eval(expr, envir);
     UNPROTECT(1);
+    return value;
+}
+
+
+
+
+
+#define _f_str                                                         \
+    {                                                                  \
+        REPROTECT(expr = R_NilValue, indx);                            \
+        yy = VECTOR_ELT(y, i);                                         \
+        if (length(yy) > 0) {                                          \
+            mm = VECTOR_ELT(m, i);                                     \
+            imm = INTEGER(mm);                                         \
+            for (mm_indx = length(mm) - 2; mm_indx >= 0; mm_indx -= 7) {\
+                if ( (!imm[mm_indx]) + (!imm[mm_indx - 1]) + (!imm[mm_indx - 2]) != 2)\
+                    error("invalid 'm'; should never happen, please report!");\
+                if (imm[yy_indx = mm_indx]) {}                         \
+                else if (imm[--yy_indx]) {}                            \
+                else if (imm[--yy_indx]) {}                            \
+                else error("invalid 'm'; should never happen, please report!");\
+                tmp2 = PROTECT(ScalarString(STRING_ELT(yy, yy_indx))); \
+                tmp2 = PROTECT(lang2(install("str2expression"), tmp2));\
+                tmp = PROTECT(eval(tmp2, R_BaseEnv));                  \
+                switch (length(tmp)) {                                 \
+                case 1:                                                \
+                    REPROTECT(expr = LCONS(VECTOR_ELT(tmp, 0), expr), indx);\
+                    break;                                             \
+                case 2:                                                \
+                    REPROTECT(expr = LCONS(VECTOR_ELT(tmp, 1), expr), indx);\
+                    REPROTECT(expr = LCONS(VECTOR_ELT(tmp, 0), expr), indx);\
+                    break;                                             \
+                default:                                               \
+                    error("parsing result not of length one or two, but %d", length(tmp));\
+                }                                                      \
+                UNPROTECT(3);                                          \
+            }                                                          \
+        }                                                              \
+        REPROTECT(expr = LCONS(ScalarString(STRING_ELT(fmt, i)), expr), indx);\
+        REPROTECT(expr = LCONS(sprintf, expr), indx);                  \
+        vvalue = eval(expr, rho);                                      \
+    }
+
+
+
+
+
+SEXP do_f_str(SEXP x, SEXP rho, SEXP simplify)
+{
+    if (TYPEOF(rho) != ENVSXP)
+        error("invalid 'rho'");
+
+
+    Rboolean lsimplify = asLogical(simplify);
+    if (lsimplify == NA_LOGICAL)
+        error("invalid 'simplify' argument");
+
+
+    int np = 0;
+
+
+    if (TYPEOF(x) != STRSXP) {
+        if (isObject(x)) {
+            SEXP tmp = PROTECT(lang2(install("as.character"), lang2(install("quote"), x))); np++;
+            x = PROTECT(eval(tmp, R_BaseEnv)); np++;
+            if (TYPEOF(x) != STRSXP)
+                error("invalid 'x'");
+        }
+        else { x = PROTECT(coerceVector(x, STRSXP)); np++; }
+    }
+
+
+    int len = length(x);
+    if (lsimplify && len <= 0) {
+        UNPROTECT(np);
+        return allocVector(STRSXP, 0);
+    }
+
+
+    PROTECT_INDEX indx;
+    SEXP expr = R_NilValue;
+    PROTECT_WITH_INDEX(expr, &indx); np++;
+
+
+    SEXP pattern, m, y, fmt, sprintf, value, vvalue, mm, yy, tmp, tmp2;
+    pattern = PROTECT(mkString(
+        "((?:^|[^%])(?:%%)*%)(-*)(?:\\(([\\S\\s]*?)\\)|\\[([\\S\\s]*?)\\]|\\{([\\S\\s]*?)\\})\\2([^%]*?[aAdifeEgGosxX])"
+    )); np++;
+
+
+    /* gregexec(pattern, x, perl = TRUE) */
+    REPROTECT(expr = LCONS(ScalarLogical(1), expr), indx);
+    SET_TAG(expr, install("perl"));
+    REPROTECT(expr = LCONS(x, expr), indx);
+    REPROTECT(expr = LCONS(pattern, expr), indx);
+    REPROTECT(expr = LCONS(install("gregexec"), expr), indx);
+    m = PROTECT(eval(expr, R_BaseEnv)); np++;
+
+
+    REPROTECT(expr = R_NilValue, indx);
+
+
+    /* regmatches(x, m) */
+    REPROTECT(expr = LCONS(m, expr), indx);
+    REPROTECT(expr = LCONS(x, expr), indx);
+    REPROTECT(expr = LCONS(install("regmatches"), expr), indx);
+    y = PROTECT(eval(expr, R_BaseEnv)); np++;
+
+
+    REPROTECT(expr = R_NilValue, indx);
+
+
+    /* gsub(pattern, "\\1\\6", x, perl = TRUE) */
+    REPROTECT(expr = LCONS(ScalarLogical(1), expr), indx);
+    SET_TAG(expr, install("perl"));
+    REPROTECT(expr = LCONS(x, expr), indx);
+    REPROTECT(expr = LCONS(mkString("\\1\\6"), expr), indx);
+    REPROTECT(expr = LCONS(pattern, expr), indx);
+    REPROTECT(expr = LCONS(install("gsub"), expr), indx);
+    fmt = PROTECT(eval(expr, R_BaseEnv)); np++;
+
+
+    sprintf = PROTECT(eval(install("sprintf"), R_BaseEnv)); np++;
+
+
+    int i = 0, mm_indx, yy_indx, *imm;
+
+
+    if (lsimplify && len == 1) {
+        _f_str
+        UNPROTECT(np);
+        return vvalue;
+    }
+
+
+    value = PROTECT(allocVector(VECSXP, len)); np++;
+    for (i = 0; i < len; i++) {
+        _f_str
+        PROTECT(vvalue);
+        SET_VECTOR_ELT(value, i, vvalue);
+        UNPROTECT(1);
+    }
+
+
+    if (lsimplify) {
+        Rboolean all1 = 1;
+        for (i = 0; i < len; i++) {
+            if (length(VECTOR_ELT(value, i)) != 1) {
+                all1 = 0;
+                break;
+            }
+        }
+        if (all1) {
+            SEXP return_this = PROTECT(allocVector(STRSXP, len)); np++;
+            for (i = 0; i < len; i++)
+                SET_STRING_ELT(return_this, i, STRING_ELT(VECTOR_ELT(value, i), 0));
+            UNPROTECT(np);
+            return return_this;
+        }
+    }
+
+
+    UNPROTECT(np);
     return value;
 }

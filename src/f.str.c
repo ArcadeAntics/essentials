@@ -222,11 +222,12 @@ SEXP do_f_str(SEXP x, SEXP rho, SEXP simplify)
 
 
     int np = 0;
+    SEXP tmp, tmp2;
 
 
     if (TYPEOF(x) != STRSXP) {
         if (isObject(x)) {
-            SEXP tmp = PROTECT(lang2(install("as.character"), lang2(install("quote"), x))); np++;
+            tmp = PROTECT(lang2(install("as.character"), lang2(install("quote"), x))); np++;
             x = PROTECT(eval(tmp, R_BaseEnv)); np++;
             if (TYPEOF(x) != STRSXP)
                 error("invalid 'x'");
@@ -247,7 +248,7 @@ SEXP do_f_str(SEXP x, SEXP rho, SEXP simplify)
     PROTECT_WITH_INDEX(expr, &indx); np++;
 
 
-    SEXP pattern, m, y, fmt, sprintf, value, vvalue, mm, yy, tmp, tmp2;
+    SEXP pattern, m, y, fmt, sprintf, value, mm, yy, vvalue;
     pattern = PROTECT(mkString(
         "((?:^|[^%])(?:%%)*%)(-*)(?:\\(([\\S\\s]*?)\\)|\\[([\\S\\s]*?)\\]|\\{([\\S\\s]*?)\\})\\2([^%]*?[aAdifeEgGosxX])"
     )); np++;

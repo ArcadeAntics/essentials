@@ -366,7 +366,7 @@ SEXP do_do_expr(SEXP sexpr, SEXP rho)
             if (!isNull(tag))
                 error("do not name arguments which are being unpacked");
             sarg = CADR(sarg);
-            if (TYPEOF(sarg) == SYMSXP && R_DotsSymbol) {
+            if (TYPEOF(sarg) == SYMSXP && sarg == R_DotsSymbol) {
                 sarg = PROTECT(lang2(pairlist, sarg));
                 arg = PROTECT(eval(sarg, rho));
                 unpack_iter
@@ -382,7 +382,7 @@ SEXP do_do_expr(SEXP sexpr, SEXP rho)
             if (!isNull(tag))
                 error("do not name arguments which are being unpacked");
             sarg = CADR(sarg);
-            if (TYPEOF(sarg) == SYMSXP && R_DotsSymbol) {
+            if (TYPEOF(sarg) == SYMSXP && sarg == R_DotsSymbol) {
                 sarg = PROTECT(lang2(pairlist, sarg));
                 arg = PROTECT(eval(sarg, rho));
                 unpack_dict

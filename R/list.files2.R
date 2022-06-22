@@ -25,11 +25,16 @@ list.files2 <- function (path = ".", pattern = NULL, all.files = FALSE,
     on.exit(unlink(outfile))
 
 
+    # since tab is not allowed in Windows paths, we can safely paste together and separate later
+    # but just to be sure, remove any NA elements or elements containing tab
+    path <- path.expand(path)
+    path <- paste(path[!is.na(path) & !grepl("\t", path, fixed = TRUE)], collapse = "\t")
+
+
     oenv <- envvars(
 
 
-        # since tab is not allowed in Windows paths, we can safely paste together and separate later
-        R_ESSENTIALS_LIST_FILES2_PATH         = paste(path.expand(path), collapse = "\t"),
+        R_ESSENTIALS_LIST_FILES2_PATH         = path,
         R_ESSENTIALS_LIST_FILES2_ALL_FILES    = if (all.files)    TRUE else FALSE,
         R_ESSENTIALS_LIST_FILES2_FULL_NAMES   = if (full.names)   TRUE else FALSE,
         R_ESSENTIALS_LIST_FILES2_RECURSIVE    = if (recursive)    TRUE else FALSE,
@@ -64,11 +69,14 @@ list.dirs2 <- function (path = ".", full.names = TRUE, recursive = TRUE)
     on.exit(unlink(outfile))
 
 
+    path <- path.expand(path)
+    path <- paste(path[!is.na(path) & !grepl("\t", path, fixed = TRUE)], collapse = "\t")
+
+
     oenv <- envvars(
 
 
-        # since tab is not allowed in Windows paths, we can safely paste together and separate later
-        R_ESSENTIALS_LIST_DIRS2_PATH       = paste(path.expand(path), collapse = "\t"),
+        R_ESSENTIALS_LIST_DIRS2_PATH       = path,
         R_ESSENTIALS_LIST_DIRS2_FULL_NAMES = if (full.names) TRUE else FALSE,
         R_ESSENTIALS_LIST_DIRS2_RECURSIVE  = if (recursive)  TRUE else FALSE,
 

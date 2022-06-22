@@ -64,6 +64,7 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
                 warning("first element used of 'file' argument")
                 file <- file[[1L]]
             }
+            file <- path.expand(file)
             if (grepl("^(ftp|http|https|file)://", file)) {
                 if (chdir) warning("'chdir = TRUE' makes no sense for a URL")
             }

@@ -33,7 +33,7 @@ should the result be simplified to a character vector if possible?
   }
 }
 \details{
-Values in the format strings are specified in a similar manner to that of 
+Values in the format strings are specified in a similar manner to that of
 \code{\link[base:Quotes]{raw character constants}}: \verb{(...)} with
 \verb{...} any character sequence, except that it must not contain the closing
 delimiter \sQuote{\verb{)}}. The delimiter pairs \verb{[]} and \verb{{}} can
@@ -110,4 +110,7 @@ f.str("\%(letters)s \%(1:13)d")
 ## binary output showing rounding/representation errors
 x <- seq(0, 1.0, 0.1); y <- c(0,.1,.2,.3,.4,.5,.6,.7,.8,.9,1)
 cbind(x, f.str("\%(x)a"), f.str("\%(y)a"))
+
+## using dashes
+writeLines(f.str("\%----(list(letters[1:5], {}))----s"))
 }

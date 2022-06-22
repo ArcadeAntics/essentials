@@ -349,7 +349,8 @@ SEXP do_do_expr(SEXP sexpr, SEXP rho)
 
 
     R_xlen_t len;
-    SEXP quote = PROTECT(eval(install("quote"), R_BaseEnv)); np++;
+    SEXP pairlist = PROTECT(eval(install("pairlist"), R_BaseEnv)); np++;
+    SEXP quote    = PROTECT(eval(install("quote"   ), R_BaseEnv)); np++;
 
 
     for (int n = length(sargs) - 1; n >= 0; n--) {
@@ -364,16 +365,34 @@ SEXP do_do_expr(SEXP sexpr, SEXP rho)
         else if (TYPEOF(sarg) == LANGSXP && CAR(sarg) == install("*") && length(sarg) == 2) {
             if (!isNull(tag))
                 error("do not name arguments which are being unpacked");
-            arg = PROTECT(eval(CADR(sarg), rho));
-            unpack_iter
-            UNPROTECT(1);
+            sarg = CADR(sarg);
+            if (TYPEOF(sarg) == SYMSXP && R_DotsSymbol) {
+                sarg = PROTECT(lang2(pairlist, sarg));
+                arg = PROTECT(eval(sarg, rho));
+                unpack_iter
+                UNPROTECT(2);
+            }
+            else {
+                arg = PROTECT(eval(sarg, rho));
+                unpack_iter
+                UNPROTECT(1);
+            }
         }
         else if (TYPEOF(sarg) == LANGSXP && CAR(sarg) == install("**") && length(sarg) == 2) {
             if (!isNull(tag))
                 error("do not name arguments which are being unpacked");
-            arg = PROTECT(eval(CADR(sarg), rho));
-            unpack_dict
-            UNPROTECT(1);
+            sarg = CADR(sarg);
+            if (TYPEOF(sarg) == SYMSXP && R_DotsSymbol) {
+                sarg = PROTECT(lang2(pairlist, sarg));
+                arg = PROTECT(eval(sarg, rho));
+                unpack_dict
+                UNPROTECT(2);
+            }
+            else {
+                arg = PROTECT(eval(sarg, rho));
+                unpack_dict
+                UNPROTECT(1);
+            }
         }
         else {
             REPROTECT(expr = LCONS(sarg, expr), indx);

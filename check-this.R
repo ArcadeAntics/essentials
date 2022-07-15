@@ -1,10 +1,11 @@
 essentials:::check_this(  # essentials
-    build = TRUE,
-
     check = FALSE, as.cran = TRUE,
 
-    chdir = TRUE
+    chdir = TRUE, special = TRUE
 )
+
+
+
 
 
 .import <- function (name, env = new.env(parent = emptyenv()), last = TRUE)

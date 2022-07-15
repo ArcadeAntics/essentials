@@ -47,7 +47,7 @@ check_this <- function (
     check = TRUE,
     as.cran = FALSE,
 
-    chdir = FALSE, file = here())
+    chdir = FALSE, file = here(), name = "R", special = FALSE, where = "../PACKAGES")
 {
     # Check_This {essentials}                                    R Documentation
     #
@@ -111,6 +111,32 @@ check_this <- function (
     #     character string; the directory of the package source, by default
     #     the executing script's directory
 
+
+
+    # local({
+    #     x <- formals(essentials:::check_this)
+    #     assign.env <- parent.env(environment())
+    #     for (name in names(x)) {
+    #         essentials::delayedAssign2(name, x[[name]], assign.env = assign.env, evaluated = TRUE)
+    #     }
+    # })
+    # name <- "R"
+    # special <- FALSE
+    # where <- "../PACKAGES"
+    # switch2 <- essentials:::switch2
+    # Rcmd <- essentials:::Rcmd
+
+
+    # file <- "C:/Users/andre/Documents/this.path"
+    # check <- FALSE
+    # chdir <- TRUE
+    # special <- TRUE
+
+
+    if (special) {
+        build <- TRUE
+        name <- file.path(R.home("bin"), "R")
+    }
 
 
     build.args <- c(
@@ -177,11 +203,11 @@ check_this <- function (
         )
 
 
-    if (!is.character(file) || length(file) != 1L)
+    if (!is.character(file) || length(file) != 1L) {
         stop("invalid 'file'")
-    else if (grepl("^(ftp|ftps|http|https)://", file))
+    } else if (grepl("^(ftp|ftps|http|https)://", file)) {
         stop("cannot 'Check_This' on a URL")
-    else if (chdir && (path <- file) != ".") {
+    } else if (chdir && (path <- file) != ".") {
         file <- "."
 
 
@@ -193,36 +219,35 @@ check_this <- function (
     }
 
 
-    packageInfo <- read.dcf(file.path(file, "DESCRIPTION"),
-        fields = c("Package", "Version"))
-    if (anyNA(packageInfo) ||
-        !grepl(packageInfo[[1L, "Package"]], pattern = paste0("^(", .standard_regexps()$valid_package_name   , ")$")) ||
-        !grepl(packageInfo[[1L, "Version"]], pattern = paste0("^(", .standard_regexps()$valid_package_version, ")$")))
+    packageInfo <- read.dcf(file.path(file, "DESCRIPTION"))
+    if (nrow(packageInfo) != 1L)
+        stop("bruh wtf are you doing???")
+    packageInfo <- structure(c(packageInfo), names = colnames(packageInfo))
+    pkgname <- packageInfo[["Package"]]
+    version <- packageInfo[["Version"]]
+    if (anyNA(c(pkgname, version)) ||
+        !grepl(pkgname, pattern = paste0("^(", .standard_regexps()$valid_package_name   , ")$")) ||
+        !grepl(version, pattern = paste0("^(", .standard_regexps()$valid_package_version, ")$")))
         stop("invalid package DESCRIPTION file")
 
 
     finished <- unloaded <- FALSE
     on.exit({
-        if (.Platform$GUI == "RStudio") {
-            if (exists(".rs.api.restartSession", "tools:rstudio", inherits = FALSE)) {
-                command <- if (finished)
-                    deparse1(call("library", as.symbol(pkgname)),
-                        collapse = "\n", width.cutoff = 80L)
-                get(".rs.api.restartSession", "tools:rstudio", inherits = FALSE)(command)
-            }
-            else if (unloaded)
-                warning(gettextf("%s %s was unloaded, please restart the R session",
-                    if (.Platform$OS.type == "windows") "DLL" else "shared object",
-                    sQuote(pkgname)))
+        if (.Platform$GUI == "RStudio" &&
+            exists(".rs.api.restartSession", "tools:rstudio", inherits = FALSE)) {
+            command <- if (finished)
+                deparse1(call("library", as.symbol(pkgname)),
+                    collapse = "\n", width.cutoff = 80L)
+            get(".rs.api.restartSession", "tools:rstudio", inherits = FALSE)(command)
         }
         else if (unloaded)
-                warning(gettextf("%s %s was unloaded, please restart the R session",
-                    if (.Platform$OS.type == "windows") "DLL" else "shared object",
-                    sQuote(pkgname)))
+            warning(gettextf("%s %s was unloaded, please restart the R session",
+                if (.Platform$OS.type == "windows") "DLL" else "shared object",
+                sQuote(pkgname)))
     }, add = TRUE)
 
 
-    pkgname <- packageInfo[[1L, "Package"]]
+
     if (isNamespaceLoaded(pkgname)) {
         DLLs <- names(getLoadedDLLs())
         if (pkgname %in% DLLs) {
@@ -233,23 +258,144 @@ check_this <- function (
     }
 
 
-    file2 <- paste0(pkgname, "_", packageInfo[[1L, "Version"]], ".tar.gz")
+    tar.file <- paste0(pkgname, "_", version, ".tar.gz")
 
 
-    value <- Rcmd(command = "build", args = c(build.args, file),
-        mustWork = TRUE)
+    value <- if (missing(name))
+        Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE)
+    else Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE, name = name)
     cat("\n")
 
 
-    value <- Rcmd(command = "INSTALL", args = c(INSTALL.args, file2),
-        mustWork = TRUE)
+    if (special) {
+        fields <- c("Package", "Version", "Depends", "Suggests",
+            "License", "MD5sum", "NeedsCompilation", "Imports",
+            "LinkingTo", "Enhances", "OS_type")
+        PACKAGES.info <- structure(packageInfo[fields], names = fields)
+        if (is.na(PACKAGES.info["NeedsCompilation"]))
+            PACKAGES.info["NeedsCompilation"] <- "no"
+        PACKAGES.info["MD5sum"] <- tools:::md5sum(tar.file)
+        PACKAGES.info <- t(PACKAGES.info)
+
+
+        tar.path <- file.path(file, where, "src/contrib")
+        dir.create(tar.path, showWarnings = FALSE, recursive = TRUE)
+
+
+        PACKAGES.file <- file.path(tar.path, "PACKAGES")
+        if (file.exists(PACKAGES.file)) {
+            text <- readLines(PACKAGES.file)
+            con <- file(PACKAGES.file, "w")
+            tryCatch({
+                if (i <- match(paste0("Package: ", pkgname), text, 0L)) {
+                    writeLines(text[seq_len(i - 1L)], con)
+                } else if (i <- match(TRUE, startsWith(text, "Package: ") & substr(text, 10L, 1000000L) > pkgname, 0L)) {
+                    writeLines(text[seq_len(i - 1L)], con)
+                } else {
+                    i <- length(text)
+                    writeLines(c(text, ""), con)
+                }
+                write.dcf(PACKAGES.info, con)
+                j <- which(text == "")
+                j <- j[j > i]
+                if (length(j) > 0) {
+                    j <- j[[1L]]
+                    writeLines(text[j:length(text)], con)
+                }
+            }, finally = close(con))
+        } else write.dcf(PACKAGES.info, PACKAGES.file)
+
+
+        archive.path <- file.path(tar.path, "Archive", pkgname)
+        dir.create(archive.path, showWarnings = FALSE, recursive = TRUE)
+
+
+        to <- file.path(tar.path, tar.file)
+        if (!file.rename(tar.file, to))
+            stop("failure to rename")
+
+
+        files <- setdiff(list.files(tar.path), tar.file)
+        files <- files[startsWith(files, paste0(pkgname, "_"))]
+        new.files <- file.path(archive.path, files)
+        files <- file.path(tar.path, files)
+        if (!all(file.rename(files, new.files)))
+            stop("failure to rename")
+
+
+        tar.file <- to
+    }
+
+
+    value <- if (missing(name))
+        Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE)
+    else Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE, name = name)
     cat("\n")
     finished <- TRUE
 
 
+    if (special) {
+        Rversion <- paste(unclass(getRversion())[[1L]][1:2], collapse = ".")
+
+
+        binary.path <- if (.Platform$OS.type == "windows") {
+            binary.file <- paste0(pkgname, "_", version, ".zip")
+            file.path(file, where, "bin/windows/contrib", Rversion)
+        } else if (capabilities("aqua")) {
+            binary.file <- paste0(pkgname, "_", version, ".tgz")
+            file.path(file, where, "bin/macosx/contrib", Rversion)
+        }
+        if (!is.null(binary.path)) {
+            fields <- c("Package", "Version", "Depends", "Suggests",
+                "License", "Imports", "LinkingTo", "Enhances", "OS_type")
+            PACKAGES.info <- structure(packageInfo[fields], names = fields)
+            PACKAGES.info <- t(PACKAGES.info)
+
+
+            dir.create(binary.path, showWarnings = FALSE, recursive = TRUE)
+
+
+            PACKAGES.file <- file.path(binary.path, "PACKAGES")
+            if (file.exists(PACKAGES.file)) {
+                text <- readLines(PACKAGES.file)
+                con <- file(PACKAGES.file, "w")
+                tryCatch({
+                    if (i <- match(paste0("Package: ", pkgname), text, 0L)) {
+                        writeLines(text[seq_len(i - 1L)], con)
+                    } else if (i <- match(TRUE, startsWith(text, "Package: ") & substr(text, 10L, 1000000L) > pkgname, 0L)) {
+                        writeLines(text[seq_len(i - 1L)], con)
+                    } else {
+                        i <- length(text)
+                        writeLines(c(text, ""), con)
+                    }
+                    write.dcf(PACKAGES.info, con)
+                    j <- which(text == "")
+                    j <- j[j > i]
+                    if (length(j) > 0) {
+                        j <- j[[1L]]
+                        writeLines(text[j:length(text)], con)
+                    }
+                }, finally = close(con))
+            } else write.dcf(PACKAGES.info, PACKAGES.file)
+
+
+            files <- list.files(binary.path)
+            files <- files[startsWith(files, paste0(pkgname, "_"))]
+            unlink(file.path(binary.path, files))
+
+
+
+            to <- file.path(binary.path, binary.file)
+            if (!file.rename(binary.file, to))
+                stop("failure to rename")
+        }
+    }
+
+
     if (check) {
-        value <- Rcmd(command = "check", args = c(check.args, file2),
-            mustWork = TRUE)
+        value <- if (missing(name))
+            Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE)
+        else Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE, name = name)
         cat("\n")
     }
     invisible(value)

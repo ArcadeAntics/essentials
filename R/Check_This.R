@@ -47,7 +47,7 @@ check_this <- function (
     check = TRUE,
     as.cran = FALSE,
 
-    chdir = FALSE, file = here(), name = "R", special = FALSE, where = "../PACKAGES")
+    chdir = FALSE, file = here(), special = FALSE, where = "../PACKAGES")
 {
     # Check_This {essentials}                                    R Documentation
     #
@@ -134,9 +134,10 @@ check_this <- function (
 
 
     if (special) {
-        build <- TRUE
+        build <- FALSE
         name <- file.path(R.home("bin"), "R")
     }
+    else name <- NULL
 
 
     build.args <- c(
@@ -261,7 +262,7 @@ check_this <- function (
     tar.file <- paste0(pkgname, "_", version, ".tar.gz")
 
 
-    value <- if (missing(name))
+    value <- if (is.null(name))
         Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE)
     else Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE, name = name)
     cat("\n")
@@ -273,12 +274,12 @@ check_this <- function (
             "LinkingTo", "Enhances", "OS_type")
         PACKAGES.info <- structure(packageInfo[fields], names = fields)
         if (is.na(PACKAGES.info["NeedsCompilation"]))
-            PACKAGES.info["NeedsCompilation"] <- "no"
-        PACKAGES.info["MD5sum"] <- tools:::md5sum(tar.file)
+            PACKAGES.info["NeedsCompilation"] <- if (dir.exists(file.path(file, "src"))) "yes" else "no"
+        PACKAGES.info["MD5sum"] <- tools::md5sum(tar.file)
         PACKAGES.info <- t(PACKAGES.info)
 
 
-        tar.path <- file.path(file, where, "src/contrib")
+        tar.path <- file.path(file, where, "src", "contrib")
         dir.create(tar.path, showWarnings = FALSE, recursive = TRUE)
 
 
@@ -327,73 +328,15 @@ check_this <- function (
     }
 
 
-    value <- if (missing(name))
+    value <- if (is.null(name))
         Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE)
     else Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE, name = name)
     cat("\n")
     finished <- TRUE
 
 
-    if (special) {
-        Rversion <- paste(unclass(getRversion())[[1L]][1:2], collapse = ".")
-
-
-        binary.path <- if (.Platform$OS.type == "windows") {
-            binary.file <- paste0(pkgname, "_", version, ".zip")
-            file.path(file, where, "bin/windows/contrib", Rversion)
-        } else if (capabilities("aqua")) {
-            binary.file <- paste0(pkgname, "_", version, ".tgz")
-            file.path(file, where, "bin/macosx/contrib", Rversion)
-        }
-        if (!is.null(binary.path)) {
-            fields <- c("Package", "Version", "Depends", "Suggests",
-                "License", "Imports", "LinkingTo", "Enhances", "OS_type")
-            PACKAGES.info <- structure(packageInfo[fields], names = fields)
-            PACKAGES.info <- t(PACKAGES.info)
-
-
-            dir.create(binary.path, showWarnings = FALSE, recursive = TRUE)
-
-
-            PACKAGES.file <- file.path(binary.path, "PACKAGES")
-            if (file.exists(PACKAGES.file)) {
-                text <- readLines(PACKAGES.file)
-                con <- file(PACKAGES.file, "w")
-                tryCatch({
-                    if (i <- match(paste0("Package: ", pkgname), text, 0L)) {
-                        writeLines(text[seq_len(i - 1L)], con)
-                    } else if (i <- match(TRUE, startsWith(text, "Package: ") & substr(text, 10L, 1000000L) > pkgname, 0L)) {
-                        writeLines(text[seq_len(i - 1L)], con)
-                    } else {
-                        i <- length(text)
-                        writeLines(c(text, ""), con)
-                    }
-                    write.dcf(PACKAGES.info, con)
-                    j <- which(text == "")
-                    j <- j[j > i]
-                    if (length(j) > 0) {
-                        j <- j[[1L]]
-                        writeLines(text[j:length(text)], con)
-                    }
-                }, finally = close(con))
-            } else write.dcf(PACKAGES.info, PACKAGES.file)
-
-
-            files <- list.files(binary.path)
-            files <- files[startsWith(files, paste0(pkgname, "_"))]
-            unlink(file.path(binary.path, files))
-
-
-
-            to <- file.path(binary.path, binary.file)
-            if (!file.rename(binary.file, to))
-                stop("failure to rename")
-        }
-    }
-
-
     if (check) {
-        value <- if (missing(name))
+        value <- if (is.null(name))
             Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE)
         else Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE, name = name)
         cat("\n")

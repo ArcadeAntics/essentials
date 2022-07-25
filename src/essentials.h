@@ -58,4 +58,4 @@ extern SEXP do_as_env(SEXP envir, SEXP enclos, SEXP context);
 extern SEXP do_f_str_old(SEXP sprintf, SEXP fmt, SEXP exprs, SEXP envir);
 extern SEXP do_f_str(SEXP x, SEXP rho, SEXP simplify);
 
-SEXP do_do_expr(SEXP sexpr, SEXP rho);
+SEXP do_do_expr(SEXP sexpr, SEXP rho, SEXP visible);

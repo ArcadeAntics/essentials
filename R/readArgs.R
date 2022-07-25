@@ -1,99 +1,3 @@
-asArgs <- function (...)
-{
-    n <- nargs()
-
-
-    # if no arguments are provided, return character(0)
-    if (!n) return(character())
-
-
-    # optimize the most common case:
-    # exactly one argument is supplied being:
-    # * NULL
-    # * atomic object without class
-    # * zero-length object without class
-    else if (n == 1L) {
-        if (is.null(..1))
-            return(character())
-        else if (is.object(..1)) {
-        }
-        else if (is.numeric(..1) || is.complex(..1))
-            return(format.default(..1, trim = TRUE, digits = 17L,
-                decimal.mark = ".", drop0trailing = TRUE))
-        else if (is.raw(..1))
-            return(sprintf("0x%02x", as.integer(..1)))
-        else if (is.logical(..1) || is.character(..1)) {
-            value <- as.character(..1)
-            if (anyNA(value)) value[is.na(value)] <- "NA"
-            return(value)
-        }
-        else if (!length(..1))
-            return(character())
-    }
-
-
-    value <- rapply(list(...), function(xx) {
-
-
-        if (is.null(xx)) character()
-
-
-        # if the object has a class, use its `as.character` method
-        # for classes "factor" and "POSIXt", do not method dispatch
-        else if (is.object(xx)) {
-            if (inherits(xx, "factor"))
-                as.character.factor(xx)
-
-
-            # we will lose information smaller than 1 microsecond,
-            # but what can you do?
-            else if (inherits(xx, "POSIXct"))
-                format.POSIXct(xx, format = "%Y-%m-%d %H:%M:%OS6")
-            else if (inherits(xx, "POSIXlt"))
-                format.POSIXlt(xx, format = "%Y-%m-%d %H:%M:%OS6")
-            else as.character(xx)
-        }
-
-
-        # for numeric / / complex
-        # * keep all digits
-        # * remove trailing 0
-        #
-        # this means numbers will be accurate when converted back
-        #
-        # x <- c(pi, exp(1))
-        # as.numeric(as.character(x)) == x
-        # as.numeric(essentials:::asArgs(x)) == x
-        #
-        # x <- complex(real = beta(5, 6), imaginary = besselI(5, 1))
-        # as.complex(as.character(x)) == x
-        # as.complex(essentials:::asArgs(x)) == x
-        else if (is.numeric(xx) || is.complex(xx))
-            format.default(xx, trim = TRUE, digits = 17L,
-                decimal.mark = ".", drop0trailing = TRUE)
-
-
-        # for raw, format as usual, but put "0x" at the start
-        #
-        # x <- as.raw(0:255)
-        # as.raw(as.character(x)) == x
-        # as.raw(essentials:::asArgs(x)) == x
-        else if (is.raw(xx))
-            sprintf("0x%02x", as.integer(xx))
-
-
-        # treat a pairlist like a list
-        else if (is.pairlist(xx))
-            asArgs(as.list(xx))
-
-
-        # turn into character
-        else as.character(xx)
-    }, how = "replace")
-    value <- unlist(value, recursive = TRUE, use.names = FALSE)
-    if (anyNA(value)) value[is.na(value)] <- "NA"
-    return(value)
-}
 
 
 as.comment <- function (x, comment.char = "",
@@ -597,3 +501,17 @@ if (FALSE)
     identical(X, unname(K))
 }
 
+
+
+
+
+Args <- function (x, type = c("original", "all", "trailingOnly"))
+{
+    if (nargs())
+        return(attr(x, "args")[[match.arg(type)]])
+    .Defunct("this.path::fileArgs()")
+}
+
+
+withArgs <- function (...)
+.Defunct("this.path::withArgs()")

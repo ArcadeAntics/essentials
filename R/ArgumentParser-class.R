@@ -917,7 +917,7 @@ add.subparsers = function (title = NA, description = NA, program = NA, required 
 },
 
 
-parse.args = function (args = Args(), warnPartialMatchArgs = getOption("warnPartialMatchArgs", FALSE))
+parse.args = function (args = fileArgs(), warnPartialMatchArgs = getOption("warnPartialMatchArgs", FALSE))
 {
     if (!missing(args)) args <- asArgs(args)
     add.arg <- quote(x[[i]]$value <- c(x[[i]]$value, if (!is.null(val) && j == len) {  # hasValue(arg) && last.flag
@@ -1152,7 +1152,7 @@ parse.args = function (args = Args(), warnPartialMatchArgs = getOption("warnPart
             data.frame(arg = args, code = codes, dir = dirs)
         }
     }
-    try.both <- (has.wd <- !is.null(owd <- getwd())) && !is.null(alternate <- this.dir2(verbose = FALSE))
+    try.both <- (has.wd <- !is.null(owd <- getwd())) && !is.null(alternate <- this.dir(default = NULL, verbose = FALSE))
     from.file.substitute <- function(table, n) {
 
 
@@ -1514,7 +1514,7 @@ ArgumentParser <- function (program = NA, usage = NA, description = NA, epilogue
 {
     .program <- as.character(program)[1L]
     if (is.na(.program)) {
-        .program <- this.path2(verbose = FALSE)
+        .program <- this.path(default = NULL, verbose = FALSE)
         if (is.null(.program))
             .program <- "/path/to/script"
         else if (!grepl("^(ftp|ftps|http|https)://", .program))

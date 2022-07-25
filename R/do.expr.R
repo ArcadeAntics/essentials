@@ -80,7 +80,12 @@ do.expr <- function (expr)
     sexpr <- substitute(expr)
     if (!is.call(sexpr))
         expr
-    else .Call(C_do.expr, sexpr, parent.frame())
+    else {
+        value <- .Call(C_do.expr, sexpr, parent.frame(), visible <- logical(1L))
+        if (visible)
+            value
+        else invisible(value)
+    }
 }
 
 

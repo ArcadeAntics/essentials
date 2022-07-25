@@ -51,7 +51,7 @@ static const R_CallMethodDef callRoutines[] = {
     {"f.str.old"              , (DL_FUNC) &do_f_str_old             , 4},
     {"f.str"                  , (DL_FUNC) &do_f_str                 , 3},
 
-    {"do.expr"                , (DL_FUNC) &do_do_expr               , 2},
+    {"do.expr"                , (DL_FUNC) &do_do_expr               , 3},
 
     {NULL, NULL, 0}
 };

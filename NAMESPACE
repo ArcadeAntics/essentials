@@ -1,8 +1,9 @@
 useDynLib(essentials, .registration = TRUE, .fixes = "C_")
 
 
-importFrom(this.path, here)
-importFrom(this.path, this.dir2)
+importFrom(this.path,
+    this.path, this.dir, here,
+    asArgs, fileArgs, withArgs)
 
 
 
@@ -15,7 +16,7 @@ export(flat.list, hypot, phypot, listify, strip, strsplit2, IDW,
 
 importFrom(methods, classLabel, is, new)
 exportClasses("essentials_ArgumentParser")
-importFrom(this.path, this.path)
+
 export(ArgumentParser)
 
 
@@ -159,7 +160,6 @@ export(mfor)
 # normalizeAgainst.R        ----
 
 
-importFrom(this.path, this.dir)
 export(normalizeAgainst, .normalizePath)
 
 
@@ -317,7 +317,6 @@ export(tryExcept)
 # withArgs.R                ----
 
 
-importFrom(this.path, this.path2)
 export(Args, withArgs)
 
 

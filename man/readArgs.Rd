@@ -200,7 +200,7 @@ y <- essentials::readArgs(FILE)
 
 
 # for the purpose of comparison, we need 'x' to be a character vector
-z <- essentials:::asArgs(x)
+z <- this.path::asArgs(x)
 
 
 # let's check that the arguments in 'x' match the
@@ -242,7 +242,7 @@ cat(
     }"),
     file = script <- tempfile(), sep = "\\n"
 )
-essentials::withArgs(
+this.path::withArgs(
     source(script, local = TRUE, echo = FALSE),
     paste0("@", FILE)
 )

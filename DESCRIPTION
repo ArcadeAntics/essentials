@@ -8,6 +8,7 @@ Description: Functions for converting objects to scalars (vectors of length 1)
 Author: Andrew Simmons
 Maintainer: Andrew Simmons <akwsimmo@gmail.com>
 Imports: graphics, grDevices, methods, utils, this.path
+Suggests: tools
 Enhances: tcltk
 URL: https://github.com/ArcadeAntics/essentials
 BugReports: https://github.com/ArcadeAntics/essentials/issues

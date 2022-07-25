@@ -320,12 +320,14 @@ SEXP quoteLang(SEXP X, SEXP quote)
 
 
 
-SEXP do_do_expr(SEXP sexpr, SEXP rho)
+SEXP do_do_expr(SEXP sexpr, SEXP rho, SEXP visible)
 {
     if (TYPEOF(sexpr) != LANGSXP)
         error("invalid 'expr', must be a call");
     if (TYPEOF(rho) != ENVSXP)
         error("invalid 'rho', must be an environment");
+    if (TYPEOF(visible) != LGLSXP || LENGTH(visible) != 1)
+        error("invalid '%s'", "visible");
 
 
     int np = 0;
@@ -349,8 +351,9 @@ SEXP do_do_expr(SEXP sexpr, SEXP rho)
 
 
     R_xlen_t len;
-    SEXP pairlist = PROTECT(eval(install("pairlist"), R_BaseEnv)); np++;
-    SEXP quote    = PROTECT(eval(install("quote"   ), R_BaseEnv)); np++;
+    SEXP pairlist    = PROTECT(eval(install("pairlist"   ), R_BaseEnv)); np++;
+    SEXP quote       = PROTECT(eval(install("quote"      ), R_BaseEnv)); np++;
+    SEXP withVisible = PROTECT(eval(install("withVisible"), R_BaseEnv)); np++;
 
 
     for (int n = length(sargs) - 1; n >= 0; n--) {
@@ -401,7 +404,9 @@ SEXP do_do_expr(SEXP sexpr, SEXP rho)
         }
     }
     REPROTECT(expr = LCONS(CAR(sexpr), expr), indx);
+    REPROTECT(expr = lang2(withVisible, expr), indx);
     value = eval(expr, rho);
+    LOGICAL(visible)[0] = LOGICAL(VECTOR_ELT(value, 1))[0];
     UNPROTECT(np);
-    return value;
+    return VECTOR_ELT(value, 0);
 }

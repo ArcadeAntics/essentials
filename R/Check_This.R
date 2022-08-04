@@ -120,24 +120,20 @@ check_this <- function (
     #         essentials::delayedAssign2(name, x[[name]], assign.env = assign.env, evaluated = TRUE)
     #     }
     # })
-    # name <- "R"
-    # special <- FALSE
-    # where <- "../PACKAGES"
     # switch2 <- essentials:::switch2
     # Rcmd <- essentials:::Rcmd
-
-
-    # file <- "C:/Users/andre/Documents/this.path"
+    #
+    #
+    # file <- "C:/Users/andre/Documents/iris"
+    # special <- TRUE
     # check <- FALSE
     # chdir <- TRUE
-    # special <- TRUE
 
 
     if (special) {
         build <- FALSE
-        name <- file.path(R.home("bin"), "R")
-    }
-    else name <- NULL
+        dir <- R.home("bin")
+    } else dir <- NULL
 
 
     build.args <- c(
@@ -262,9 +258,9 @@ check_this <- function (
     tar.file <- paste0(pkgname, "_", version, ".tar.gz")
 
 
-    value <- if (is.null(name))
+    value <- if (is.null(dir)) {
         Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE)
-    else Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE, name = name)
+    } else Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE, dir = dir)
     cat("\n")
 
 
@@ -287,11 +283,13 @@ check_this <- function (
         if (file.exists(PACKAGES.file)) {
             text <- readLines(PACKAGES.file)
             con <- file(PACKAGES.file, "w")
+            # con <- stdout()
             tryCatch({
                 if (i <- match(paste0("Package: ", pkgname), text, 0L)) {
                     writeLines(text[seq_len(i - 1L)], con)
                 } else if (i <- match(TRUE, startsWith(text, "Package: ") & substr(text, 10L, 1000000L) > pkgname, 0L)) {
                     writeLines(text[seq_len(i - 1L)], con)
+                    i <- i - 2L
                 } else {
                     i <- length(text)
                     writeLines(c(text, ""), con)
@@ -328,17 +326,17 @@ check_this <- function (
     }
 
 
-    value <- if (is.null(name))
+    value <- if (is.null(dir)) {
         Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE)
-    else Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE, name = name)
+    } else Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE, dir = dir)
     cat("\n")
     finished <- TRUE
 
 
     if (check) {
-        value <- if (is.null(name))
+        value <- if (is.null(dir))
             Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE)
-        else Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE, name = name)
+        else Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE, dir = dir)
         cat("\n")
     }
     invisible(value)

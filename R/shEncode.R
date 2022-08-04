@@ -17,7 +17,9 @@ shEncode <- function (string, type = NULL, unix.type = NULL, windows.type = "Rsc
         else unix.type
 
 
-    switch(match.arg(type, c("sh", "perl", "python", "R", "R CMD", "Rcmd", "Rgui", "Rscript", "Rterm")), sh = {
+    type <- sub("\\.exe$", "", basename(type))
+    type <- match.arg(type, c("sh", "perl", "python3", "R", "R CMD", "Rcmd", "Rgui", "Rscript", "Rterm"))
+    switch(type, sh = {
 
 
         # replace every single quote with (single quote, double quote, single
@@ -53,7 +55,7 @@ shEncode <- function (string, type = NULL, unix.type = NULL, windows.type = "Rsc
         string <- paste0("\"", string, "\"", recycle0 = TRUE)
 
 
-    }, perl = , python = , Rgui = , Rscript = , Rterm = {
+    }, perl = , python = , python3 = , Rgui = , Rscript = , Rterm = {
 
 
         # replace a double quote preceded by any number of backslashes

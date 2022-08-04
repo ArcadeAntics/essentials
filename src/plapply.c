@@ -575,7 +575,8 @@ SEXP do_pvapply(SEXP X, SEXP FUN, SEXP FUN_VALUE, SEXP USE_NAMES,
 	    type_FUN_VALUE != VECSXP)
 	    error("type '%s' is not supported", type2char(type_FUN_VALUE));
     dim_FUN_VALUE = PROTECT(getAttrib(FUN_VALUE, R_DimSymbol)); np++;
-    is_array = TYPEOF(dim_FUN_VALUE) == INTSXP && length(dim_FUN_VALUE) >= 1;
+    is_array = ( ( TYPEOF(dim_FUN_VALUE) == INTSXP ) &&
+                 ( length(dim_FUN_VALUE) >= 1 ) );
 
 
     value = PROTECT(allocVector(type_FUN_VALUE,

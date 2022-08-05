@@ -89,3 +89,49 @@ list.dirs2 <- function (path = ".", full.names = TRUE, recursive = TRUE)
     python(file = list.dirs2_py.script, mustWork = TRUE, quiet = TRUE)
     return(readLines(outfile, encoding = "UTF-8"))
 }
+
+
+# local({
+#     FILES <- tempfile(c("dir", ".dir", "file", ".file"))
+#     on.exit(unlink(FILES, recursive = TRUE, force = TRUE))
+#     lapply(FILES[1:2], dir.create)
+#     file.create(FILES[3:4])
+#     fun <- function(tmpdir) {
+#         FILES <- tempfile(c("dir", ".dir", "file", ".file"), tmpdir)
+#         lapply(FILES[1:2], dir.create)
+#         file.create(FILES[3:4])
+#         FILES[1:2]
+#     }
+#     lapply(fun(FILES[1:2]), function(x) {
+#         lapply(fun(x), function(xx) {
+#             lapply(fun(xx), function(xxx) {
+#
+#             })
+#         })
+#     })
+#     path <- paste0(tempdir(), if (.Platform$OS.type == "windows") "\\" else "/")
+#     fun <- function(expr) {
+#         writeLines(deparse1(substitute(expr), "\n"))
+#         writeLines(expr)
+#         cat("\n\n\n\n\n")
+#     }
+#     list.files(path, recursive = TRUE , include.dirs = TRUE , all.files = TRUE , full.names = TRUE ) |> fun()
+#     list.files(path, recursive = TRUE , include.dirs = TRUE , all.files = TRUE , full.names = FALSE) |> fun()
+#     list.files(path, recursive = TRUE , include.dirs = TRUE , all.files = FALSE, full.names = TRUE ) |> fun()
+#     list.files(path, recursive = TRUE , include.dirs = TRUE , all.files = FALSE, full.names = FALSE) |> fun()
+#     list.files(path, recursive = TRUE , include.dirs = FALSE, all.files = TRUE , full.names = TRUE ) |> fun()
+#     list.files(path, recursive = TRUE , include.dirs = FALSE, all.files = TRUE , full.names = FALSE) |> fun()
+#     list.files(path, recursive = TRUE , include.dirs = FALSE, all.files = FALSE, full.names = TRUE ) |> fun()
+#     list.files(path, recursive = TRUE , include.dirs = FALSE, all.files = FALSE, full.names = FALSE) |> fun()
+#
+#
+#     list.files(path, recursive = FALSE, no.. = TRUE , all.files = TRUE , full.names = TRUE ) |> fun()
+#     list.files(path, recursive = FALSE, no.. = TRUE , all.files = TRUE , full.names = FALSE) |> fun()
+#     list.files(path, recursive = FALSE, no.. = TRUE , all.files = FALSE, full.names = TRUE ) |> fun()
+#     list.files(path, recursive = FALSE, no.. = TRUE , all.files = FALSE, full.names = FALSE) |> fun()
+#     list.files(path, recursive = FALSE, no.. = FALSE, all.files = TRUE , full.names = TRUE ) |> fun()
+#     list.files(path, recursive = FALSE, no.. = FALSE, all.files = TRUE , full.names = FALSE) |> fun()
+#     list.files(path, recursive = FALSE, no.. = FALSE, all.files = FALSE, full.names = TRUE ) |> fun()
+#     list.files(path, recursive = FALSE, no.. = FALSE, all.files = FALSE, full.names = FALSE) |> fun()
+#     invisible()
+# })

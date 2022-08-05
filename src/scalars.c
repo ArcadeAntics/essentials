@@ -235,7 +235,7 @@ SEXP do_isscalar(SEXP x, SEXP mode)
 
 
 
-SEXP as_numbers(SEXP x, SEXP strict)
+SEXP do_as_numbers(SEXP x, SEXP strict)
 {
     SEXP value;
 

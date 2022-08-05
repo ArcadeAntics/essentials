@@ -14,14 +14,14 @@ extern SEXP do_asscalar(SEXP x, SEXP mode);
 
 extern SEXP do_isscalar(SEXP x, SEXP mode);
 
-extern SEXP as_numbers(SEXP x, SEXP strict);
+extern SEXP do_as_numbers(SEXP x, SEXP strict);
 
 extern SEXP do_hypot(SEXP args);
 extern SEXP do_phypot(SEXP args);
 extern SEXP testing(SEXP args);
 
-extern SEXP IDW(SEXP x0, SEXP u0, SEXP x, SEXP p);
-extern SEXP RK4(SEXP independent, SEXP initialConditions, SEXP fun, SEXP rho);
+extern SEXP do_IDW(SEXP x0, SEXP u0, SEXP x, SEXP p);
+extern SEXP do_RK4(SEXP independent, SEXP initialConditions, SEXP fun, SEXP rho);
 
 extern SEXP do_rowmatchdataframe(SEXP x, SEXP table, SEXP nomatch, SEXP incomparables, SEXP rho);
 
@@ -39,10 +39,15 @@ extern SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho);
 extern SEXP do_envvars(SEXP args, SEXP visible);
 extern SEXP do_getEnvvar(SEXP x, SEXP default_);
 
-extern SEXP dgev(SEXP x, SEXP mu, SEXP sigma, SEXP xi, SEXP give_log);
-extern SEXP pgev(SEXP q, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p);
-extern SEXP qgev(SEXP p, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p);
-extern SEXP rgev(SEXP n, SEXP mu, SEXP sigma, SEXP xi);
+extern SEXP do_dgev(SEXP x, SEXP mu, SEXP sigma, SEXP xi, SEXP give_log);
+extern SEXP do_pgev(SEXP q, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p);
+extern SEXP do_qgev(SEXP p, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p);
+extern SEXP do_rgev(SEXP n, SEXP mu, SEXP sigma, SEXP xi);
+
+extern SEXP do_dgpd(SEXP x, SEXP mu, SEXP sigma, SEXP xi, SEXP give_log);
+extern SEXP do_pgpd(SEXP q, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p);
+extern SEXP do_qgpd(SEXP p, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p);
+extern SEXP do_rgpd(SEXP n, SEXP mu, SEXP sigma, SEXP xi);
 
 extern SEXP do_plapply(SEXP X, SEXP FUN, SEXP dots_as_DOTSXP, SEXP rho);
 extern SEXP do_pvapply(SEXP X, SEXP FUN, SEXP FUN_VALUE, SEXP USE_NAMES,

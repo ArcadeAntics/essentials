@@ -115,6 +115,12 @@ export(file.open)
 export(dgev, pgev, qgev, rgev)
 
 
+# GeneralizedParetoDistribution.R ----
+
+
+export(dgpd, pgpd, qgpd, rgpd)
+
+
 # graphics essentials       ----
 
 

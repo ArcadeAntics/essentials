@@ -22,7 +22,7 @@
 #define my_log1mexp(X) (((X) < -0.56714329040978384) ? log1p(-exp((X))) : log(-expm1((X))))
 
 
-double dgev5(double x, double mu, double sigma, double xi,
+double dgpd5(double x, double mu, double sigma, double xi,
     int give_log)
 {
     if (ISNA(x) || ISNA(mu) || ISNA(sigma) || ISNA(xi))
@@ -37,25 +37,23 @@ double dgev5(double x, double mu, double sigma, double xi,
     x = (x - mu) / sigma;
 
 
-    if (!R_FINITE(x)) return R_D__0;
-    if (!R_FINITE(xi)) return (x == 0) ? R_D__e : R_D__0;
+    if (!R_FINITE(x) || x < 0) return R_D__0;
+    if (!R_FINITE(xi)) return (x == 0) ? R_D__1 : R_D__0;
 
 
-    if (xi == 0) return give_log ? -x - exp(-x) - log(sigma) : exp(-x - exp(-x))/sigma;
+    if (xi == 0) return give_log ? -x - log(sigma) : exp(-x)/sigma;
 
 
     x *= xi;
     if (x <= -1) return R_D__0;
 
 
-    x++;
-    xi = -1/xi;
-    return give_log ? (-1 + xi) * log(x) - pow(x, xi) - log(sigma) :
-                      pow(x, -1 + xi) * exp(-pow(x, xi))/sigma;
+    return give_log ? -(1 + 1/xi) * log1p(x) - log(sigma) :
+                      pow(1 + x, -1 - 1/xi)/sigma;
 }
 
 
-void pgev_both(double x, double xi, double *cum, double *ccum,
+void pgpd_both(double x, double xi, double *cum, double *ccum,
     int i_tail, int log_p)
 {
     int lower, upper;
@@ -69,31 +67,33 @@ void pgev_both(double x, double xi, double *cum, double *ccum,
     upper = i_tail != 0;
 
 
-    if (!R_FINITE(xi)) {
+    if (x <= 0.0) {
+        if (lower)  *cum = R_D__0;
+        if (upper) *ccum = R_D__1;
+    }
+    else if (!R_FINITE(xi)) {
         if (lower)  *cum = (x > 0.0) ? R_D__1 : R_D__0;
         if (upper) *ccum = (x > 0.0) ? R_D__0 : R_D__1;
     }
     else if (xi == 0) {
-        if (lower)  *cum = log_p ? -exp(-x)              : exp(-exp(-x))   ;
-        if (upper) *ccum = log_p ? my_log1mexp(-exp(-x)) : -expm1(-exp(-x));
+        if (lower)  *cum = log_p ? my_log1mexp(-x) : -expm1(-x);
+        if (upper) *ccum = log_p ? -x              : exp(-x)   ;
     }
     else {
         x = xi * x;
         if (x <= -1) {
-            if (lower)  *cum = (xi > 0.0) ? R_D__0 : R_D__1;
-            if (upper) *ccum = (xi > 0.0) ? R_D__1 : R_D__0;
+            if (lower)  *cum = R_D__1;
+            if (upper) *ccum = R_D__0;
         }
         else {
-            x++;
-            xi = -1/xi;
-            if (lower)  *cum = log_p ? -pow(x, xi)              : exp(-pow(x, xi))   ;
-            if (upper) *ccum = log_p ? my_log1mexp(-pow(x, xi)) : -expm1(-pow(x, xi));
+            if (lower)  *cum = log_p ? log(1 - pow(1 + x, -1/xi)) : 1 - pow(1 + x, -1/xi);
+            if (upper) *ccum = log_p ? -1/xi * log1p(x)           : pow(1 + x, -1/xi)    ;
         }
     }
 }
 
 
-double pgev6(double x, double mu, double sigma, double xi,
+double pgpd6(double x, double mu, double sigma, double xi,
     int lower_tail, int log_p)
 {
     double p, cp;
@@ -114,14 +114,14 @@ double pgev6(double x, double mu, double sigma, double xi,
     x = p;
 
 
-    pgev_both(x, xi, &p, &cp, (lower_tail ? 0 : 1), log_p);
+    pgpd_both(x, xi, &p, &cp, (lower_tail ? 0 : 1), log_p);
 
 
     return(lower_tail ? p : cp);
 }
 
 
-double qgev6(double p, double mu, double sigma, double xi,
+double qgpd6(double p, double mu, double sigma, double xi,
     int lower_tail, int log_p)
 {
     if (ISNA(p) || ISNA(mu) || ISNA(sigma) || ISNA(xi))
@@ -135,20 +135,20 @@ double qgev6(double p, double mu, double sigma, double xi,
     if (!R_FINITE(xi)) return mu;
 
 
-    if (!log_p) p = log(p);
-    if (p > 0) return ML_NAN;
+    if (log_p) p = exp(p);
+    if (p > 1) return ML_NAN;
 
 
     if (xi == 0)
-        return lower_tail ? (mu - sigma * log(-p)) : (1 - mu + sigma * log(-p));
+        return lower_tail ? (mu - sigma * log1p(-p)) : (1 - mu + sigma * log1p(-p));
 
 
-    return lower_tail ? (mu + sigma/xi * (pow(-p, -xi) - 1)) :
-        (1 - mu - sigma/xi * (pow(-p, -xi) - 1));
+    return lower_tail ? (mu + sigma/xi * (pow(1 - p, -xi) - 1)) :
+        (1 - mu - sigma/xi * (pow(1 - p, -xi) - 1));
 }
 
 
-SEXP do_dgev(SEXP x, SEXP mu, SEXP sigma, SEXP xi, SEXP give_log)
+SEXP do_dgpd(SEXP x, SEXP mu, SEXP sigma, SEXP xi, SEXP give_log)
 {
     test4NumericArgument(x);
     test4NumericArgument(mu);
@@ -178,7 +178,7 @@ SEXP do_dgev(SEXP x, SEXP mu, SEXP sigma, SEXP xi, SEXP give_log)
         *rxi = REAL(xi), *rvalue = REAL(value);
 
     for (R_xlen_t i = 0; i < len; i++)
-        rvalue[i] = dgev5(rx[i % lenx], rmu[i % lenmu],
+        rvalue[i] = dgpd5(rx[i % lenx], rmu[i % lenmu],
             rsigma[i % lensigma], rxi[i % lenxi], ilog);
 
     UNPROTECT(5);
@@ -186,7 +186,7 @@ SEXP do_dgev(SEXP x, SEXP mu, SEXP sigma, SEXP xi, SEXP give_log)
 }
 
 
-SEXP do_pgev(SEXP q, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
+SEXP do_pgpd(SEXP q, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
 {
     test4NumericArgument(q);
     test4NumericArgument(mu);
@@ -215,7 +215,7 @@ SEXP do_pgev(SEXP q, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
         *rxi = REAL(xi), *rvalue = REAL(value);
 
     for (R_xlen_t i = 0; i < len; i++)
-        rvalue[i] = pgev6(rq[i % lenq], rmu[i % lenmu],
+        rvalue[i] = pgpd6(rq[i % lenq], rmu[i % lenmu],
             rsigma[i % lensigma], rxi[i % lenxi], ilower_tail, ilog_p);
 
     UNPROTECT(5);
@@ -223,7 +223,7 @@ SEXP do_pgev(SEXP q, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
 }
 
 
-SEXP do_qgev(SEXP p, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
+SEXP do_qgpd(SEXP p, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
 {
     test4NumericArgument(p);
     test4NumericArgument(mu);
@@ -253,7 +253,7 @@ SEXP do_qgev(SEXP p, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
         *rxi = REAL(xi), *rvalue = REAL(value);
 
     for (R_xlen_t i = 0; i < len; i++)
-        rvalue[i] = qgev6(rp[i % lenp], rmu[i % lenmu],
+        rvalue[i] = qgpd6(rp[i % lenp], rmu[i % lenmu],
             rsigma[i % lensigma], rxi[i % lenxi], ilower_tail, ilog_p);
 
     UNPROTECT(5);
@@ -261,7 +261,7 @@ SEXP do_qgev(SEXP p, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
 }
 
 
-SEXP do_rgev(SEXP n, SEXP mu, SEXP sigma, SEXP xi)
+SEXP do_rgpd(SEXP n, SEXP mu, SEXP sigma, SEXP xi)
 {
     test4NumericArgument(mu);
     test4NumericArgument(sigma);
@@ -290,7 +290,7 @@ SEXP do_rgev(SEXP n, SEXP mu, SEXP sigma, SEXP xi)
     double *rmu = REAL(mu), *rsigma = REAL(sigma), *rxi = REAL(xi);
 
     for (i = 0; i < lenn; i++)
-        rvalue[i] = qgev6(runif(0.0, 1.0), rmu[i % lenmu],
+        rvalue[i] = qgpd6(runif(0.0, 1.0), rmu[i % lenmu],
             rsigma[i % lensigma], rxi[i % lenxi], 1, 0);
 
     UNPROTECT(4);

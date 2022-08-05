@@ -13,12 +13,12 @@ static const R_CallMethodDef callRoutines[] = {
 
     {"as.scalar"              , (DL_FUNC) &do_asscalar              , 2},
     {"is.scalar"              , (DL_FUNC) &do_isscalar              , 2},
-    {"as.numbers"             , (DL_FUNC) &as_numbers               , 2},
+    {"as.numbers"             , (DL_FUNC) &do_as_numbers            , 2},
 
     // {"hypot"                  , (DL_FUNC) &hypot_vectorized         , 2},
 
-    {"IDW"                    , (DL_FUNC) &IDW                      , 4},
-    {"RK4"                    , (DL_FUNC) &RK4                      , 4},
+    {"IDW"                    , (DL_FUNC) &do_IDW                   , 4},
+    {"RK4"                    , (DL_FUNC) &do_RK4                   , 4},
 
     {"row.match.data.frame"   , (DL_FUNC) &do_rowmatchdataframe     , 5},
 
@@ -33,10 +33,15 @@ static const R_CallMethodDef callRoutines[] = {
     {"envvars"                , (DL_FUNC) &do_envvars               , 2},
     {"getEnvvar"              , (DL_FUNC) &do_getEnvvar             , 2},
 
-    {"dgev", (DL_FUNC) &dgev, 5},
-    {"pgev", (DL_FUNC) &pgev, 6},
-    {"qgev", (DL_FUNC) &qgev, 6},
-    {"rgev", (DL_FUNC) &rgev, 4},
+    {"dgev"                   , (DL_FUNC) &do_dgev                  , 5},
+    {"pgev"                   , (DL_FUNC) &do_pgev                  , 6},
+    {"qgev"                   , (DL_FUNC) &do_qgev                  , 6},
+    {"rgev"                   , (DL_FUNC) &do_rgev                  , 4},
+
+    {"dgpd"                   , (DL_FUNC) &do_dgpd                  , 5},
+    {"pgpd"                   , (DL_FUNC) &do_pgpd                  , 6},
+    {"qgpd"                   , (DL_FUNC) &do_qgpd                  , 6},
+    {"rgpd"                   , (DL_FUNC) &do_rgpd                  , 4},
 
     {"plapply"                , (DL_FUNC) &do_plapply               , 4},
     {"pvapply"                , (DL_FUNC) &do_pvapply               , 6},

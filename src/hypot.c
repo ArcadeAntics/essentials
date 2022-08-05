@@ -403,7 +403,7 @@ SEXP do_hypot(SEXP args)
 
 
 
-SEXP IDW(SEXP x0, SEXP u0, SEXP x, SEXP p)
+SEXP do_IDW(SEXP x0, SEXP u0, SEXP x, SEXP p)
 {
     test4NumericArgument(x0);
     test4NumericArgument(u0);

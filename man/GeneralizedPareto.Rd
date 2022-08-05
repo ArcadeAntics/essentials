@@ -1,22 +1,22 @@
-\name{GeneralizedExtremeValue}
-\alias{GeneralizedExtremeValue}
-\alias{dgev}
-\alias{pgev}
-\alias{qgev}
-\alias{rgev}
+\name{GeneralizedPareto}
+\alias{GeneralizedPareto}
+\alias{dgpd}
+\alias{pgpd}
+\alias{qgpd}
+\alias{rgpd}
 \title{
-The Generalized Extreme Value Distribution
+The Generalized Pareto Distribution
 }
 \description{
 Density, distribution function, quantile function and random generation for the
-generalized extreme value distribution with location equal to \code{location},
-scale equal to \code{scale} and shape equal to \code{shape}.
+generalized pareto distribution with location equal to \code{location}, scale
+equal to \code{scale} and shape equal to \code{shape}.
 }
 \usage{
-dgev(x, location = 0, scale = 1, shape = 0, log = FALSE)
-pgev(q, location = 0, scale = 1, shape = 0, lower.tail = TRUE, log.p = FALSE)
-qgev(p, location = 0, scale = 1, shape = 0, lower.tail = TRUE, log.p = FALSE)
-rgev(n, location = 0, scale = 1, shape = 0)
+dgpd(x, location = 0, scale = 1, shape = 0, log = FALSE)
+pgpd(q, location = 0, scale = 1, shape = 0, lower.tail = TRUE, log.p = FALSE)
+qgpd(p, location = 0, scale = 1, shape = 0, lower.tail = TRUE, log.p = FALSE)
+rgpd(n, location = 0, scale = 1, shape = 0)
 }
 \arguments{
   \item{x, q}{
@@ -33,7 +33,7 @@ number required.
 vector of locations.
   }
   \item{scale}{
-vector of scales.
+vector of scale.
   }
   \item{shape}{
 vector of shapes.
@@ -53,23 +53,24 @@ the default values of 0, 1 and 0, respectively.
 The generalized pareto distribution with location \eqn{\mu}, scale
 \eqn{\sigma > 0} and shape \eqn{\xi} has density
 
-\deqn{f(s) = \frac{1}{\sigma} (1 + \xi s)^{-(1 + 1/\xi)} \exp(-(1 + \xi s)^{-1/\xi})}{
-      f(s) = 1/\sigma (1 + \xi s)^-(1 + 1/\xi) e^-((1 + \xi s)^{-1/\xi})}
+\deqn{f(s) = \frac{1}{\sigma} (1 + \xi s)^{-(1 + 1/\xi)}}{
+      f(s) = 1/\sigma (1 + \xi s)^-(1 + 1/\xi)}
 
-for \eqn{1 + \xi s > 0} where
+for \eqn{s \ge 0} when \eqn{\xi \ge 0}, and for \eqn{0 \le s \le -1/\xi} when
+\eqn{\xi \lt 0}, where
 \eqn{s = \frac{(x - \mu)}{\sigma}}{
      s = (x - \mu)/\sigma}.
 In the limit \eqn{\xi → 0}, the density simplifies to
 
-\deqn{f(s) = \frac{1}{\sigma} \exp(-s) \exp(-\exp(-s))}{
-      f(s) = 1/\sigma e^-s e^-(e^-s)}
+\deqn{f(s) = \frac{1}{\sigma} \exp(-s)}{
+      f(s) = 1/\sigma e^-s}
 }
 \value{
-\code{dgev} gives the density, \code{pgev} gives the distribution function,
-\code{qgev} gives the quantile function, and \code{rgev} generates random
+\code{dgpd} gives the density, \code{pgpd} gives the distribution function,
+\code{qgpd} gives the quantile function, and \code{rgpd} generates random
 deviates.
 
-The length of the result is determined by \code{n} for \code{rgev}, and is the
+The length of the result is determined by \code{n} for \code{rgpd}, and is the
 maximum of the lengths of the numerical arguments for the other functions.
 
 The numerical arguments other than \code{n} are recycled to the length of the
@@ -79,20 +80,24 @@ For \code{scale = 0} this gives the limit as \eqn{\sigma} decreases to 0, a
 point mass at \eqn{\mu}. \code{scale < 0} is an error and returns \code{NaN}.
 }
 \examples{
-shapes <- expression(-1/2, 0, +1/2)
-legend.text <- as.expression(lapply(shapes, function(shape) {
-    call("==", as.symbol("xi"), shape)
-}))
-shapes <- vapply(shapes, eval, 0)
-cols <- c("green3", "red", "blue")
-x <- seq.int(-4, 4, length.out = 1001)
+scales <- c( 1,  1,  1,  2,  2,  2)
+shapes <- c( 1,  5, 20,  1,  5, 20)
+legend.text <- as.expression(essentials::plapply(list(scales, shapes),
+    function(scale, shape) {
+        call("list",
+             call("==", as.symbol("sigma"), scale),
+             call("==", as.symbol("xi"), shape))
+    }))
+cols <- c("red", "green3", "blue", "red", "green3", "blue")
+ltys <- c("solid", "solid", "solid", "dashed", "dashed", "dashed")
+x <- seq.int(0, 5, length.out = 1001)
 
 
 # we use plapply here instead of lapply because
 # plapply allows us to name the looping arguments
 ys <- essentials::plapply(
-    list(shape = shapes),
-    essentials::dgev,
+    list(scale = scales, shape = shapes),
+    essentials::dgpd,
     x = x
 )
 graphics::par(mar = c(4.9, 4.5, 2.1, 0.4))
@@ -104,25 +109,26 @@ graphics::plot(
     main = "Probability density function",
     bty = "L"
 )
-essentials::mfor(y, col, list(ys, cols), {
-    graphics::lines(x, y, col = col, lwd = 2)
+essentials::mfor(y, col, lty, list(ys, cols, ltys), {
+    graphics::lines(x, y, col = col, lty = lty, lwd = 2)
 })
 graphics::legend(
-    x = "topleft",
+    x = "topright", inset = c(0.04, 0),
     legend = legend.text,
     col = cols,
     lwd = 2,
+    lty = ltys,
     bty = "n"
 )
-graphics::title(sub = ~"All with" ~ list(mu == 0, sigma == 1), adj = 1)
+graphics::title(sub = ~"All with" ~ mu == 0, adj = 1)
 
 
 
 
 
 ys <- essentials::plapply(
-    list(shape = shapes),
-    essentials::pgev,
+    list(scale = scales, shape = shapes),
+    essentials::pgpd,
     q = x
 )
 graphics::plot(
@@ -133,15 +139,16 @@ graphics::plot(
     main = "Cumulative probability function",
     bty = "L"
 )
-essentials::mfor(y, col, list(ys, cols), {
-    graphics::lines(x, y, col = col, lwd = 2)
+essentials::mfor(y, col, lty, list(ys, cols, ltys), {
+    graphics::lines(x, y, col = col, lty = lty, lwd = 2)
 })
 graphics::legend(
     x = "topleft",
     legend = legend.text,
     col = cols,
     lwd = 2,
+    lty = ltys,
     bty = "n"
 )
-graphics::title(sub = ~"All with" ~ list(mu == 0, sigma == 1), adj = 1)
+graphics::title(sub = ~"All with" ~ mu == 0, adj = 1)
 }

@@ -4,7 +4,7 @@
 #include "defines.h"
 
 
-SEXP RK4(SEXP independent, SEXP initialConditions, SEXP fun, SEXP rho)
+SEXP do_RK4(SEXP independent, SEXP initialConditions, SEXP fun, SEXP rho)
 {
     /*
     test4NumericArgument(independent);
@@ -167,7 +167,7 @@ SEXP do_RK4(SEXP independent, SEXP initialConditions, SEXP fun, SEXP xname)
     for (R_xlen_t i = 0; i < I; i++) {
         h =
     }
-    
+
     UNPROTECT(np);
     return R_NilValue;
 }

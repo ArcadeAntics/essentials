@@ -71,9 +71,9 @@ dirname2 <- function (path)
 }
 
 
-path <- c("//host-name/share-name/path/to/file", "//host-name/share-name/path/to",
-    "//host-name/share-name/path", "//host-name/share-name/",
-    "//host-name/share-name")
-cbind(path, `basename(path)` = basename(path), `basename2(path)` = basename2(path))
-cbind(path, `dirname(path)` = dirname(path), `dirname2(path)` = dirname2(path))
-cbind(path, file.path(dirname2(path), basename2(path)))
+# path <- c("//host-name/share-name/path/to/file", "//host-name/share-name/path/to",
+#     "//host-name/share-name/path", "//host-name/share-name/",
+#     "//host-name/share-name")
+# cbind(path, `basename(path)` = basename(path), `basename2(path)` = basename2(path))
+# cbind(path, `dirname(path)` = dirname(path), `dirname2(path)` = dirname2(path))
+# cbind(path, file.path(dirname2(path), basename2(path)))

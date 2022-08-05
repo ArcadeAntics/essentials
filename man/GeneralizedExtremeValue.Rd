@@ -42,13 +42,13 @@ vector of shapes.
 logical; if TRUE, probabilities p are given as log(p).
   }
   \item{lower.tail}{
-logical; if TRUE (default), probabilities are \eqn{P[X \le x]} otherwise,
-\eqn{P[X > x]}.
+logical; if TRUE (default), probabilities are \eqn{P[X \le x]}{P[X <= x]}
+otherwise, \eqn{P[X > x]}.
   }
 }
 \details{
 If \code{location}, \code{scale} or \code{shape} are not specified they assume
-the default values of 0, 1 and 0, respectively.
+the default values of \code{0}, \code{1} and \code{0}, respectively.
 
 The generalized extreme value distribution with location \eqn{\mu}, scale
 \eqn{\sigma > 0} and shape \eqn{\xi} has density
@@ -56,10 +56,9 @@ The generalized extreme value distribution with location \eqn{\mu}, scale
 \deqn{f(s) = \frac{1}{\sigma} (1 + \xi s)^{-(1 + 1/\xi)} \exp(-(1 + \xi s)^{-1/\xi})}{
       f(s) = 1/\sigma (1 + \xi s)^-(1 + 1/\xi) e^-((1 + \xi s)^{-1/\xi})}
 
-for \eqn{1 + \xi s > 0} where
-\eqn{s = \frac{(x - \mu)}{\sigma}}{
-     s = (x - \mu)/\sigma}.
-In the limit \eqn{\xi → 0}, the density simplifies to
+for \eqn{1 + \xi s > 0} where \eqn{s = \frac{(x - \mu)}{\sigma}}{
+     s = (x - \mu)/\sigma}. In the limit \eqn{\xi → 0}{\xi -> 0}, the density
+simplifies to
 
 \deqn{f(s) = \frac{1}{\sigma} \exp(-s) \exp(-\exp(-s))}{
       f(s) = 1/\sigma e^-s e^-(e^-s)}

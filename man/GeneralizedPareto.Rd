@@ -42,13 +42,13 @@ vector of shapes.
 logical; if TRUE, probabilities p are given as log(p).
   }
   \item{lower.tail}{
-logical; if TRUE (default), probabilities are \eqn{P[X \le x]} otherwise,
-\eqn{P[X > x]}.
+logical; if TRUE (default), probabilities are \eqn{P[X \le x]}{P[X <= x]}
+otherwise, \eqn{P[X > x]}.
   }
 }
 \details{
 If \code{location}, \code{scale} or \code{shape} are not specified they assume
-the default values of 0, 1 and 0, respectively.
+the default values of \code{0}, \code{1} and \code{0}, respectively.
 
 The generalized pareto distribution with location \eqn{\mu}, scale
 \eqn{\sigma > 0} and shape \eqn{\xi} has density
@@ -56,11 +56,10 @@ The generalized pareto distribution with location \eqn{\mu}, scale
 \deqn{f(s) = \frac{1}{\sigma} (1 + \xi s)^{-(1 + 1/\xi)}}{
       f(s) = 1/\sigma (1 + \xi s)^-(1 + 1/\xi)}
 
-for \eqn{s \ge 0} when \eqn{\xi \ge 0}, and for \eqn{0 \le s \le -1/\xi} when
-\eqn{\xi \lt 0}, where
-\eqn{s = \frac{(x - \mu)}{\sigma}}{
-     s = (x - \mu)/\sigma}.
-In the limit \eqn{\xi → 0}, the density simplifies to
+for \eqn{s \ge 0}{s >= 0} when \eqn{\xi \ge 0}{xi >= 0}, and for
+\eqn{0 \le s \le -1/\xi}{0 <= s <= -1/xi} when \eqn{\xi \lt 0}{xi < 0}, where \eqn{s = \frac{(x - \mu)}{\sigma}}{
+     s = (x - \mu)/\sigma}. In the limit \eqn{\xi → 0}{\xi -> 0}, the density simplifies
+to
 
 \deqn{f(s) = \frac{1}{\sigma} \exp(-s)}{
       f(s) = 1/\sigma e^-s}
@@ -113,7 +112,7 @@ essentials::mfor(y, col, lty, list(ys, cols, ltys), {
     graphics::lines(x, y, col = col, lty = lty, lwd = 2)
 })
 graphics::legend(
-    x = "topright", inset = c(0.04, 0),
+    x = "topright",
     legend = legend.text,
     col = cols,
     lwd = 2,

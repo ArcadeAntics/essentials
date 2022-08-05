@@ -43,6 +43,12 @@ export(ASCII)
 export(asWindowsbasename)
 
 
+# basename2.R               ----
+
+
+export(basename2, dirname2)
+
+
 # commandArgs.R             ----
 
 
@@ -109,13 +115,13 @@ export(f.str)
 export(file.open)
 
 
-# GeneralizedExtremeValue.R ----
+# gev.R                     ----
 
 
 export(dgev, pgev, qgev, rgev)
 
 
-# GeneralizedParetoDistribution.R ----
+# gpd.R                     ----
 
 
 export(dgpd, pgpd, qgpd, rgpd)

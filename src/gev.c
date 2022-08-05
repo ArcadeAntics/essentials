@@ -1,3 +1,10 @@
+// the code here is based on:
+//
+// https://github.com/wch/r-source/tree/trunk/src/nmath
+//
+// see dnorm.c pnorm.c qnorm.c and rnorm.c
+
+
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>

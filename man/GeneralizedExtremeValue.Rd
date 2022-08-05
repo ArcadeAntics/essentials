@@ -50,7 +50,7 @@ logical; if TRUE (default), probabilities are \eqn{P[X \le x]} otherwise,
 If \code{location}, \code{scale} or \code{shape} are not specified they assume
 the default values of 0, 1 and 0, respectively.
 
-The generalized pareto distribution with location \eqn{\mu}, scale
+The generalized extreme value distribution with location \eqn{\mu}, scale
 \eqn{\sigma > 0} and shape \eqn{\xi} has density
 
 \deqn{f(s) = \frac{1}{\sigma} (1 + \xi s)^{-(1 + 1/\xi)} \exp(-(1 + \xi s)^{-1/\xi})}{

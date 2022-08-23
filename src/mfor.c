@@ -5,27 +5,37 @@
 
 
 
+//#define debug
 #define SMTH_WRONG_W_MFOR(X) (error("object '%s' not found; something is very wrong with 'mfor', please report!", (X)))
 
 
 
 
 
-R_xlen_t do_length(SEXP x)
+#ifdef debug
+#include "defines.h"
+#endif
+
+
+
+
+
+R_xlen_t do_length(SEXP x, SEXP rho)
 {
     if (isObject(x)) {
         SEXP expr, tmp;
+        expr = PROTECT(eval(install("length"), R_BaseEnv));
         expr = PROTECT(lang2(
-            install("length"),
+            expr,
             lang2(
                 install("quote"),
                 x
             )
         ));
-        tmp = PROTECT(eval(expr, R_BaseEnv));
+        tmp = PROTECT(eval(expr, rho));
         R_xlen_t value = (R_xlen_t)
             (TYPEOF(tmp) == REALSXP ? REAL(tmp)[0] : asInteger(tmp));
-        UNPROTECT(2);
+        UNPROTECT(3);
         return value;
     }
     return xlength(x);
@@ -133,6 +143,10 @@ SEXP do_mfor(SEXP rho, SEXP p)
             error("non-symbol loop variable, argument %d", i + 1);
         SET_VECTOR_ELT(vars, i, tmp);
     }
+#ifdef debug
+    Rprintf("> vars\n");
+    R_print(vars);
+#endif
 
 
     if (!isNull(TAG(x)))
@@ -140,6 +154,12 @@ SEXP do_mfor(SEXP rho, SEXP p)
 
 
     seqs = PROTECT(eval(CAR(x), p));  np++;
+#ifdef debug
+    Rprintf(n_vars == 1 ? "> seq\n" : "> seqs\n");
+    R_print(seqs);
+#endif
+
+
     expr = PREXPR(CADR(x));
     if (!isNull(TAG(CDR(x)))) {
         expr = PROTECT(lang3(
@@ -148,6 +168,10 @@ SEXP do_mfor(SEXP rho, SEXP p)
             expr
         ));  np++;
     }
+#ifdef debug
+    Rprintf("> expr\n");
+    R_print(expr);
+#endif
 
 
     Rboolean do_eval = 1;
@@ -158,15 +182,27 @@ SEXP do_mfor(SEXP rho, SEXP p)
 
 
     if (n_vars == 1) {
-        commonLength = do_length(seqs);
+        commonLength = do_length(seqs, p);
+#ifdef debug
+        Rprintf("> length(seq)\n");
+        R_print(ScalarReal((double) commonLength));
+#endif
         realIndx = commonLength > INT_MAX;
         updaters = PROTECT(allocVector(VECSXP, 1));  np++;
         SET_VECTOR_ELT(updaters, 0, lang3(
             R_Bracket2Symbol, seqs_symbol, i_symbol
         ));
+#ifdef debug
+        Rprintf("> updater\n");
+        R_print(updaters);
+#endif
     }
     else {
-        R_xlen_t n_seqs = do_length(seqs);
+        R_xlen_t n_seqs = do_length(seqs, p);
+#ifdef debug
+        Rprintf("> length(seqs)\n");
+        R_print(ScalarReal((double) n_seqs));
+#endif
 
 
         if (n_vars != n_seqs)
@@ -179,17 +215,21 @@ SEXP do_mfor(SEXP rho, SEXP p)
 
 
         R_xlen_t *lengths_seqs = do_lengths(seqs, n_seqs, "seqs");
-
-
-        /*
-        Rprintf("lengths(seqs)   =");
+#ifdef debug
+        SEXP print_this = PROTECT(allocVector(REALSXP, n_seqs));
         for (R_xlen_t i = 0; i < n_seqs; i++)
-            Rprintf(" %.0f", (double) lengths_seqs[i]);
-        Rprintf("\n");
-         */
+            REAL(print_this)[i] = (double) lengths_seqs[i];
+        Rprintf("> lengths(seqs)\n");
+        R_print(print_this);
+        UNPROTECT(1);
+#endif
 
 
         commonLength = get_commonLength(lengths_seqs, n_seqs);
+#ifdef debug
+        Rprintf("> commonLength(seqs)\n");
+        R_print(ScalarReal(commonLength));
+#endif
         do_eval = (commonLength != 0);
         if (do_eval) {
 
@@ -248,6 +288,10 @@ SEXP do_mfor(SEXP rho, SEXP p)
                 SET_VECTOR_ELT(updaters, j, v);
                 UNPROTECT(2);
             }
+#ifdef debug
+            Rprintf("> updaters\n");
+            R_print(updaters);
+#endif
         }
     }
 
@@ -257,20 +301,24 @@ SEXP do_mfor(SEXP rho, SEXP p)
 
     if (do_eval) {
         loop_expr = PROTECT(lang2(
-            install("repeat"),
+            eval(install("repeat"), R_BaseEnv),
             lang3(
-                R_BraceSymbol,
+                eval(R_BraceSymbol, R_BaseEnv),
                 lang3(
-                    install("if"),
+                    eval(install("if"), R_BaseEnv),
                     lang2(
                         is_mfor_done,
                         rho
                     ),
-                    lang1(install("break"))
+                    lang1(eval(install("break"), R_BaseEnv))
                 ),
                 expr
             )
         ));  np++;
+#ifdef debug
+        Rprintf("> loop_expr\n");
+        R_print(loop_expr);
+#endif
 
 
         defineVar(

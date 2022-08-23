@@ -13,7 +13,7 @@
         else xx
     }
     if (length(x) != 1L)
-        as.character(.mapply(list, lapply(x, "fun"), NULL))
+        as.character(.mapply(list, lapply(x, fun), NULL))
     else fun(x[[1L]])
 }
 
@@ -93,12 +93,8 @@ rowmatch <- function (x, table, nomatch = NA_integer_, incomparables = NULL)
 methods::setGeneric(
     name      = "row.match",
     signature = c("x", "table"),
-    def       = as.function(c(formals(rowmatch), local({
-        nf <- names(formals(rowmatch))
-        x <- lapply(nf, base::as.symbol)
-        names(x) <- nf
-        as.call(c(list(quote(rowmatch)), x))
-    })))
+    def       = function (x, table, nomatch = NA_integer_, incomparables = NULL)
+rowmatch(x, table, nomatch, incomparables)
 )
 
 

@@ -6,6 +6,8 @@ importFrom(this.path,
     asArgs, fileArgs, withArgs)
 
 
+importFrom(utils, write.table)
+
 
 export(flat.list, hypot, phypot, listify, strip, strsplit2, IDW,
     isMissingArg)

@@ -2,6 +2,14 @@
 #include <Rinternals.h>
 
 
+//#define debug
+
+
+#ifdef debug
+#include "defines.h"
+#endif
+
+
 /* do(expr) %while% (cond) */
 /* do(expr) %until% (cond) */
 SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
@@ -192,26 +200,26 @@ SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
        }
      */
     PROTECT(expr = lang2(
-        install("repeat"),
+        eval(install("repeat"), R_BaseEnv),
         lang3(
-            R_BraceSymbol,
+            eval(R_BraceSymbol, R_BaseEnv),
             lang4(
- /* if   */     install("if"),
+ /* if   */     eval(install("if"), R_BaseEnv),
  /* cond */     lang3(
-                    R_Bracket2Symbol,
+                    eval(R_Bracket2Symbol, R_BaseEnv),
                     aenv,
                     mkString(name)
                 ),
  /* expr */     lang4(
-                    install("assign"),
+                    eval(install("assign"), R_BaseEnv),
                     mkString(name),
                     ScalarLogical(FALSE),
                     aenv
                 ),
  /* alt.expr */ u ? lang3(
-                    install("if"),
+                    eval(install("if"), R_BaseEnv),
                     cond,
-                    lang1(install("break"))) :
+                    lang1(eval(install("break"), R_BaseEnv))) :
 
 
                 /* we could use
@@ -226,15 +234,19 @@ SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
                    * a raw byte (since '!' is defined differently for that class)
                    * any other classed objects (might have a method for '!') */
                 lang4(
-                    install("if"),
+                    eval(install("if"), R_BaseEnv),
                     cond,
-                    lang1(R_BraceSymbol),
-         /* else */ lang1(install("break"))
+                    lang1(eval(R_BraceSymbol, R_BaseEnv)),
+         /* else */ lang1(eval(install("break"), R_BaseEnv))
                 )
             ),
             expr
         )
     ));
+#ifdef debug
+    Rprintf("> loop_expr\n");
+    R_print(expr);
+#endif
 
 
     // UNPROTECT(3); return expr;

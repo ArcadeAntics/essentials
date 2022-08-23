@@ -22,6 +22,9 @@
 
 R_xlen_t do_length(SEXP x, SEXP rho)
 {
+    // if the object has a class attribute, call length(x)
+    // we must call it in the user's environment in case they defined any
+    // length methods in said environment
     if (isObject(x)) {
         SEXP expr, tmp;
         expr = PROTECT(eval(install("length"), R_BaseEnv));
@@ -38,12 +41,27 @@ R_xlen_t do_length(SEXP x, SEXP rho)
         UNPROTECT(3);
         return value;
     }
+    // otherwise, return the internal length
     return xlength(x);
 }
 
 
 R_xlen_t * do_lengths(SEXP x, R_xlen_t length_x, const char *name)
 {
+    // x
+    //
+    //     object for which to find the 'lengths'
+    //
+    // length_x
+    //
+    //     the length of 'x', this is usually pre-calculated so don't wany to
+    //     recalculate
+    //
+    // name
+    //
+    //     string; name of the variable at the R level. for error messages
+
+
     /* find lengths(x), and convert to a R_xlen_t array */
 
 
@@ -97,6 +115,10 @@ R_xlen_t get_commonLength(R_xlen_t *lengths, R_xlen_t length)
 
 
 
+// mfor(*vars, seqs, expr)
+//
+// rho is the environment containing the ... list, the arguments stated above
+// p is the user's environment from which the 'mfor' loop was called
 SEXP do_mfor(SEXP rho, SEXP p)
 {
     if (TYPEOF(rho) != ENVSXP)

@@ -158,14 +158,30 @@ row.match.data.frame <- function (x, table, nomatch = NA_integer_, incomparables
 methods::setMethod(
     f          = "row.match",
     signature  = c(
+        x     = "ANY"       ,
+        table = "data.frame"),
+    definition = function (x, table, nomatch = NA_integer_, incomparables = NULL)
+row.match.data.frame(x, table, nomatch, incomparables)
+)
+
+
+methods::setMethod(
+    f          = "row.match",
+    signature  = c(
+        x     = "data.frame",
+        table = "ANY"       ),
+    definition = function (x, table, nomatch = NA_integer_, incomparables = NULL)
+row.match.data.frame(x, table, nomatch, incomparables)
+)
+
+
+methods::setMethod(
+    f          = "row.match",
+    signature  = c(
         x     = "data.frame",
         table = "data.frame"),
-    definition = as.function(c(formals(row.match.data.frame), local({
-        nf <- names(formals(row.match.data.frame))
-        x <- lapply(nf, base::as.symbol)
-        names(x) <- nf
-        as.call(c(list(quote(row.match.data.frame)), x))
-    })))
+    definition = function (x, table, nomatch = NA_integer_, incomparables = NULL)
+row.match.data.frame(x, table, nomatch, incomparables)
 )
 
 

@@ -14,6 +14,7 @@ generator <- function (X, FUN, ...)
 `[.generator` <- function (x, ...)
 {
     x.envir <- environment(x)
+    FUN <- X <- NULL
     value <- structure(function(i) FUN(X[[i]], ...), class = c("generator", "function"))
     environment(value) <- list2env(
         list(

@@ -58,6 +58,8 @@ static const R_CallMethodDef callRoutines[] = {
 
     {"do.expr"                , (DL_FUNC) &do_do_expr               , 3},
 
+    {"unpackset"              , (DL_FUNC) &do_unpackset             , 5},
+
     {NULL, NULL, 0}
 };
 

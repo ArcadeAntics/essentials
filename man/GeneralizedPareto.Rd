@@ -57,9 +57,10 @@ The generalized pareto distribution with location \eqn{\mu}, scale
       f(s) = 1/\sigma (1 + \xi s)^-(1 + 1/\xi)}
 
 for \eqn{s \ge 0}{s >= 0} when \eqn{\xi \ge 0}{xi >= 0}, and for
-\eqn{0 \le s \le -1/\xi}{0 <= s <= -1/xi} when \eqn{\xi \lt 0}{xi < 0}, where \eqn{s = \frac{(x - \mu)}{\sigma}}{
-     s = (x - \mu)/\sigma}. In the limit \eqn{\xi → 0}{\xi -> 0}, the density simplifies
-to
+\eqn{0 \le s \le -1/\xi}{0 <= s <= -1/xi} when
+\eqn{\xi \lt 0}{xi < 0}, where
+\eqn{s = \frac{(x - \mu)}{\sigma}}{s = (x - \mu)/\sigma}.
+In the limit \eqn{\xi → 0}{\xi -> 0}, the density simplifies to
 
 \deqn{f(s) = \frac{1}{\sigma} \exp(-s)}{
       f(s) = 1/\sigma e^-s}

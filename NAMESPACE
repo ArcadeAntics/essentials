@@ -196,6 +196,12 @@ S3method(as.numbers, default)
 export(path.contract)
 
 
+# path.join.R               ----
+
+
+export(path.join)
+
+
 # plapply.R                 ----
 
 
@@ -326,6 +332,14 @@ export(toProv, toProv2, toProvince)
 
 
 export(tryExcept)
+
+
+# unpackAssignOps.R         ----
+
+
+export("%<-%", "%<<-%", "%->%", "%->>%",
+       "%=%",
+       unpack.assign, unpack.super.assign)
 
 
 # withArgs.R                ----

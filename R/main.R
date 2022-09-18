@@ -15,14 +15,6 @@ flat.list <- function (...)
 }
 
 
-hypot <- function (..., na.rm = FALSE)
-.External(C_hypot, na.rm, ...)
-
-
-phypot <- function (..., na.rm = FALSE)
-.External(C_phypot, na.rm, ...)
-
-
 listify <- function (x)
 if (inherits(x, "list")) x else list(x)
 

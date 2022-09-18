@@ -58,10 +58,8 @@ rm(do.while)
 
 
 `%while%` <- function (expr, cond)
-invisible(.Call(C_do.while, substitute(expr), substitute(cond),
-    FALSE, parent.frame()))
+.External2(C_do.while)
 
 
 `%until%` <- function (expr, cond)
-invisible(.Call(C_do.while, substitute(expr), substitute(cond),
-    TRUE, parent.frame()))
+.External2(C_do.until)

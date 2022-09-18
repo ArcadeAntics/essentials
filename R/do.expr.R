@@ -75,18 +75,10 @@ quoteLang <- function (cl, quote.MissingArg = FALSE)
 # }
 
 
-do.expr <- function (expr)
-{
-    sexpr <- substitute(expr)
-    if (!is.call(sexpr))
-        expr
-    else {
-        value <- .Call(C_do.expr, sexpr, parent.frame(), visible <- logical(1L))
-        if (visible)
-            value
-        else invisible(value)
-    }
-}
+do.expr <- function (expr, envir = parent.frame(),
+                enclos = if (is.list(envir) || is.pairlist(envir))
+                             parent.frame() else baseenv())
+.External2(C_do.expr, as.env(envir, enclos))
 
 
 ##x <- 1:3

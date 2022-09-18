@@ -2,31 +2,13 @@
 #include <Rinternals.h>
 
 
-
-
-
-#define enquote(X) (lang2(findVarInFrame(R_BaseEnv, install("quote")), (X)))
+#include "defines.h"  // for enquote()
 
 
 
 
 
-R_xlen_t dispatchLength(SEXP x, SEXP rho)
-{
-    R_xlen_t length_x;
-    if (isObject(x)) {
-        SEXP expr = PROTECT(lang2(
-            findVarInFrame(R_BaseEnv, install("length")),
-            enquote(x)
-        ));
-        expr = PROTECT(eval(expr, rho));
-        length_x = (R_xlen_t)
-            (TYPEOF(expr) == REALSXP ? REAL(expr)[0] : asInteger(expr));
-        UNPROTECT(2);
-    }
-    else length_x = xlength(x);
-    return length_x;
-}
+extern R_xlen_t dispatchLength(SEXP x, SEXP rho);
 
 
 SEXP dispatchSubset(SEXP x, R_xlen_t from, R_xlen_t length_out, SEXP rho)
@@ -150,7 +132,6 @@ void checkSyntax(SEXP call, SEXP x)
             for (x_ptr = x; x_ptr != R_NilValue; x_ptr = CDR(x_ptr)) {
                 xx = CAR(x_ptr);
                 if (TYPEOF(xx) == LANGSXP &&
-                    TYPEOF(CAR(xx)) == SYMSXP &&
                     CAR(xx) == install("*") &&
                     xlength(xx) <= 2) {
                     if (n_starred) {
@@ -209,7 +190,6 @@ void assignOps(SEXP call, SEXP op, SEXP x, SEXP value, SEXP rho)
             for (x_indx = 0, x_ptr = x; x_ptr != R_NilValue; x_indx++, x_ptr = CDR(x_ptr)) {
                 xx = CAR(x_ptr);
                 if (TYPEOF(xx) == LANGSXP &&
-                    TYPEOF(CAR(xx)) == SYMSXP &&
                     CAR(xx) == install("*") &&
                     xlength(xx) <= 2) {
                     if (starred_indx != -1) {

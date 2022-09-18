@@ -31,11 +31,11 @@ double hypot2(double x, double y)
 
 
 /* phypot(..., na.rm = FALSE) */
-SEXP do_phypot(SEXP args)
+SEXP do_phypot(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    SEXP a, x;
+    SEXP x;
     R_xlen_t i, n, len = 1;
-    int na_rm;
+    int na_rm, nprotect = 0;
 
 
     // when using the R function '.External' to call a C function,
@@ -49,18 +49,29 @@ SEXP do_phypot(SEXP args)
     na_rm = asLogical(CAR(args));
 
 
-    // rest of 'args'
-    args = CDR(args);
+    SEXP dots = findVarInFrame(rho, install("..."));
+    if (dots == R_UnboundValue)
+        error("could not find the ... list; should never happen, please report!");
+
+
+    int dots_length = dotsLength(dots);
 
 
     // if there are no arguments, return numeric(0)
-    if (args == R_NilValue) return allocVector(REALSXP, 0);
+    if (dots_length == 0) return allocVector(REALSXP, 0);
+
+
+    args = PROTECT(allocVector(LISTSXP, dots_length)); nprotect++;
+    SEXP a = args,
+         d = dots;
 
 
     // 'n' is the length of the current vector
     // 'len' will be the length of the resultant vector
-    for (a = args; a != R_NilValue; a = CDR(a)) {
-        x = CAR(a);
+    for (; d != R_NilValue; a = CDR(a), d = CDR(d)) {
+        x = CAR(d);
+        x = eval(x, rho);
+        SETCAR(a, x);
         switch(TYPEOF(x)) {
         case INTSXP:
         case LGLSXP:
@@ -80,7 +91,13 @@ SEXP do_phypot(SEXP args)
     }
 
 
-    if (len == 0) return allocVector(REALSXP, 0);
+    eval(R_NilValue, R_BaseEnv);  /* in eval(x, rho), argument might set R_Visible to FALSE, change it back to TRUE */
+
+
+    if (len == 0) {
+        UNPROTECT(nprotect);
+        return allocVector(REALSXP, 0);
+    }
 
 
     for (a = args; a != R_NilValue; a = CDR(a)) {
@@ -91,7 +108,7 @@ SEXP do_phypot(SEXP args)
     }
 
 
-    SEXP value = PROTECT(allocVector(REALSXP, len));
+    SEXP value = PROTECT(allocVector(REALSXP, len)); nprotect++;
     double *rvalue = REAL(value);
     Memzero(rvalue, len);
 
@@ -259,7 +276,7 @@ SEXP do_phypot(SEXP args)
                     // copy them and immediately return 'value'
                     if (getAttrib(x, R_DimNamesSymbol) != R_NilValue) {
                         setAttrib(value, R_DimNamesSymbol, getAttrib(x, R_DimNamesSymbol));
-                        UNPROTECT(1);
+                        UNPROTECT(nprotect);
                         return value;
                     }
                 }
@@ -281,34 +298,51 @@ SEXP do_phypot(SEXP args)
                 // copy them and immediately return 'value'
                 if (getAttrib(x, R_DimNamesSymbol) != R_NilValue) {
                     setAttrib(value, R_DimNamesSymbol, getAttrib(x, R_DimNamesSymbol));
-                    UNPROTECT(1);
+                    UNPROTECT(nprotect);
                     return value;
                 }
             }
         }
     }
 
-    UNPROTECT(1);
+    UNPROTECT(nprotect);
     return value;
 }
 
 
 /* hypot(..., na.rm = FALSE) */
-SEXP do_hypot(SEXP args)
+SEXP do_hypot(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    SEXP a, x;
+    SEXP x;
     R_xlen_t i, n;
-    int na_rm;
+    int na_rm, nprotect = 0;
+
 
     args = CDR(args);
     na_rm = asLogical(CAR(args));
-    args = CDR(args);
+
+
+    SEXP dots = findVarInFrame(rho, install("..."));
+    if (dots == R_UnboundValue)
+        error("could not find the ... list; should never happen, please report!");
+
+
+    int dots_length = dotsLength(dots);
+
 
     // if there are no arguments, return 0
-    if (args == R_NilValue) return ScalarReal(0.0);
+    if (dots_length == 0) return ScalarReal(0.0);
 
-    for (a = args; a != R_NilValue; a = CDR(a)) {
-        x = CAR(a);
+
+    args = PROTECT(allocVector(LISTSXP, dots_length)); nprotect++;
+    SEXP a = args,
+         d = dots;
+
+
+    for (; d != R_NilValue; a = CDR(a), d = CDR(d)) {
+        x = CAR(d);
+        x = eval(x, rho);
+        SETCAR(a, x);
         switch(TYPEOF(x)) {
         case INTSXP:
         case LGLSXP:
@@ -321,6 +355,10 @@ SEXP do_hypot(SEXP args)
             return R_NilValue;
         }
     }
+
+
+    eval(R_NilValue, R_BaseEnv);  /* in eval(x, rho), argument might set R_Visible to FALSE, change it back to TRUE */
+
 
     double value = 0.0;
     for (a = args; a != R_NilValue; a = CDR(a)) {
@@ -383,6 +421,7 @@ SEXP do_hypot(SEXP args)
             error("invalid 'type' (%s) of argument", type2char(TYPEOF(x)));
         }
     }
+    UNPROTECT(nprotect);
     return ScalarReal(value);
 }
 

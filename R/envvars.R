@@ -1,11 +1,6 @@
 envvars <- function (...)
-{
-    value <- .Call(C_envvars, pairlist(...), visible <- logical(1L))
-    if (visible)
-        value
-    else invisible(value)
-}
+.External2(C_envvars)
 
 
 getEnvvar <- function (x, default = NULL)
-.Call(C_getEnvvar, x, default)
+.External2(C_getEnvvar, x)

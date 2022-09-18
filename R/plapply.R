@@ -1,14 +1,14 @@
 .plapply <- function (X, FUN, dots = NULL)
 {
     FUN <- match.fun(FUN)
-    .Call(C_plapply, X, FUN, FALSE, environment())
+    .External2(C_plapply, X, FUN, dots)
 }
 
 
 plapply <- function (X, FUN, ...)
 {
     FUN <- match.fun(FUN)
-    .Call(C_plapply, X, FUN, TRUE, environment())
+    .External2(C_plapply, X, FUN)
 }
 
 
@@ -51,14 +51,14 @@ psapply <- function (X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE)
 .pvapply <- function (X, FUN, FUN.VALUE, dots = NULL, USE.NAMES = TRUE)
 {
     FUN <- match.fun(FUN)
-    .Call(C_pvapply, X, FUN, FUN.VALUE, USE.NAMES, FALSE, environment())
+    .External2(C_pvapply, X, FUN, FUN.VALUE, dots, USE.NAMES)
 }
 
 
 pvapply <- function (X, FUN, FUN.VALUE, ..., USE.NAMES = TRUE)
 {
     FUN <- match.fun(FUN)
-    .Call(C_pvapply, X, FUN, FUN.VALUE, USE.NAMES, TRUE, environment())
+    .External2(C_pvapply, X, FUN, FUN.VALUE, USE.NAMES)
 }
 
 

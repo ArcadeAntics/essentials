@@ -343,6 +343,9 @@ check_this <- function (
 }
 
 
+check.this <- check_this
+
+
 Check_This <- function (...)
 .Defunct("check_this")
 

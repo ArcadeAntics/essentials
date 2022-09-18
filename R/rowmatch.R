@@ -152,7 +152,7 @@ rowmatch(x, table, nomatch, incomparables)
 
 
 row.match.data.frame <- function (x, table, nomatch = NA_integer_, incomparables = NULL)
-.Call(C_row.match.data.frame, x, table, nomatch, incomparables, environment())
+.External2(C_row.match.data.frame, x, table, nomatch, incomparables)
 
 
 methods::setMethod(

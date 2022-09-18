@@ -5,45 +5,20 @@
 
 
 
-//#define debug
-#define SMTH_WRONG_W_MFOR(X) (error("object '%s' not found; something is very wrong with 'mfor', please report!", (X)))
+// #define debug
+#define SOMETHING_WRONG_WITH_MFOR(X) (error("object '%s' not found; something is very wrong with 'mfor', please report!", (X)))
 
 
 
 
 
-#ifdef debug
 #include "defines.h"
-#endif
 
 
 
 
 
-R_xlen_t do_length(SEXP x, SEXP rho)
-{
-    // if the object has a class attribute, call length(x)
-    // we must call it in the user's environment in case they defined any
-    // length methods in said environment
-    if (isObject(x)) {
-        SEXP expr, tmp;
-        expr = PROTECT(eval(install("length"), R_BaseEnv));
-        expr = PROTECT(lang2(
-            expr,
-            lang2(
-                install("quote"),
-                x
-            )
-        ));
-        tmp = PROTECT(eval(expr, rho));
-        R_xlen_t value = (R_xlen_t)
-            (TYPEOF(tmp) == REALSXP ? REAL(tmp)[0] : asInteger(tmp));
-        UNPROTECT(3);
-        return value;
-    }
-    // otherwise, return the internal length
-    return xlength(x);
-}
+extern R_xlen_t dispatchLength(SEXP x, SEXP rho);
 
 
 R_xlen_t * do_lengths(SEXP x, R_xlen_t length_x, const char *name)
@@ -115,32 +90,22 @@ R_xlen_t get_commonLength(R_xlen_t *lengths, R_xlen_t length)
 
 
 
-// mfor(*vars, seqs, expr)
-//
-// rho is the environment containing the ... list, the arguments stated above
-// p is the user's environment from which the 'mfor' loop was called
-SEXP do_mfor(SEXP rho, SEXP p)
+/* mfor(*vars, seqs, expr) */
+SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    if (TYPEOF(rho) != ENVSXP)
-        error("invalid 'rho'");
-    if (TYPEOF(p) != ENVSXP)
-        error("invalid 'p'");
+    int nprotect = 0;
 
 
-    SEXP is_mfor_done = findVarInFrame(ENCLOS(rho), install("is.mfor.done"));
-    if (is_mfor_done == R_UnboundValue ||
-        (TYPEOF(is_mfor_done) != PROMSXP &&
-         TYPEOF(is_mfor_done) != CLOSXP))
-        SMTH_WRONG_W_MFOR("is.mfor.done");
+    SEXP is_mfor_done = PROTECT(eval(      install("is.mfor.done") , rho)); nprotect++;
+    SEXP p            = PROTECT(eval(lang1(install("parent.frame")), rho)); nprotect++;
 
 
     SEXP dots = findVarInFrame(rho, R_DotsSymbol);
     if (dots == R_UnboundValue)
-        SMTH_WRONG_W_MFOR("...");
+        SOMETHING_WRONG_WITH_MFOR("...");
 
 
-    int np = 0,
-        n_args = ((TYPEOF(dots) == DOTSXP) ? length(dots) : 0),
+    int n_args = dotsLength(dots),
         n_vars = n_args - 2;
 
 
@@ -153,9 +118,9 @@ SEXP do_mfor(SEXP rho, SEXP p)
 
 
     SEXP vars, seqs, expr, updaters, x, tmp, seqs_symbol, i_symbol;
-    seqs_symbol = PROTECT(install("seqs"));              np++;
-    i_symbol    = PROTECT(install("i"));                 np++;
-    vars        = PROTECT(allocVector(VECSXP, n_vars));  np++;
+    seqs_symbol = install("seqs");
+    i_symbol    = install("i");
+    vars        = PROTECT(allocVector(VECSXP, n_vars));  nprotect++;
 
 
     x = dots;
@@ -166,8 +131,9 @@ SEXP do_mfor(SEXP rho, SEXP p)
         SET_VECTOR_ELT(vars, i, tmp);
     }
 #ifdef debug
-    Rprintf("> vars\n");
+    Rprintf("\n> vars\n");
     R_print(vars);
+    Rprintf("\n");
 #endif
 
 
@@ -175,10 +141,11 @@ SEXP do_mfor(SEXP rho, SEXP p)
         error("invalid 'seqs', should not be named");
 
 
-    seqs = PROTECT(eval(CAR(x), p));  np++;
+    seqs = PROTECT(eval(CAR(x), p));  nprotect++;
 #ifdef debug
-    Rprintf(n_vars == 1 ? "> seq\n" : "> seqs\n");
+    Rprintf(n_vars == 1 ? "\n> seq\n" : "\n> seqs\n");
     R_print(seqs);
+    Rprintf("\n");
 #endif
 
 
@@ -188,7 +155,7 @@ SEXP do_mfor(SEXP rho, SEXP p)
             install("="),
             TAG(CDR(x)),
             expr
-        ));  np++;
+        ));  nprotect++;
     }
 #ifdef debug
     Rprintf("> expr\n");
@@ -204,13 +171,13 @@ SEXP do_mfor(SEXP rho, SEXP p)
 
 
     if (n_vars == 1) {
-        commonLength = do_length(seqs, p);
+        commonLength = dispatchLength(seqs, p);
 #ifdef debug
         Rprintf("> length(seq)\n");
         R_print(ScalarReal((double) commonLength));
 #endif
         realIndx = commonLength > INT_MAX;
-        updaters = PROTECT(allocVector(VECSXP, 1));  np++;
+        updaters = PROTECT(allocVector(VECSXP, 1));  nprotect++;
         SET_VECTOR_ELT(updaters, 0, lang3(
             R_Bracket2Symbol, seqs_symbol, i_symbol
         ));
@@ -220,10 +187,11 @@ SEXP do_mfor(SEXP rho, SEXP p)
 #endif
     }
     else {
-        R_xlen_t n_seqs = do_length(seqs, p);
+        R_xlen_t n_seqs = dispatchLength(seqs, p);
 #ifdef debug
-        Rprintf("> length(seqs)\n");
+        Rprintf("\n> length(seqs)\n");
         R_print(ScalarReal((double) n_seqs));
+        Rprintf("\n");
 #endif
 
 
@@ -241,16 +209,18 @@ SEXP do_mfor(SEXP rho, SEXP p)
         SEXP print_this = PROTECT(allocVector(REALSXP, n_seqs));
         for (R_xlen_t i = 0; i < n_seqs; i++)
             REAL(print_this)[i] = (double) lengths_seqs[i];
-        Rprintf("> lengths(seqs)\n");
+        Rprintf("\n> lengths(seqs)\n");
         R_print(print_this);
+        Rprintf("\n");
         UNPROTECT(1);
 #endif
 
 
         commonLength = get_commonLength(lengths_seqs, n_seqs);
 #ifdef debug
-        Rprintf("> commonLength(seqs)\n");
+        Rprintf("\n> commonLength(seqs)\n");
         R_print(ScalarReal(commonLength));
+        Rprintf("\n");
 #endif
         do_eval = (commonLength != 0);
         if (do_eval) {
@@ -266,7 +236,7 @@ SEXP do_mfor(SEXP rho, SEXP p)
 
 
             realIndx = commonLength > INT_MAX;
-            updaters = PROTECT(allocVector(VECSXP, n_seqs));  np++;
+            updaters = PROTECT(allocVector(VECSXP, n_seqs));  nprotect++;
 
 
             for (R_xlen_t j = 0; j < n_seqs; j++) {
@@ -311,8 +281,9 @@ SEXP do_mfor(SEXP rho, SEXP p)
                 UNPROTECT(2);
             }
 #ifdef debug
-            Rprintf("> updaters\n");
+            Rprintf("\n> updaters\n");
             R_print(updaters);
+            Rprintf("\n");
 #endif
         }
     }
@@ -323,23 +294,24 @@ SEXP do_mfor(SEXP rho, SEXP p)
 
     if (do_eval) {
         loop_expr = PROTECT(lang2(
-            eval(install("repeat"), R_BaseEnv),
+            findVarInFrame(R_BaseEnv, install("repeat")),
             lang3(
-                eval(R_BraceSymbol, R_BaseEnv),
+                findVarInFrame(R_BaseEnv, R_BraceSymbol),
                 lang3(
-                    eval(install("if"), R_BaseEnv),
+                    findVarInFrame(R_BaseEnv, install("if")),
                     lang2(
                         is_mfor_done,
                         rho
                     ),
-                    lang1(eval(install("break"), R_BaseEnv))
+                    lang1(findVarInFrame(R_BaseEnv, install("break")))
                 ),
                 expr
             )
-        ));  np++;
+        ));  nprotect++;
 #ifdef debug
-        Rprintf("> loop_expr\n");
+        Rprintf("\n> loop_expr\n");
         R_print(loop_expr);
+        Rprintf("\n");
 #endif
 
 
@@ -371,7 +343,7 @@ SEXP do_mfor(SEXP rho, SEXP p)
 
 
     /*
-    SEXP value = PROTECT(allocVector(LISTSXP, 4));  np++;
+    SEXP value = PROTECT(allocVector(LISTSXP, 4));  nprotect++;
     tmp = value;
 
 
@@ -381,7 +353,7 @@ SEXP do_mfor(SEXP rho, SEXP p)
     SETCAR(tmp, loop_expr); SET_TAG(tmp, install("loop_expr"));
 
 
-    UNPROTECT(np);
+    UNPROTECT(nprotect);
     return value;
      */
 
@@ -399,7 +371,8 @@ SEXP do_mfor(SEXP rho, SEXP p)
         eval(loop_expr, p);
 
 
-    UNPROTECT(np);
+    set_R_Visible(0);
+    UNPROTECT(nprotect);
     return R_NilValue;
 }
 
@@ -407,7 +380,7 @@ SEXP do_mfor(SEXP rho, SEXP p)
 
 
 
-SEXP do_is_mfor_done(SEXP rho)
+SEXP do_ismfordone(SEXP rho)
 {
     if (TYPEOF(rho) != ENVSXP)
         error("invalid 'rho'");
@@ -415,17 +388,17 @@ SEXP do_is_mfor_done(SEXP rho)
 
     SEXP i = findVarInFrame(rho, install("i"));
     if (i == R_UnboundValue)
-        SMTH_WRONG_W_MFOR("seqs");
+        SOMETHING_WRONG_WITH_MFOR("i");
 
 
     SEXP commonLength = findVarInFrame(rho, install("commonLength"));
     if (commonLength == R_UnboundValue)
-        SMTH_WRONG_W_MFOR("commonLength");
+        SOMETHING_WRONG_WITH_MFOR("commonLength");
 
 
     SEXP realIndx = findVarInFrame(rho, install("realIndx"));
     if (realIndx == R_UnboundValue)
-        SMTH_WRONG_W_MFOR("realIndx");
+        SOMETHING_WRONG_WITH_MFOR("realIndx");
 
 
     Rboolean _realIndx = LOGICAL(realIndx)[0];
@@ -439,25 +412,25 @@ SEXP do_is_mfor_done(SEXP rho)
 
     SEXP n_vars = findVarInFrame(rho, install("n_vars"));
     if (n_vars == R_UnboundValue)
-        SMTH_WRONG_W_MFOR("n_vars");
+        SOMETHING_WRONG_WITH_MFOR("n_vars");
 
 
     SEXP vars = findVarInFrame(rho, install("vars"));
     if (vars == R_UnboundValue)
-        SMTH_WRONG_W_MFOR("vars");
+        SOMETHING_WRONG_WITH_MFOR("vars");
 
 
     SEXP updaters = findVarInFrame(rho, install("updaters"));
     if (updaters == R_UnboundValue)
-        SMTH_WRONG_W_MFOR("updaters");
+        SOMETHING_WRONG_WITH_MFOR("updaters");
 
 
     SEXP p = findVarInFrame(rho, install("p"));
     if (p == R_UnboundValue)
-        SMTH_WRONG_W_MFOR("p");
+        SOMETHING_WRONG_WITH_MFOR("p");
 
 
-    int _n_vars = INTEGER(n_vars)[0];
+    int _n_vars = INTEGER_ELT(n_vars, 0);
 
 
     if (_realIndx)
@@ -465,10 +438,10 @@ SEXP do_is_mfor_done(SEXP rho)
     else INTEGER(i)[0]++;
 
 
-    for (int k = 0; k < _n_vars; k++) {
+    for (int indx = 0; indx < _n_vars; indx++) {
         defineVar(
-            VECTOR_ELT(vars, k),
-            eval(VECTOR_ELT(updaters, k), rho),
+            VECTOR_ELT(vars, indx),
+            eval(VECTOR_ELT(updaters, indx), rho),
             p
         );
     }

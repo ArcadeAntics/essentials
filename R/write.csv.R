@@ -1,5 +1,7 @@
-write.csv <- function ()
-{
+write.csv <- function() NULL
+formals(write.csv) <- formals(utils::write.table)
+formals(write.csv)[c("sep", "dec", "qmethod")] <- list(",", ".", "double")
+body(write.csv) <- bquote({
     provided <- !c(col.names = missing(col.names), sep = missing(sep),
         dec = missing(dec), qmethod = missing(qmethod))
     if (any(provided))
@@ -13,13 +15,10 @@ write.csv <- function ()
     sep <- ","
     dec <- "."
     qmethod <- "double"
-    write.table()
-}
-formals(write.csv) <- formals(utils::write.table)
-formals(write.csv)[c("sep", "dec", "qmethod")] <- list(",", ".", "double")
-body(write.csv)[[length(body(write.csv))]] <- local({
-    nf <- names(formals(write.csv))
-    x <- lapply(nf, base::as.symbol)
-    names(x) <- nf
-    as.call(c(list(quote(write.table)), x))
+    .({
+        on.exit(rm(tmp))
+        tmp <- sapply(names(formals(write.csv)), as.name)
+        names(tmp)[tmp == "..."] <- ""
+        as.call(c(as.name("write.table"), tmp))
+    })
 })

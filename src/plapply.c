@@ -9,80 +9,47 @@
 #define int_nargs  // can an integer number of arguments be passed to a function?? as of 2022-01-11, yes
 
 
+#include "defines.h"
 
 
 
-#define CHECK_DOTS_AS_DOTSXP_AND_RHO {                         \
-    _dots_as_DOTSXP = asLogical(dots_as_DOTSXP);               \
-    if (_dots_as_DOTSXP == NA_LOGICAL)                         \
-        error("invalid '%s'", "dots.as.DOTSXP");               \
-    if (TYPEOF(rho) != ENVSXP)                                 \
-        error("invalid '%s'", "rho");                          \
-}
 
 
-#define GET_LENGTH_X {                                         \
-    if (isObject(X)) {                                         \
-        expr = PROTECT(lang2(  /* length(X) */                 \
-            install("length"),                                 \
-            XSymbol                                            \
-        ));                                                    \
-        tmp = PROTECT(eval(expr, rho));                        \
-        length_X = (R_xlen_t)                                  \
-            (TYPEOF(tmp) == REALSXP ? REAL(tmp)[0] : asInteger(tmp));\
-        UNPROTECT(2);                                          \
-    }                                                          \
-    else length_X = xlength(X);                                \
+extern R_xlen_t dispatchLength(SEXP x, SEXP rho);
+extern R_xlen_t *dispatchLengths3(SEXP x, SEXP rho, R_xlen_t length_x);
+extern SEXP dispatchNames(SEXP x, SEXP rho);
+
+
+#define GET_LENGTH_X do {                                      \
+    length_X = dispatchLength(X, rho);                         \
     PRINT_LENGTH_X;                                            \
     CHECK_LENGTH_X;                                            \
-}
+} while (0)
 
 
-#define GET_LENGTHS_X {                                        \
-    /* find lengths(X), and convert to a R_xlen_t array */     \
-                                                               \
-                                                               \
-    expr = PROTECT(lang2(  /* lengths(X) */                    \
-        install("lengths"),                                    \
-        XSymbol                                                \
-    ));                             np++;                      \
-    tmp = PROTECT(eval(expr, rho)); np++;                      \
-    if (xlength(tmp) != length_X)                              \
-        error("'length(X)' (%.0f) and 'length(lengths(X))' (%.0f) are not equal",\
-            (double) length_X, (double) xlength(tmp));         \
-                                                               \
-                                                               \
-    lengths_X = (R_xlen_t *) R_alloc(length_X, sizeof(R_xlen_t));\
-    switch (TYPEOF(tmp)) {                                     \
-    case REALSXP:                                              \
-        for (R_xlen_t i = 0; i < length_X; i++)                \
-            lengths_X[i] = (R_xlen_t) (REAL(tmp)[i]);          \
-        break;                                                 \
-    case INTSXP:                                               \
-        for (R_xlen_t i = 0; i < length_X; i++)                \
-            lengths_X[i] = (R_xlen_t) (INTEGER(tmp)[i]);       \
-        break;                                                 \
-    default:                                                   \
-        error("invalid 'lengths(X)' of type '%s'", type2char(TYPEOF(tmp)));\
-    }                                                          \
+#define GET_LENGTHS_X do {                                     \
+    lengths_X = dispatchLengths3(X, rho, length_X);            \
     PRINT_LENGTHS_X;                                           \
-}
+} while (0)
 
 
-#define GET_COMMONLENGTH_X {                                   \
+#define GET_COMMONLENGTH_X do {                                \
     commonLength = 1;                                          \
     for (R_xlen_t i = 0; i < length_X; i++) {                  \
         if (commonLength) {                                    \
-            if (lengths_X[i] == 0 || lengths_X[i] > commonLength)\
+            if (lengths_X[i] == 0 ||                           \
+                lengths_X[i] > commonLength)                   \
+            {                                                  \
                 commonLength = lengths_X[i];                   \
+            }                                                  \
         }                                                      \
         else break;                                            \
     }                                                          \
     PRINT_COMMONLENGTH_X;                                      \
-}
+} while (0)
 
 
-#define GET_FUN_CALL {                                         \
+#define MAKE_FUN_CALL do {                                     \
     X_index1 = PROTECT(allocVector(VECSXP, length_X));         \
     X_index2 = PROTECT(allocVector(VECSXP, length_X));         \
     np += 2;                                                   \
@@ -91,28 +58,17 @@
     nForce = length_X;                                         \
     FUN_call = R_NilValue;                                     \
     PROTECT_WITH_INDEX(FUN_call, &FUN_call_index); np++;       \
-    if (_dots_as_DOTSXP) {                                     \
+    if (dots_as_DOTSXP) {                                      \
         REPROTECT(FUN_call = LCONS(R_DotsSymbol, FUN_call), FUN_call_index);\
     }                                                          \
     else {                                                     \
         dotsSymbol = install("dots");                          \
-        dots = PROTECT(eval(dotsSymbol, rho)); np++;           \
                                                                \
                                                                \
         PRINT_DOTS;                                            \
                                                                \
                                                                \
-        if (isObject(dots)) {                                  \
-            expr = PROTECT(lang2(  /* length(dots) */          \
-                install("length"),                             \
-                dotsSymbol                                     \
-            ));                                                \
-            tmp = PROTECT(eval(expr, rho));                    \
-            length_dots = (R_xlen_t)                           \
-                (TYPEOF(tmp) == REALSXP ? REAL(tmp)[0] : asInteger(tmp));\
-            UNPROTECT(2);                                      \
-        }                                                      \
-        else length_dots = xlength(dots);                      \
+        length_dots = dispatchLength(dots, rho);               \
                                                                \
                                                                \
         PRINT_LENGTH_DOTS;                                     \
@@ -125,11 +81,7 @@
                                                                \
                                                                \
             if (isObject(dots)) {                              \
-                expr = PROTECT(lang2(  /* names(dots) */       \
-                    install("names"),                          \
-                    dotsSymbol                                 \
-                ));                                            \
-                names_dots = PROTECT(eval(expr, rho));         \
+                names_dots = PROTECT(dispatchNames(dots, rho));\
                                                                \
                                                                \
                 if (names_dots != R_NilValue) {                \
@@ -137,9 +89,9 @@
                         error("'names(dots)' is not NULL or a character vector");\
                     else if (xlength(names_dots) != length_dots)\
                         error("'length(dots)' and 'length(names(dots))' are not equal");\
-                    np += 2;                                   \
+                    np++;                                      \
                 }                                              \
-                else UNPROTECT(2);                             \
+                else UNPROTECT(1);                             \
             }                                                  \
             else {                                             \
                 names_dots = PROTECT(getAttrib(dots, R_NamesSymbol));\
@@ -210,16 +162,12 @@
                                                                \
                                                                \
     REPROTECT(FUN_call = LCONS(install("FUN"), FUN_call), FUN_call_index);\
-}
+} while (0)
 
 
-#define GET_NAMES_X {                                          \
+#define GET_NAMES_X do {                                       \
     if (isObject(X)) {                                         \
-        expr = PROTECT(lang2( /* names(X) */                   \
-            install("names"),                                  \
-            XSymbol                                            \
-        ));                                 np++;              \
-        names_X = PROTECT(eval(expr, rho)); np++;              \
+        names_X = PROTECT(dispatchNames(X, rho));              \
                                                                \
                                                                \
         if (names_X != R_NilValue) {                           \
@@ -237,10 +185,10 @@
         np++;                                                  \
     }                                                          \
     X_has_names = names_X != R_NilValue;                       \
-}
+} while (0)
 
 
-#define FRACTIONAL_RECYCLING_WARNING {                         \
+#define DO_FRACTIONAL_RECYCLING_WARNING do {                   \
     if (commonLength) {                                        \
         for (R_xlen_t j = 0; j < length_X; j++) {              \
             if (commonLength % lengths_X[j] != 0) {            \
@@ -249,10 +197,10 @@
             }                                                  \
         }                                                      \
     }                                                          \
-}
+} while(0)
 
 
-#define INCREMENT_COUNTERS {                                   \
+#define INCREMENT_COUNTERS do {                                \
     for (R_xlen_t j = 0; j < length_X; j++) {                  \
         if (++counters[j] > lengths_X[j])                      \
             counters[j] = 1;                                   \
@@ -261,7 +209,7 @@
         else                                                   \
             INTEGER(VECTOR_ELT(X_index2, j))[0] = (int) counters[j];\
     }                                                          \
-}
+} while (0)
 
 
 
@@ -270,44 +218,44 @@
 #ifdef debug
 
 
-#define PRINT_LENGTH_X Rprintf("length(X)    = %.0f\n", (double) length_X)
-#define PRINT_LENGTHS_X {                                      \
-    Rprintf("lengths(X)   =");                                 \
-    for (R_xlen_t i = 0; i < length_X; i++)                    \
-        Rprintf(" %.0f", (double) lengths_X[i]);               \
-    Rprintf("\n");                                             \
-}
-#define PRINT_COMMONLENGTH_X Rprintf("commonLength = %.0f\n", (double) commonLength)
-#define PRINT_DOTS {                                           \
-    Rprintf("> print(dots)\n");                                \
-    eval(lang2(install("print"), dotsSymbol), rho);            \
-}
-#define PRINT_LENGTH_DOTS Rprintf("length(dots) = %.0f\n", (double) length_dots)
-#define PRINT_NAMES_DOTS {                                     \
-    Rprintf("> print(names(dots))\n");                         \
-    eval(lang2(install("print"), names_dots), rho);            \
-}
-#define PRINT_REALINDX(name, realIndx) Rprintf("%s = %s\n", name, (realIndx) ? "TRUE" : "FALSE")
-#define PRINT_X_REALINDX1   PRINT_REALINDX("X_realIndx1 ", X_realIndx1)
-#define PRINT_X_REALINDX2   PRINT_REALINDX("X_realIndx2 ", X_realIndx2)
-#define PRINT_DOTS_REALINDX PRINT_REALINDX("dots_realIndx ", dots_realIndx)
-#define PRINT_WHEN_LAZY_DUPLICATE Rprintf("Made a lazy duplicate\n")
+    #define PRINT_LENGTH_X Rprintf("length(X)    = %.0f\n", (double) length_X)
+    #define PRINT_LENGTHS_X do {                                   \
+        Rprintf("lengths(X)   =");                                 \
+        for (R_xlen_t i = 0; i < length_X; i++)                    \
+            Rprintf(" %.0f", (double) lengths_X[i]);               \
+        Rprintf("\n");                                             \
+    } while (0)
+    #define PRINT_COMMONLENGTH_X Rprintf("commonLength = %.0f\n", (double) commonLength)
+    #define PRINT_DOTS do {                                        \
+        Rprintf("> print(dots)\n");                                \
+        eval(lang2(install("print"), dotsSymbol), rho);            \
+    } while (0)
+    #define PRINT_LENGTH_DOTS Rprintf("length(dots) = %.0f\n", (double) length_dots)
+    #define PRINT_NAMES_DOTS do {                                  \
+        Rprintf("> print(names(dots))\n");                         \
+        eval(lang2(install("print"), names_dots), rho);            \
+    } while (0)
+    #define PRINT_REALINDX(name, realIndx) Rprintf("%s = %s\n", name, (realIndx) ? "TRUE" : "FALSE")
+    #define PRINT_X_REALINDX1   PRINT_REALINDX("X_realIndx1 ", X_realIndx1)
+    #define PRINT_X_REALINDX2   PRINT_REALINDX("X_realIndx2 ", X_realIndx2)
+    #define PRINT_DOTS_REALINDX PRINT_REALINDX("dots_realIndx ", dots_realIndx)
+    #define PRINT_WHEN_LAZY_DUPLICATE Rprintf("Made a lazy duplicate\n")
 
 
 #else
 
 
-#define PRINT_LENGTH_X
-#define PRINT_LENGTHS_X
-#define PRINT_COMMONLENGTH_X
-#define PRINT_DOTS
-#define PRINT_LENGTH_DOTS
-#define PRINT_NAMES_DOTS
-#define PRINT_REALINDX(name, realIndx)
-#define PRINT_X_REALINDX1
-#define PRINT_X_REALINDX2
-#define PRINT_DOTS_REALINDX
-#define PRINT_WHEN_LAZY_DUPLICATE
+    #define PRINT_LENGTH_X                 do {} while (0)
+    #define PRINT_LENGTHS_X                do {} while (0)
+    #define PRINT_COMMONLENGTH_X           do {} while (0)
+    #define PRINT_DOTS                     do {} while (0)
+    #define PRINT_LENGTH_DOTS              do {} while (0)
+    #define PRINT_NAMES_DOTS               do {} while (0)
+    #define PRINT_REALINDX(name, realIndx) do {} while (0)
+    #define PRINT_X_REALINDX1              do {} while (0)
+    #define PRINT_X_REALINDX2              do {} while (0)
+    #define PRINT_DOTS_REALINDX            do {} while (0)
+    #define PRINT_WHEN_LAZY_DUPLICATE      do {} while (0)
 
 
 #endif
@@ -316,10 +264,10 @@
 
 
 
-#define INIT_REALINDX(x, length, name) {                       \
+#define INIT_REALINDX(x, length, name) do {                    \
     (x = length > INT_MAX);                                    \
     PRINT_REALINDX(name, x);                                   \
-}
+} while (0)
 #define INIT_X_REALINDX2 INIT_REALINDX(X_realIndx2, commonLength, "X_realIndx2 ")
 
 
@@ -329,35 +277,35 @@
 #ifdef int_nargs
 
 
-#define CHECK_LENGTH(length, name) {                           \
-    if ((length) > INT_MAX)                                    \
-        error("'length(%s)' (%.0f) cannot be greater than '.Machine$integer.max' (%d)",\
-            name, (double) (length), INT_MAX);                 \
-}
-#define CHECK_LENGTH_X    CHECK_LENGTH(length_X, "X")
-#define CHECK_LENGTH_DOTS CHECK_LENGTH(length_dots, "dots")
-#define CHECK_NARGS {                                          \
-    if (((double) INT_MAX) - length_X - length_dots < 0)       \
-        error("too many arguments");                           \
-}
-#define INIT_X_REALINDX1
-#define INIT_DOTS_REALINDX
-#define INDEX(i, REALINDX) ScalarInteger(i)
+    #define CHECK_LENGTH(length, name) do {                        \
+        if ((length) > INT_MAX)                                    \
+            error("'length(%s)' (%.0f) cannot be greater than '.Machine$integer.max' (%d)",\
+                name, (double) (length), INT_MAX);                 \
+    } while (0)
+    #define CHECK_LENGTH_X    CHECK_LENGTH(length_X, "X")
+    #define CHECK_LENGTH_DOTS CHECK_LENGTH(length_dots, "dots")
+    #define CHECK_NARGS do {                                       \
+        if (((double) INT_MAX) - length_X - length_dots < 0)       \
+            error("too many arguments");                           \
+    } while (0)
+    #define INIT_X_REALINDX1   do {} while (0)
+    #define INIT_DOTS_REALINDX do {} while (0)
+    #define INDEX(i, REALINDX) ScalarInteger(i)
 
 
 #else
 
 
-#define CHECK_LENGTH
-#define CHECK_LENGTH_X
-#define CHECK_LENGTH_DOTS
-#define CHECK_NARGS {                                          \
-    if (R_LEN_T_MAX - length_X - length_dots < 0)              \
-        error("too many arguments");                           \
-}
-#define INIT_X_REALINDX1 INIT_REALINDX(X_realIndx1, length_X, "X_realIndx1 ")
-#define INIT_DOTS_REALINDX INIT_REALINDX(dots_realIndx, length_dots, "dots_realIndx ")
-#define INDEX(i, REALINDX) (REALINDX ? ScalarReal(i) : ScalarInteger(i))
+    #define CHECK_LENGTH      do {} while (0)
+    #define CHECK_LENGTH_X    do {} while (0)
+    #define CHECK_LENGTH_DOTS do {} while (0)
+    #define CHECK_NARGS do {                                       \
+        if (R_LEN_T_MAX - length_X - length_dots < 0)              \
+            error("too many arguments");                           \
+    } while (0)
+    #define INIT_X_REALINDX1 INIT_REALINDX(X_realIndx1, length_X, "X_realIndx1 ")
+    #define INIT_DOTS_REALINDX INIT_REALINDX(dots_realIndx, length_dots, "dots_realIndx ")
+    #define INDEX(i, REALINDX) (REALINDX ? ScalarReal(i) : ScalarInteger(i))
 
 
 #endif
@@ -366,13 +314,37 @@
 
 
 
-SEXP do_plapply(SEXP X, SEXP FUN, SEXP dots_as_DOTSXP, SEXP rho)
+SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    SEXP X, FUN, dots;
+
+
+    int nargs = length(args) - 1;
+    int dots_as_DOTSXP;
+    if (nargs == 2) {
+        dots_as_DOTSXP = 1;
+        X    = CADR(args);
+        FUN  = CADDR(args);
+        dots = R_NilValue;
+    }
+    else if (nargs == 3) {
+        dots_as_DOTSXP = 0;
+        X    = CADR(args);
+        FUN  = CADDR(args);
+        dots = CADDDR(args);
+    }
+    else errorcall(call, "%d arguments passed to 'C_plapply' which requires 2 or 3 arguments", nargs);
+
+
+    if (!isFunction(FUN))
+        errorcall(call, "invalid 'FUN', must be a function");
+
+
     SEXP XSymbol, X_index1, X_index2, names_X,
-        dots, dotsSymbol, names_dots,
+        dotsSymbol, names_dots,
         tmp, tmp1, tmp2,
         expr, FUN_call, value;
-    Rboolean _dots_as_DOTSXP, X_realIndx2, X_has_names, dots_has_names;
+    Rboolean X_realIndx2, X_has_names, dots_has_names;
 
 
 #ifndef int_nargs
@@ -385,9 +357,6 @@ SEXP do_plapply(SEXP X, SEXP FUN, SEXP dots_as_DOTSXP, SEXP rho)
         length_dots,
         nForce;
     int np;  // number of protected arguments
-
-
-    CHECK_DOTS_AS_DOTSXP_AND_RHO;
 
 
     XSymbol = install("X");
@@ -412,7 +381,7 @@ SEXP do_plapply(SEXP X, SEXP FUN, SEXP dots_as_DOTSXP, SEXP rho)
     GET_COMMONLENGTH_X;
 
 
-    FRACTIONAL_RECYCLING_WARNING;
+    DO_FRACTIONAL_RECYCLING_WARNING;
 
 
     INIT_X_REALINDX1;
@@ -472,7 +441,7 @@ SEXP do_plapply(SEXP X, SEXP FUN, SEXP dots_as_DOTSXP, SEXP rho)
     INIT_X_REALINDX2;
 
 
-    GET_FUN_CALL;
+    MAKE_FUN_CALL;
 
 
     counters = (R_xlen_t *) R_alloc(length_X, sizeof(R_xlen_t));
@@ -502,14 +471,42 @@ SEXP do_plapply(SEXP X, SEXP FUN, SEXP dots_as_DOTSXP, SEXP rho)
 }
 
 
-SEXP do_pvapply(SEXP X, SEXP FUN, SEXP FUN_VALUE, SEXP USE_NAMES,
-    SEXP dots_as_DOTSXP, SEXP rho)
+SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    SEXP X, FUN, FUN_VALUE, dots, USE_NAMES;
+
+
+    int nargs = length(args) - 1;
+    int dots_as_DOTSXP;
+    if (nargs == 4) {
+        dots_as_DOTSXP = 1;
+        X         = CADR(args);
+        FUN       = CADDR(args);
+        FUN_VALUE = CADDDR(args);
+        dots      = R_NilValue;
+        USE_NAMES = CAD4R(args);
+    }
+    else if (nargs == 5) {
+        dots_as_DOTSXP = 0;
+        args = CDR(args);
+        X         = CAR(args); args = CDR(args);
+        FUN       = CAR(args); args = CDR(args);
+        FUN_VALUE = CAR(args); args = CDR(args);
+        dots      = CAR(args); args = CDR(args);
+        USE_NAMES = CAR(args);
+    }
+    else errorcall(call, "%d arguments passed to 'C_pvapply' which requires 4 or 5 arguments", nargs);
+
+
+    if (!isFunction(FUN))
+        errorcall(call, "invalid 'FUN', must be a function");
+
+
     SEXP XSymbol, X_index1, X_index2, names_X,
-        dots, dotsSymbol, names_dots,
+        dotsSymbol, names_dots,
         tmp, tmp1, tmp2,
         expr, FUN_call, value;
-    Rboolean _dots_as_DOTSXP, X_realIndx2, X_has_names, dots_has_names;
+    Rboolean X_realIndx2, X_has_names, dots_has_names;
 
 
 #ifndef int_nargs
@@ -533,9 +530,6 @@ SEXP do_pvapply(SEXP X, SEXP FUN, SEXP FUN_VALUE, SEXP USE_NAMES,
     int rank_FUN_VALUE;
 
 
-    CHECK_DOTS_AS_DOTSXP_AND_RHO;
-
-
     if (!isVector(FUN_VALUE)) error("'FUN.VALUE' must be a vector");
     use_names = asLogical(USE_NAMES);
     if (use_names == NA_LOGICAL) error("invalid '%s' value", "USE.NAMES");
@@ -557,7 +551,7 @@ SEXP do_pvapply(SEXP X, SEXP FUN, SEXP FUN_VALUE, SEXP USE_NAMES,
     GET_COMMONLENGTH_X;
 
 
-    FRACTIONAL_RECYCLING_WARNING;
+    DO_FRACTIONAL_RECYCLING_WARNING;
 
 
     INIT_X_REALINDX1;
@@ -648,7 +642,7 @@ SEXP do_pvapply(SEXP X, SEXP FUN, SEXP FUN_VALUE, SEXP USE_NAMES,
         INIT_X_REALINDX2;
 
 
-        GET_FUN_CALL;
+        MAKE_FUN_CALL;
 
 
         counters = (R_xlen_t *) R_alloc(length_X, sizeof(R_xlen_t));

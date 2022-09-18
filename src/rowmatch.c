@@ -4,28 +4,6 @@
 #include "defines.h"
 
 
-SEXP quoteLang(SEXP cl)
-{
-    switch (TYPEOF(cl)) {
-    case SYMSXP:
-        return lang2(eval(install("quote"), R_BaseEnv), cl);
-        break;
-    case LANGSXP:
-        if (inherits(cl, "formula")) {
-            return cl;
-        }
-        else {
-            return lang2(eval(install("quote"), R_BaseEnv), cl);
-        }
-        break;
-    default:
-        return cl;
-        break;
-    }
-    return cl;
-}
-
-
 SEXP _match_transform(SEXP x, SEXP rho)
 {
     /*
@@ -134,7 +112,7 @@ SEXP as_data_frame(SEXP x, SEXP rho)
 SEXP dim(SEXP x, SEXP rho)
 {
     SEXP call, r;
-    PROTECT(call = lang2(eval(install("dim"), R_BaseEnv), quoteLang(x)));
+    PROTECT(call = lang2(findVarInFrame(R_BaseEnv, R_DimSymbol), enquote(x)));
     r = eval(call, rho);
     UNPROTECT(1);
     return r;
@@ -143,7 +121,7 @@ SEXP dim(SEXP x, SEXP rho)
 
 int nrow(SEXP x, SEXP rho)
 {
-    return INTEGER(dim(x, rho))[0];
+    return INTEGER_ELT(dim(x, rho), 0);
 }
 
 
@@ -154,7 +132,12 @@ SEXP fixup_lengthdim2(SEXP x, int n, SEXP rho)
      */
     SEXP value = PROTECT(allocVector(VECSXP, n));
     /* x[, ] */
-    SEXP call = PROTECT(lang4(eval(R_BracketSymbol, R_BaseEnv), x, R_MissingArg, R_MissingArg));
+    SEXP call = PROTECT(lang4(
+        findVarInFrame(R_BaseEnv, R_BracketSymbol),
+        x,
+        R_MissingArg,
+        R_MissingArg
+    ));
 
     for (int i = 0; i < n; i++) {
         /* x[i, ] */
@@ -181,7 +164,11 @@ SEXP row_split(SEXP x, int n, SEXP rho)
 
     int i, j, len = xlength(x);
     SEXP call, value, a;
-    PROTECT(call = lang3(eval(R_Bracket2Symbol, R_BaseEnv), R_NilValue, R_NilValue));
+    PROTECT(call = lang3(
+        findVarInFrame(R_BaseEnv, R_Bracket2Symbol),
+        R_NilValue,
+        R_NilValue
+    ));
     PROTECT(value = allocVector(VECSXP, n));
 
     for (i = 0; i < n; i++) {
@@ -202,8 +189,14 @@ SEXP row_split(SEXP x, int n, SEXP rho)
 
 
 // row.match(x, table, nomatch, incomparables)
-SEXP do_rowmatchdataframe(SEXP x, SEXP table, SEXP nomatch, SEXP incomparables, SEXP rho)
+SEXP do_rowmatchdataframe(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    SEXP x             = CADR(args),
+         table         = CADDR(args),
+         nomatch       = CADDDR(args),
+         incomparables = CAD4R(args);
+
+
     /*
      * xi
      *
@@ -217,15 +210,15 @@ SEXP do_rowmatchdataframe(SEXP x, SEXP table, SEXP nomatch, SEXP incomparables, 
      *
      *     element i of 'incomparables'
      *
-     * call
+     * expr
      *
      *     the call to base::match
      *
      * value
      *
-     *     value returned by evaluating call
+     *     value returned by evaluating expr
      */
-    SEXP xi, ti, ii, call, value;
+    SEXP xi, ti, ii, expr, value;
 
 
     /*
@@ -265,7 +258,7 @@ SEXP do_rowmatchdataframe(SEXP x, SEXP table, SEXP nomatch, SEXP incomparables, 
      *
      *     does 'ti' need to be converted from a 2D array to a 1D vector?
      *
-     * np
+     * nprotect
      *
      *     number of protected objects
      *
@@ -273,7 +266,7 @@ SEXP do_rowmatchdataframe(SEXP x, SEXP table, SEXP nomatch, SEXP incomparables, 
      *
      *     is incomparables not NULL?
      */
-    int i, nrx, nrtable, nrincomparables = 0, nmatch, fix_xi, fix_ti, np = 0,
+    int i, nrx, nrtable, nrincomparables = 0, nmatch, fix_xi, fix_ti, nprotect = 0,
         has_incomparables;
 
 
@@ -282,13 +275,13 @@ SEXP do_rowmatchdataframe(SEXP x, SEXP table, SEXP nomatch, SEXP incomparables, 
 
 
     /* convert 'x' to a data frame and get the number of rows */
-    PROTECT(x = as_data_frame(x, rho)); np++;
+    PROTECT(x = as_data_frame(x, rho)); nprotect++;
     nrx = nrow(x, rho);
 
 
     /* there are zero rows of 'x' */
     if (!nrx) {
-        UNPROTECT(np);
+        UNPROTECT(nprotect);
         return allocVector(INTSXP, 0);
     }
 
@@ -301,13 +294,13 @@ SEXP do_rowmatchdataframe(SEXP x, SEXP table, SEXP nomatch, SEXP incomparables, 
         SEXP value = allocVector(INTSXP, nrx);
         int *ivalue = INTEGER0(value);
         for (i = 0; i < nrx; i++) ivalue[i] = nmatch;
-        UNPROTECT(np);
+        UNPROTECT(nprotect);
         return value;
     }
 
 
     /* convert 'table' to a data frame and get the number of rows */
-    PROTECT(table = as_data_frame(table, rho)); np++;
+    PROTECT(table = as_data_frame(table, rho)); nprotect++;
     nrtable = nrow(table, rho);
 
 
@@ -317,7 +310,7 @@ SEXP do_rowmatchdataframe(SEXP x, SEXP table, SEXP nomatch, SEXP incomparables, 
         SEXP value = allocVector(INTSXP, nrx);
         int *ivalue = INTEGER0(value);
         for (i = 0; i < nrx; i++) ivalue[i] = nmatch;
-        UNPROTECT(np);
+        UNPROTECT(nprotect);
         return value;
     }
 
@@ -330,7 +323,7 @@ SEXP do_rowmatchdataframe(SEXP x, SEXP table, SEXP nomatch, SEXP incomparables, 
     }
     else {
         /* convert 'incomparables' to a data frame and get the number of rows */
-        PROTECT(incomparables = as_data_frame(incomparables, rho)); np++;
+        PROTECT(incomparables = as_data_frame(incomparables, rho)); nprotect++;
         nrincomparables = nrow(incomparables, rho);
 
 
@@ -339,16 +332,16 @@ SEXP do_rowmatchdataframe(SEXP x, SEXP table, SEXP nomatch, SEXP incomparables, 
         if (!nrincomparables || xlength(x) != xlength(incomparables)) {
             incomparables = R_NilValue;
             UNPROTECT(1);
-            np--;
+            nprotect--;
         }
     }
     has_incomparables = !isNull(incomparables);
 
 
-    x     = PROTECT(match_transform(x    , rho)); np++;
-    table = PROTECT(match_transform(table, rho)); np++;
+    x     = PROTECT(match_transform(x    , rho)); nprotect++;
+    table = PROTECT(match_transform(table, rho)); nprotect++;
     if (has_incomparables) {
-        incomparables = PROTECT(match_transform(incomparables, rho)); np++;
+        incomparables = PROTECT(match_transform(incomparables, rho)); nprotect++;
     }
 
 
@@ -391,14 +384,14 @@ SEXP do_rowmatchdataframe(SEXP x, SEXP table, SEXP nomatch, SEXP incomparables, 
         }
     }
 
-    x     = PROTECT(row_split(x    , nrx    , rho)); np++;
-    table = PROTECT(row_split(table, nrtable, rho)); np++;
+    x     = PROTECT(row_split(x    , nrx    , rho)); nprotect++;
+    table = PROTECT(row_split(table, nrtable, rho)); nprotect++;
     if (has_incomparables) {
-        incomparables = PROTECT(row_split(incomparables, nrincomparables, rho)); np++;
+        incomparables = PROTECT(row_split(incomparables, nrincomparables, rho)); nprotect++;
     }
 
-    PROTECT(call = lang5(eval(install("match"), R_BaseEnv), x, table, nomatch, incomparables)); np++;
-    value = eval(call, rho);
-    UNPROTECT(np);
+    PROTECT(expr = lang5(findVarInFrame(R_BaseEnv, install("match")), x, table, nomatch, incomparables)); nprotect++;
+    value = eval(expr, rho);
+    UNPROTECT(nprotect);
     return value;
 }

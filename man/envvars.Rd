@@ -21,10 +21,9 @@ environment variables to get, set, or remove. See \strong{Examples}.
 a character string holding an environment variable name.
   }
   \item{default}{
-if the specified environment variable is not set, this value is returned. This
-facilitates retrieving an environment variable and checking whether it is set
-and setting it separately if not. Note that this is converted to a character
-string.
+if the specified environment variable is not set, this value is evaluated and
+returned. This facilitates retrieving an environment variable and checking
+whether it is set and setting it separately if not.
   }
 }
 \details{

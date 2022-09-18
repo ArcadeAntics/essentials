@@ -2,37 +2,60 @@
 #include <Rinternals.h>
 
 
-//#define debug
+// #define debug
 
 
-#ifdef debug
-#include "defines.h"
-#endif
+#include "getFromBase.h"
 
 
-/* do(expr) %while% (cond) */
-/* do(expr) %until% (cond) */
-SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
+#include "defines.h"  // includes R_print() and set_R_Visible()
+
+
+
+
+
+SEXP dowhile(SEXP call, SEXP op, SEXP args, SEXP rho, int until)
 {
+    int nprotect = 0;
+
+
     /* expr is an (unevaluated) expression, the body of the do while/until loop
-       cond is an (unevaluated) expression, the condition of the do while/until loop
-       until is TRUE/FALSE, indicating if this is a do while/until loop
-       rho is an environment in which to evaluate the do while/until loop body and condition */
+       cond is an (unevaluated) expression, the condition of the do while/until loop */
 
 
-    int u = asLogical(until);
-    if (u == NA_LOGICAL)
-        error("invalid 'until'");
-    const char *fun = u ? "%until%" : "%while%";
+    SEXP expr = findVarInFrame(rho, install("expr"));
+    if (expr == R_UnboundValue)
+        error("something is wrong with 'dowhile'");
+    expr = PREXPR(expr);
 
 
-    if (TYPEOF(rho) != ENVSXP)
-        error("invalid 'rho'");
+    SEXP cond = findVarInFrame(rho, install("cond"));
+    if (cond == R_UnboundValue)
+        error("something is wrong with 'dowhile'");
+    cond = PREXPR(cond);
 
 
-    /* a temporary environment, holds a value indicating if
-       the do while/until loop has been evaluated once or not */
-    SEXP aenv = PROTECT(R_NewEnv(R_EmptyEnv, TRUE, 1));
+    SEXP assign_in_place = PROTECT(eval(install("assign.in.place"), rho)); nprotect++;
+
+
+    SEXP parent_frame;
+    parent_frame = PROTECT(lang1(install("parent.frame"))); nprotect++;
+    parent_frame = PROTECT(eval(parent_frame, rho)); nprotect++;
+
+
+    const char *fun = until ? "%until%" : "%while%";
+
+
+    /* the user will have no access to this variable, not even using
+     * sys.status(), so we can safely update it in place
+     *
+     * we MUST use allocVector here, can't use ScalarLogical(TRUE), that would
+     * return the already allocated TRUE R value, and we can't go changing that
+     *
+     * we must allocate our own memory to update in place
+     */
+    SEXP skip = PROTECT(allocVector(LGLSXP, 1)); nprotect++;
+    LOGICAL(skip)[0] = TRUE;
 
 
     /* we're looking for an expression of the form
@@ -61,20 +84,23 @@ SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
        they actually typed. we could insist that they use '<-' instead or that
        they must wrap calls to '=' with parenthesis, but we know what they
        meant, so might as well fix it quietly */
-    else if (!isNull(TAG(CDR(expr))))
+    else if (!isNull(TAG(CDR(expr)))) {
         expr = PROTECT(lang3(
             install("="),
             TAG(CDR(expr)),
             CADR(expr)
-        ));
+        )); nprotect++;
         /*
         error("invalid 'expr', do not name the expression within do()\n  if you intended to use '=' within do() like:\n\n  do(var = expr) %s (cond)\n\n  use '<-' instead or wrap with parenthesis like:\n\n  do(var <- expr) %s (cond)\n  do((var = expr)) %s (cond)",
             fun, fun, fun);
          */
+    }
 
 
     /* select the expression within do() */
-    else expr = PROTECT(CADR(expr));
+    else {
+        expr = PROTECT(CADR(expr)); nprotect++;
+    }
 
 
     /* we're looking for an expression of the form
@@ -94,9 +120,9 @@ SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
 
     /* if, for WHATEVER reason, the expression or condition are the missing
        argument, signal an error */
-    if (TYPEOF(expr) == SYMSXP && expr == R_MissingArg)
+    if (expr == R_MissingArg)
         error("invalid 'expr', missing with no default");
-    if (TYPEOF(cond) == SYMSXP && cond == R_MissingArg)
+    if (cond == R_MissingArg)
         error("invalid 'cond', missing with no default");
 
 
@@ -169,12 +195,6 @@ SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
        # in the context of 'eval' instead of in the context of 'R_implementation' */
 
 
-    /* we need to define a temporary variable in 'aenv' that will keep track
-       of whether its the first time through the loop */
-    const char *name = "skip";
-    defineVar(install(name), ScalarLogical(TRUE), aenv);
-
-
     /* we are attempting to build the following call (with 'aenv', 'name',
        'cond', and 'expr' substituted appropriately):
 
@@ -200,26 +220,21 @@ SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
        }
      */
     PROTECT(expr = lang2(
-        eval(install("repeat"), R_BaseEnv),
+        getFromBase(install("repeat")),
         lang3(
-            eval(R_BraceSymbol, R_BaseEnv),
+            getFromBase(R_BraceSymbol),
             lang4(
- /* if   */     eval(install("if"), R_BaseEnv),
- /* cond */     lang3(
-                    eval(R_Bracket2Symbol, R_BaseEnv),
-                    aenv,
-                    mkString(name)
+ /* if   */     getFromBase(install("if")),
+ /* cond */     skip,
+ /* expr */     lang3(
+                    assign_in_place,
+                    skip,
+                    ScalarLogical(FALSE)
                 ),
- /* expr */     lang4(
-                    eval(install("assign"), R_BaseEnv),
-                    mkString(name),
-                    ScalarLogical(FALSE),
-                    aenv
-                ),
- /* alt.expr */ u ? lang3(
-                    eval(install("if"), R_BaseEnv),
+ /* alt.expr */ until ? lang3(
+                    getFromBase(install("if")),
                     cond,
-                    lang1(eval(install("break"), R_BaseEnv))) :
+                    lang1(getFromBase(install("break")))) :
 
 
                 /* we could use
@@ -234,25 +249,39 @@ SEXP do_dowhile(SEXP expr, SEXP cond, SEXP until, SEXP rho)
                    * a raw byte (since '!' is defined differently for that class)
                    * any other classed objects (might have a method for '!') */
                 lang4(
-                    eval(install("if"), R_BaseEnv),
+                    getFromBase(install("if")),
                     cond,
-                    lang1(eval(R_BraceSymbol, R_BaseEnv)),
-         /* else */ lang1(eval(install("break"), R_BaseEnv))
+                    lang1(getFromBase(R_BraceSymbol)),
+         /* else */ lang1(getFromBase(install("break")))
                 )
             ),
             expr
         )
-    ));
+    )); nprotect++;
 #ifdef debug
-    Rprintf("> loop_expr\n");
+    Rprintf("\n> loop_expr\n");
     R_print(expr);
+    error("stopped for debugging purposes");
+    return R_NilValue;
 #endif
 
 
-    // UNPROTECT(3); return expr;
-
-
-    eval(expr, rho);
-    UNPROTECT(3);
+    eval(expr, parent_frame);
+    set_R_Visible(0);
+    UNPROTECT(nprotect);
     return R_NilValue;
+}
+
+
+/* do(expr) %while% (cond) */
+SEXP do_dowhile(SEXP call, SEXP op, SEXP args, SEXP rho)
+{
+    return dowhile(call, op, args, rho, 0);
+}
+
+
+/* do(expr) %until% (cond) */
+SEXP do_dountil(SEXP call, SEXP op, SEXP args, SEXP rho)
+{
+    return dowhile(call, op, args, rho, 1);
 }

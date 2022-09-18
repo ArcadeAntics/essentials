@@ -159,6 +159,12 @@ importFrom(grDevices, col2rgb, rgb)
 export(color.with.alpha, as.hex.code)
 
 
+# jswitch.R                 ----
+
+
+export(jswitch)
+
+
 # list.files2.R             ----
 
 

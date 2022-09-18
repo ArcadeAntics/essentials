@@ -141,4 +141,4 @@ omfor <- function (...)
 
 
 mfor <- function (...)
-invisible(.Call(C_mfor, environment(), parent.frame()))
+.External2(C_mfor)

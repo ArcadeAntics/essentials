@@ -8,11 +8,17 @@ Evaluate a \code{\link[base]{call}} with Python-like argument unpacking, with
 or without names.
 }
 \usage{
-do.expr(expr)
+do.expr(expr, envir = parent.frame(),
+              enclos = if (is.list(envir) || is.pairlist(envir))
+                           parent.frame() else baseenv())
 }
 \arguments{
   \item{expr}{
 the (unevaluated) expression to be evaluated after unpacking its' arguments.
+  }
+  \item{envir, enclos}{
+See \code{\link[base]{eval}}; used to construct the environment in which the
+expression will be evaluated.
   }
 }
 \details{

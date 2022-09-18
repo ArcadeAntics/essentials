@@ -9,23 +9,26 @@
 
 
 
-SEXP do_envvars(SEXP args, SEXP visible)
+SEXP do_envvars(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
     SEXP value, names;
+    int nprotect = 0;
 
 
-    /* visible is TRUE of FALSE depending on whether the result 'value' should
-       be returned visibly or invisibly from the R function */
-    if (TYPEOF(visible) != LGLSXP || LENGTH(visible) != 1)
-        error("invalid '%s'", "visible");
+    SEXP dots = findVarInFrame(rho, install("..."));
+    if (dots == R_UnboundValue)
+        error("could not find the ... list; should never happen, please report!");
 
 
-    /* if (zero arguments were provided) */
-    if (args == R_NilValue) {
+    int dots_length = dotsLength(dots);
+
+
+    /* zero arguments were provided */
+    if (dots_length == 0) {
 
 
 #ifdef debug
-        Rprintf("zero arguments were provided to '%s'", "envvars");
+        Rprintf("zero arguments were provided to '%s'\n", "envvars");
 #endif
 
 
@@ -37,29 +40,36 @@ SEXP do_envvars(SEXP args, SEXP visible)
 
             then remove its class attribute, and change 'visible' to TRUE
          */
-        SEXP expr = PROTECT(lang1(install("Sys.getenv")));
-        value = PROTECT(eval(expr, R_BaseEnv));
-        value = PROTECT(coerceVector(value, VECSXP));
+        SEXP expr = PROTECT(lang1(install("Sys.getenv"))); nprotect++;
+        value = PROTECT(eval(expr, R_BaseEnv)); nprotect++;
+        value = PROTECT(coerceVector(value, VECSXP)); nprotect++;
         setAttrib(value, R_ClassSymbol, R_NilValue);
-        LOGICAL(visible)[0] = 1;
-        UNPROTECT(3);
+        /* we want to return visibily, and since we didn't eval anything from the ... list, we know it will return visibly */
+        UNPROTECT(nprotect);
         return value;
     }
 
 
-    /* if the user provided arguments, they should form a pairlist */
-    else if (TYPEOF(args) != LISTSXP)
-        error("invalid '%s'", "args");
+    /* eval all arguments in ... list, copy to separate pairlist */
+    args = PROTECT(allocVector(LISTSXP, dots_length)); nprotect++;
+    SEXP a = args,
+         d = dots,
+         x;
+    for (; d != R_NilValue; a = CDR(a), d = CDR(d)) {
+        SET_TAG(a, TAG(d));
+        x = CAR(d);
+        x = eval(x, rho);
+        SETCAR(a, x);
+    }
 
 
-    int n    = length(args),  // number of arguments in 'args'
-        vsbl = 0,             // should the result be returned visibly?
-        np   = 0;             // number of SEXP to UNPROTECT at the end
+    int n = length(args),  // number of arguments in 'args'
+        visible = 0;       // should the result be returned visibly?
 
 
     /*
-        if (the user provided 1 (unnamed) argument
-            which is either a list or pairlist)
+     * the user provided 1 (unnamed) argument
+     * which is either a list or pairlist
      */
     if (n == 1 &&
         (isPairList(CAR(args)) || isVectorList(CAR(args))) &&
@@ -67,7 +77,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
 
 
 #ifdef debug
-        Rprintf("one argument, a list or a pairlist, without a tag was provided to '%s'", "envvars");
+        Rprintf("one argument, a list or a pairlist, without a tag was provided to '%s'\n", "envvars");
 #endif
 
 
@@ -88,7 +98,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
         break;
     case VECSXP:
         if (n > 0) {
-            argnames = PROTECT(getAttrib(args, R_NamesSymbol)); np++;
+            argnames = PROTECT(getAttrib(args, R_NamesSymbol)); nprotect++;
         }
         break;
     default:
@@ -101,11 +111,11 @@ SEXP do_envvars(SEXP args, SEXP visible)
 
 
         /* return an empty named list, invisibly */
-        value = PROTECT(allocVector(VECSXP, 0)); np++;
-        names = PROTECT(allocVector(STRSXP, 0)); np++;
+        value = PROTECT(allocVector(VECSXP, 0)); nprotect++;
+        names = PROTECT(allocVector(STRSXP, 0)); nprotect++;
         setAttrib(value, R_NamesSymbol, names);
-        LOGICAL(visible)[0] = vsbl;
-        UNPROTECT(np);
+        set_R_Visible(visible);
+        UNPROTECT(nprotect);
         return value;
     }
 
@@ -118,7 +128,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
         will be set and how many will be unset
     */
     int nset = 0, nunset = 0;
-    PROTECT(names = allocVector(STRSXP, n)); np++;
+    PROTECT(names = allocVector(STRSXP, n)); nprotect++;
     switch (TYPEOF(args)) {
     case LISTSXP:
         temp_args = args;
@@ -164,7 +174,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
                     in this scenario, the name of the environment variable is
                     the current element, NOT its name
                 */
-                vsbl = 1;
+                visible = 1;
                 SET_STRING_ELT(names, i, asChar(CAR(temp_args)));
             }
         }
@@ -175,7 +185,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
     case VECSXP:
         if (argnames == R_NilValue) {
             for (int i = 0; i < n; i++) {
-                vsbl = 1;
+                visible = 1;
                 SET_STRING_ELT(names, i, asChar(VECTOR_ELT(args, i)));
             }
         }
@@ -187,7 +197,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
                 else nset++;
             }
             else {
-                vsbl = 1;
+                visible = 1;
                 SET_STRING_ELT(names, i, asChar(VECTOR_ELT(args, i)));
             }
         }
@@ -217,7 +227,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
         names,
         ScalarString(NA_STRING),
         ScalarLogical(1)
-    ));                                               np++;
+    ));                                               nprotect++;
 
 
 #ifdef debug
@@ -227,7 +237,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
 #endif
 
 
-    PROTECT(value = eval(expr, R_BaseEnv));           np++;
+    PROTECT(value = eval(expr, R_BaseEnv));           nprotect++;
 
 
 #ifdef debug
@@ -237,7 +247,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
 #endif
 
 
-    PROTECT(value = coerceVector(value, VECSXP));     np++;
+    PROTECT(value = coerceVector(value, VECSXP));     nprotect++;
     setAttrib(value, R_ClassSymbol, R_NilValue);
 
 
@@ -276,20 +286,20 @@ SEXP do_envvars(SEXP args, SEXP visible)
                 )
             )
 
-            to do this, we need a "lanuage" vector of length 2, one for the
+            to do this, we need a "language" vector of length 2, one for the
             function name Sys.unsetenv, and one for the character vector of
             arguments. additionally, allocate a character vector of length 'nunset'
          */
 
 
-        PROTECT(expr = allocVector(LANGSXP, nset + 1));  np++;
+        PROTECT(expr = allocVector(LANGSXP, nset + 1));  nprotect++;
         SETCAR(expr, install("Sys.setenv"));  // set the first element to the function name Sys.setenv
         SEXP temp_setenv = CDR(expr);  // the next element of 'expr'
 
 
-        SEXP expr2 = PROTECT(allocVector(LANGSXP, 2));  np++;
+        SEXP expr2 = PROTECT(allocVector(LANGSXP, 2));  nprotect++;
         SETCAR(expr2, install("Sys.unsetenv"));
-        SEXP unsetenv_arg = PROTECT(allocVector(STRSXP, nunset));  np++;
+        SEXP unsetenv_arg = PROTECT(allocVector(STRSXP, nunset));  nprotect++;
         int j = 0;  /*
             we don't have a way to keep track of the next element of
             'unsetenv_arg', so we keep track of which element is next to set
@@ -329,7 +339,7 @@ SEXP do_envvars(SEXP args, SEXP visible)
             break;
 
 
-        /* same thing, but it 'args' is a list instead of a pairlist */
+        /* same thing, but if 'args' is a list instead of a pairlist */
         case VECSXP:
             for (int i = 0; i < n; i++) {
                 if (!(*CHAR(STRING_ELT(argnames, i)))) {}
@@ -382,23 +392,30 @@ SEXP do_envvars(SEXP args, SEXP visible)
         set the visibility of the return value
         so the R function knows what to do
     */
-    LOGICAL(visible)[0] = vsbl;
-    UNPROTECT(np);
+    set_R_Visible(visible);
+    UNPROTECT(nprotect);
     return value;
 }
 
 
-SEXP do_getEnvvar(SEXP x, SEXP default_)
+SEXP do_getEnvvar(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    SEXP
-        Sys_getenv = PROTECT(install("Sys.getenv")),
-        xx         = PROTECT(ScalarString(asChar(x))),
-        unset      = PROTECT(ScalarString(asChar(default_))),
-        names      = PROTECT(ScalarLogical(0));
-    SEXP value = eval(
-        lang4(Sys_getenv, xx, unset, names),
-        R_BaseEnv
-    );
-    UNPROTECT(4);
-    return value;
+    SEXP x = CADR(args);
+    if (!isString(x) || LENGTH(x) != 1)
+        error("'%s' must be a character string", "x");
+    SEXP expr = PROTECT(lang4(
+        install("Sys.getenv"),
+        isObject(x) ? ScalarString(STRING_ELT(x, 0)) : x,
+        ScalarString(NA_STRING),
+        ScalarLogical(FALSE)
+    ));
+    SEXP value = PROTECT(eval(expr, R_BaseEnv));
+    if (STRING_ELT(value, 0) == NA_STRING) {
+        UNPROTECT(2);
+        return eval(install("default"), rho);
+    }
+    else {
+        UNPROTECT(2);
+        return value;
+    }
 }

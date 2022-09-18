@@ -19,12 +19,27 @@
 #define UNIMPLEMENTED_TYPE(X, Y) (error("unimplemented type '%s' in '%s'", type2char(TYPEOF((Y))), (X)))
 
 
-#define R_print(X) (eval(lang2(install("print"), lang2(install("quote"), (X))), R_BaseEnv))
+#define enquote(X) (lang2(findVarInFrame(R_BaseEnv, install("quote")), (X)))
 
 
-#define do_return(X)                                                   \
-    {                                                                  \
-        return_this = (X);                                             \
-        UNPROTECT(np);                                                 \
-        return return_this;                                            \
-    }
+#define R_print(X) (eval(lang2(findVarInFrame(R_BaseEnv, install("print")), enquote((X))), R_BaseEnv))
+
+
+#define _is_formula(X) (                                               \
+    inherits((X), "formula") &&                                        \
+        (CAR((X)) == install("~") ||                                   \
+         CAR((X)) == findVarInFrame(R_BaseEnv, install("~")))          \
+)
+
+
+#define quoteLang(X) (                                                 \
+    (X) == R_MissingArg ? R_MissingArg : (                             \
+        TYPEOF((X)) == SYMSXP || (TYPEOF((X)) == LANGSXP && !_is_formula((X))) ? lang2(findVarInFrame(R_BaseEnv, install("quote")), (X)) : (X)\
+    )                                                                  \
+)
+
+
+#define dotsLength(dots) ((TYPEOF((dots)) == DOTSXP) ? length((dots)) : 0)
+
+
+#define set_R_Visible(X) (eval( (X) ? R_NilValue : lang1(install("invisible")) , R_BaseEnv))

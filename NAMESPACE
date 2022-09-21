@@ -45,12 +45,6 @@ export(ASCII)
 export(asWindowsbasename)
 
 
-# basename2.R               ----
-
-
-export(basename2, dirname2)
-
-
 # commandArgs.R             ----
 
 
@@ -200,12 +194,6 @@ S3method(as.numbers, default)
 
 
 export(path.contract)
-
-
-# path.join.R               ----
-
-
-export(path.join)
 
 
 # plapply.R                 ----

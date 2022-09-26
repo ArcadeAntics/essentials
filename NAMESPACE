@@ -93,12 +93,6 @@ export("%while%", "%until%")
 export(envvars, getEnvvar)
 
 
-# extension.R               ----
-
-
-export(ext, extension, rm.ext, remove.extension)
-
-
 # f.str.R                   ----
 
 

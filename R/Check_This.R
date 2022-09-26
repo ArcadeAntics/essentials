@@ -45,6 +45,7 @@ check_this <- function (
     keep.source = NA,
 
     check = TRUE,
+    use.valgrind = FALSE,
     as.cran = FALSE,
 
     chdir = FALSE, file = here(), special = FALSE, where = "../PACKAGES")
@@ -196,6 +197,7 @@ check_this <- function (
     check <- if (check) TRUE else FALSE
     if (check)
         check.args <- c(
+            if (use.valgrind) "--use-valgrind",
             if (as.cran) "--as-cran"
         )
 

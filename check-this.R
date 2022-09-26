@@ -1,4 +1,4 @@
-essentials:::check_this(  # essentials
+essentials:::check.this(  # essentials
     special = TRUE,
 
     check = FALSE, as.cran = TRUE,

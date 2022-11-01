@@ -1,3 +1,18 @@
+.Rcmd <- function (options = NULL, command = "", args = NULL, ..., name = "",
+    dir = R.home("bin"))
+{
+    command <- c(
+        if (.Platform$OS.type == "windows")
+            shQuote(file.path(dir, "Rcmd.exe"))
+        else c(shQuote(file.path(dir, "R")), shQuote(options), "CMD"),
+        shQuote(command),
+        shQuote(args)
+    )
+    command <- paste(command, collapse = " ")
+    invisible(.system(command = command, ...))
+}
+
+
 switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
     alt.expr = invisible())
 {
@@ -247,11 +262,12 @@ check_this <- function (
 
 
 
-    if (isNamespaceLoaded(pkgname)) {
-        DLLs <- names(getLoadedDLLs())
-        if (pkgname %in% DLLs) {
-            libpath <- getNamespaceInfo(pkgname, "path")
-            library.dynam.unload(pkgname, libpath)
+    if (.Platform$OS.type == "windows" &&
+        isNamespaceLoaded(pkgname))
+    {
+        libpath <- getNamespaceInfo(pkgname, "path")
+        for (chname in names(getNamespaceInfo(pkgname, "DLLs"))) {
+            library.dynam.unload(chname, libpath)
             unloaded <- TRUE
         }
     }
@@ -261,8 +277,8 @@ check_this <- function (
 
 
     value <- if (is.null(dir)) {
-        Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE)
-    } else Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE, dir = dir)
+        .Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE)
+    } else .Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE, dir = dir)
     cat("\n")
 
 
@@ -329,16 +345,16 @@ check_this <- function (
 
 
     value <- if (is.null(dir)) {
-        Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE)
-    } else Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE, dir = dir)
+        .Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE)
+    } else .Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE, dir = dir)
     cat("\n")
     finished <- TRUE
 
 
     if (check) {
         value <- if (is.null(dir))
-            Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE)
-        else Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE, dir = dir)
+            .Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE)
+        else .Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE, dir = dir)
         cat("\n")
     }
     invisible(value)

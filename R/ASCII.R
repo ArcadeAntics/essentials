@@ -7,16 +7,15 @@ ASCII <- function (extended = TRUE, cex = par("cex"), family = par("family"),
         codes <- 1:255
         ylim <- c(16, 0)
         yvals <- 0:15
-    }
-    else {
+    } else {
         codes <- 1:127
         ylim <- c(8, 0)
         yvals <- 0:7
     }
-    ASCII <- as.character(str2expression(sprintf("\"\\x%02X\"", codes)))
+    ASCII <- vapply(as.raw(codes), (rawToChar), "", USE.NAMES = FALSE)
     Encoding(ASCII) <- "latin1"
     ASCII <- enc2utf8(ASCII)
-    names(ASCII) <- sprintf("%02X", codes)
+    names(ASCII) <- sprintf("0x%02X", codes)
     if (plot) {
         par(cex = cex, family = family, mar = mar)
         plot(
@@ -31,8 +30,7 @@ ASCII <- function (extended = TRUE, cex = par("cex"), family = par("family"),
         axis(side = 3L, at = xvals, labels = sprintf("%X", xvals), las = 1)
         axis(side = 2L, at = yvals, labels = sprintf("%X", yvals), las = 1)
         invisible(ASCII)
-    }
-    else {
+    } else {
         if (warn.unused) {
             nf <- names(formals())
             nf <- setdiff(nf, c("extended", "plot", "warn.unused"))

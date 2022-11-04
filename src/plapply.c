@@ -58,13 +58,10 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
     nForce = length_X;                                         \
     FUN_call = R_NilValue;                                     \
     PROTECT_WITH_INDEX(FUN_call, &FUN_call_index); np++;       \
-    if (dots_as_DOTSXP) {                                      \
-        REPROTECT(FUN_call = LCONS(R_DotsSymbol, FUN_call), FUN_call_index);\
+    if (dots == NULL) {                                        \
+        REPROTECT(FUN_call = LCONS(dotsSymbol, FUN_call), FUN_call_index);\
     }                                                          \
     else {                                                     \
-        dotsSymbol = install("dots");                          \
-                                                               \
-                                                               \
         PRINT_DOTS;                                            \
                                                                \
                                                                \
@@ -161,7 +158,7 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
     }                                                          \
                                                                \
                                                                \
-    REPROTECT(FUN_call = LCONS(install("FUN"), FUN_call), FUN_call_index);\
+    REPROTECT(FUN_call = LCONS(FUNSymbol, FUN_call), FUN_call_index);\
 } while (0)
 
 
@@ -316,32 +313,51 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
 
 SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    SEXP X, FUN, dots;
+    SEXP X   , XSymbol   ,
+         FUN , FUNSymbol ,
+         dots, dotsSymbol;
 
 
-    int nargs = length(args) - 1;
-    int dots_as_DOTSXP;
+    SEXP syms = CDDR(call);  /* skip past .External and C_plapply */
+    args = CDR(args);  /* skip past C_plapply */
+
+
+    int nargs = length(args);
     if (nargs == 2) {
-        dots_as_DOTSXP = 1;
-        X    = CADR(args);
-        FUN  = CADDR(args);
-        dots = R_NilValue;
+        XSymbol    = CAR(syms);
+        FUNSymbol  = CADR(syms);
+        dotsSymbol = R_DotsSymbol;
+        X    = CAR(args);
+        FUN  = CADR(args);
+        dots = NULL;
     }
     else if (nargs == 3) {
-        dots_as_DOTSXP = 0;
-        X    = CADR(args);
-        FUN  = CADDR(args);
-        dots = CADDDR(args);
+        XSymbol    = CAR(syms);
+        FUNSymbol  = CADR(syms);
+        dotsSymbol = CADDR(syms);
+        X    = CAR(args);
+        FUN  = CADR(args);
+        dots = CADDR(args);
     }
-    else errorcall(call, "%d arguments passed to 'C_plapply' which requires 2 or 3 arguments", nargs);
+    else errorcall(call, (nargs == 1) ? "%d argument passed to .External(%s) which requires %s" :
+                                        "%d arguments passed to .External(%s) which requires %s",
+                                        nargs, "C_plapply", "2 or 3");
+
+
+    if (TYPEOF(XSymbol) != SYMSXP)
+        errorcall(call, "first argument must be a symbol");
+    if (TYPEOF(FUNSymbol) != SYMSXP)
+        errorcall(call, "second argument must be a symbol");
+    if (TYPEOF(dotsSymbol) != SYMSXP)
+        errorcall(call, "third argument must be a symbol");
 
 
     if (!isFunction(FUN))
-        errorcall(call, "invalid 'FUN', must be a function");
+        errorcall(call, "second argument must be a function");
 
 
-    SEXP XSymbol, X_index1, X_index2, names_X,
-        dotsSymbol, names_dots,
+    SEXP X_index1, X_index2, names_X,
+        names_dots,
         tmp, tmp1, tmp2,
         expr, FUN_call, value;
     Rboolean X_realIndx2, X_has_names, dots_has_names;
@@ -359,7 +375,6 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
     int np;  // number of protected arguments
 
 
-    XSymbol = install("X");
     np = 0;
 
 
@@ -396,7 +411,7 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
     for (R_xlen_t i = 0; i < length_X; i++) {
         if (lengths_X[i] == commonLength) {
             expr = PROTECT(lang2( // names(X[[i + 1]])
-                install("names"),
+                R_NamesSymbol,
                 lang3( // X[[i + 1]]
                     R_Bracket2Symbol,
                     XSymbol,
@@ -473,37 +488,57 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    SEXP X, FUN, FUN_VALUE, dots, USE_NAMES;
+    SEXP X        , XSymbol   ,
+         FUN      , FUNSymbol ,
+         FUN_VALUE,
+         dots     , dotsSymbol,
+         USE_NAMES;
 
 
-    int nargs = length(args) - 1;
-    int dots_as_DOTSXP;
+    SEXP syms = CDDR(call);  /* skip past .External2 and C_pvapply */
+    args = CDR(args); /* skip past C_pvapply */
+
+
+    int nargs = length(args);
     if (nargs == 4) {
-        dots_as_DOTSXP = 1;
-        X         = CADR(args);
-        FUN       = CADDR(args);
-        FUN_VALUE = CADDDR(args);
-        dots      = R_NilValue;
-        USE_NAMES = CAD4R(args);
+        XSymbol    = CAR(syms);
+        FUNSymbol  = CADR(syms);
+        dotsSymbol = R_DotsSymbol;
+        X         = CAR(args);
+        FUN       = CADR(args);
+        FUN_VALUE = CADDR(args);
+        dots      = NULL;
+        USE_NAMES = CADDDR(args);
     }
     else if (nargs == 5) {
-        dots_as_DOTSXP = 0;
-        args = CDR(args);
-        X         = CAR(args); args = CDR(args);
-        FUN       = CAR(args); args = CDR(args);
-        FUN_VALUE = CAR(args); args = CDR(args);
-        dots      = CAR(args); args = CDR(args);
-        USE_NAMES = CAR(args);
+        XSymbol    = CAR(syms);
+        FUNSymbol  = CADR(syms);
+        dotsSymbol = CADDDR(syms);
+        X         = CAR(args);
+        FUN       = CADR(args);
+        FUN_VALUE = CADDR(args);
+        dots      = CADDDR(args);
+        USE_NAMES = CAD4R(args);
     }
-    else errorcall(call, "%d arguments passed to 'C_pvapply' which requires 4 or 5 arguments", nargs);
+    else errorcall(call, (nargs == 1) ? "%d argument passed to .External(%s) which requires %s" :
+                                        "%d arguments passed to .External(%s) which requires %s",
+                                        nargs, "C_pvapply", "4 or 5");
+
+
+    if (TYPEOF(XSymbol) != SYMSXP)
+        errorcall(call, "first argument must be a symbol");
+    if (TYPEOF(FUNSymbol) != SYMSXP)
+        errorcall(call, "second argument must be a symbol");
+    if (TYPEOF(dotsSymbol) != SYMSXP)
+        errorcall(call, "fourth argument must be a symbol");
 
 
     if (!isFunction(FUN))
-        errorcall(call, "invalid 'FUN', must be a function");
+        errorcall(call, "second argument must be a function");
 
 
-    SEXP XSymbol, X_index1, X_index2, names_X,
-        dotsSymbol, names_dots,
+    SEXP X_index1, X_index2, names_X,
+        names_dots,
         tmp, tmp1, tmp2,
         expr, FUN_call, value;
     Rboolean X_realIndx2, X_has_names, dots_has_names;
@@ -535,7 +570,6 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
     if (use_names == NA_LOGICAL) error("invalid '%s' value", "USE.NAMES");
 
 
-    XSymbol = install("X");
     np = 0;
 
 
@@ -582,7 +616,7 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
         for (R_xlen_t i = 0; i < length_X; i++) {
             if (lengths_X[i] == commonLength) {
                 expr = PROTECT(lang2( /* names(X[[i + 1]]) */
-                    install("names"),
+                    R_NamesSymbol,
                     lang3( /* X[[i + 1]] */
                         R_Bracket2Symbol,
                         XSymbol,

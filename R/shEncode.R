@@ -17,8 +17,12 @@ shEncode <- function (string, type = NULL, unix.type = NULL, windows.type = "Rsc
         else unix.type
 
 
-    type <- sub("\\.exe$", "", basename(type))
-    type <- match.arg(type, c("sh", "perl", "python3", "R", "R CMD", "Rcmd", "Rgui", "Rscript", "Rterm"))
+    if (is.null(type))
+        type <- "sh"
+    else {
+        type <- sub("\\.exe$", "", basename(type))
+        type <- match.arg(type, c("sh", "perl", "python3", "R", "R CMD", "Rcmd", "Rgui", "Rscript", "Rterm"))
+    }
     switch(type, sh = {
 
 

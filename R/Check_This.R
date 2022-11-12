@@ -32,21 +32,21 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
 }
 
 
-check_this <- function (
+check.this <- function (
     force = FALSE,
     keep.empty.dirs = FALSE,
-    build.vignettes = TRUE, no.build.vignettes = !build.vignettes,
-    manual = TRUE, no.manual = !manual,
-    resave.data = FALSE, no.resave.data = FALSE,
+    build.build.vignettes = TRUE, build.no.build.vignettes = !build.build.vignettes,
+    build.manual = TRUE, build.no.manual = !build.manual,
+    build.resave.data = FALSE, build.no.resave.data = FALSE,
     compact.vignettes = FALSE,
     compression = NULL,
     md5 = FALSE,
     log = FALSE,
 
-    clean = FALSE,
+    INSTALL.clean = FALSE,
     preclean = FALSE,
     debug = FALSE,
-    library = NULL,
+    INSTALL.library = NULL,
     configure = TRUE, no.configure = !configure,
     docs = TRUE, no.docs = !docs,
     html = FALSE, no.html = FALSE,
@@ -56,11 +56,44 @@ check_this <- function (
     no.lock = FALSE, lock = FALSE,
     pkglock = FALSE,
     build = FALSE,
+    install.tests = FALSE,
+    no.R = FALSE, no.libs = FALSE, no.data = FALSE, no.help = FALSE, no.demo = FALSE, no.exec = FALSE, no.inst = FALSE,
     multiarch = TRUE, no.multiarch = !multiarch,
-    keep.source = NA,
+    libs.only = FALSE,
+    data.compress = NULL,
+    INSTALL.resave.data = FALSE,
+    compact.docs = FALSE,
+    with.keep.source = FALSE, without.keep.source = FALSE, keep.source = NA,
+    with.keep.parse.data = FALSE, without.keep.parse.data = FALSE, keep.parse.data = NA,
+    byte.compile = FALSE, no.byte.compile = FALSE,
+    staged.install = FALSE, no.staged.install = FALSE,
+    test.load = TRUE, no.test.load = !test.load,
+    clean.on.error = TRUE, no.clean.on.error = !clean.on.error,
+    merge.multiarch = FALSE,
+    use.vanilla = FALSE,
+    use.LTO = FALSE, no.use.LTO = FALSE,
 
     check = TRUE,
+    check.library = NULL,
+    output = NULL,
+    check.clean = TRUE, check.no.clean = !check.clean,
+    codoc = TRUE, no.codoc = !codoc,
+    examples = TRUE, no.examples = !examples,
+    install = TRUE, no.install = !install,
+    tests = TRUE, no.tests = !tests,
+    check.manual = TRUE, check.no.manual = !check.manual,
+    vignettes = TRUE, no.vignettes = !vignettes,
+    check.build.vignettes = TRUE, check.no.build.vignettes = !check.build.vignettes,
+    ignore.vignettes = FALSE,
+    run.dontrun = FALSE,
+    run.donttest = FALSE,
+    use.gct = FALSE,
     use.valgrind = FALSE,
+    timings = FALSE,
+    install.args = NULL,
+    test.dir = NULL,
+    no.stop.on.test.error = FALSE,
+    check.subdirs = NULL,
     as.cran = FALSE,
 
     chdir = FALSE, file = here(), special = FALSE, where = "../PACKAGES")
@@ -84,7 +117,7 @@ check_this <- function (
     #
     #     build.vignettes = TRUE, no.build.vignettes = !build.vignettes,
     #     manual = TRUE, no.manual = !manual,
-    #     resave.data = FALSE, no.resave.data = FALSE,
+    #     resave.data = FALSE, build.no.resave.data = FALSE,
     #
     #     build = FALSE,
     #     multiarch = TRUE, no.multiarch = !multiarch,
@@ -102,7 +135,7 @@ check_this <- function (
     #
     #
     # build.vignettes, no.build.vignettes, manual, no.manual, resave.data,
-    # no.resave.data
+    # build.no.resave.data
     #
     #     further arguments passed to 'R CMD build'
     #
@@ -155,15 +188,15 @@ check_this <- function (
     build.args <- c(
         if (force) "--force",
         if (keep.empty.dirs) "--keep-empty-dirs",
-        if (no.build.vignettes) "--no-build-vignettes",
-        if (no.manual)          "--no-manual",
-        switch2(resave.data, TRUE.expr = {
+        if (build.no.build.vignettes) "--no-build-vignettes",
+        if (build.no.manual)          "--no-manual",
+        switch2(build.resave.data, TRUE.expr = {
             "--resave-data"
         }, FALSE.expr = {
-            if (no.resave.data)
+            if (build.no.resave.data)
                 "--no-resave-data"
         }, alt.expr = {
-            paste0("--resave-data=", match.arg(resave.data, c("no", "best", "gzip")))
+            paste0("--resave-data=", match.arg(build.resave.data, c("no", "best", "gzip")))
         }),
         switch2(compact.vignettes, TRUE.expr = {
             "--compact-vignettes"
@@ -178,41 +211,122 @@ check_this <- function (
 
 
     keep.source
+    keep.parse.data
     INSTALL.args <- c(
-        if (clean) "--clean",
+        if (INSTALL.clean) "--clean",
         if (preclean) "--preclean",
         if (debug) "--debug",
-        if (!is.null(library))
-            paste0("--library=", as.scalar.string(library)),
+        if (!is.null(INSTALL.library))
+            paste0("--library=", as.scalar.string(INSTALL.library)),
         if (no.configure) "--no-configure",
         if (no.docs) "--no-docs",
-        if (html)
-            "--html"
-        else if (no.html)
-            "--no-html",
+        {
+            if (html)
+                "--html"
+            else if (no.html)
+                "--no-html"
+        },
         if (latex) "--latex",
         if (example) "--example",
         if (fake) "--fake",
-        if (no.lock)
-            "--no-lock"
-        else if (lock)
-            "--lock"
-        else if (pkglock)
-            "--pkglock",
+        {
+            if (no.lock)
+                "--no-lock"
+            else if (lock)
+                "--lock"
+            else if (pkglock)
+                "--pkglock"
+        },
         if (build) "--build",
+        if (install.tests) "--install-tests",
+        if (no.R) "--no-R",
+        if (no.libs) "--no-libs",
+        if (no.data) "--no-data",
+        if (no.help) "--no-help",
+        if (no.demo) "--no-demo",
+        if (no.exec) "--no-exec",
+        if (no.inst) "--no-inst",
         if (no.multiarch) "--no-multiarch",
-        tryCatch({
-            if (keep.source)
+        if (libs.only) "--libs-only",
+        if (!is.null(data.compress))
+            paste0("--data-compress=", match.arg(data.compress, c("gzip", "none", "bzip2", "xz"))),
+        if (INSTALL.resave.data) "--resave-data",
+        if (compact.docs) "--compact-docs",
+        {
+            if (with.keep.source)
                 "--with-keep.source"
-            else "--without-keep.source"
-        }, error = function(c) NULL)
+            else if (without.keep.source)
+                "--without-keep.source"
+            else tryCatch({
+                if (keep.source)
+                    "--with-keep.source"
+                else "--without-keep.source"
+            }, error = function(c) NULL)
+        },
+        {
+            if (with.keep.parse.data)
+                "--with-keep.parse.data"
+            else if (without.keep.parse.data)
+                "--without-keep.parse.data"
+            else tryCatch({
+                if (keep.parse.data)
+                    "--with-keep.parse.data"
+                else "--without-keep.parse.data"
+            }, error = function(c) NULL)
+        },
+        {
+            if (byte.compile)
+                "--byte-compile"
+            else if (no.byte.compile)
+                "--no-byte-compile"
+        },
+        {
+            if (staged.install)
+                "--staged-install"
+            else if (no.staged.install)
+                "--no-staged-install"
+        },
+        if (no.test.load) "--no-test-load",
+        if (no.clean.on.error) "--no-clean-on-error",
+        if (merge.multiarch) "--merge-multiarch",
+        if (use.vanilla) "--use-vanilla",
+        {
+            if (use.LTO)
+                "--use-LTO"
+            else if (no.use.LTO)
+                "--no-use-LTO"
+        }
     )
 
 
     check <- if (check) TRUE else FALSE
     if (check)
         check.args <- c(
+            if (!is.null(check.library))
+                paste0("--library=", as.scalar.string(check.library)),
+            if (!is.null(output))
+                paste0("--output=", as.scalar.string(output)),
+            if (check.no.clean) "--no-clean",
+            if (no.codoc) "--no-codoc",
+            if (no.examples) "--no-examples",
+            if (no.install) "--no-install",
+            if (no.tests) "--no-tests",
+            if (check.no.manual) "--no-manual",
+            if (no.vignettes) "--no-vignettes",
+            if (check.no.build.vignettes) "--no-build-vignettes",
+            if (ignore.vignettes) "--ignore-vignettes",
+            if (run.dontrun) "--run-dontrun",
+            if (run.donttest) "--run-donttest",
+            if (use.gct) "--use-gct",
             if (use.valgrind) "--use-valgrind",
+            if (timings) "--timings",
+            if (!is.null(install.args))
+                paste0("--install-args=", install.args),
+            if (!is.null(test.dir))
+                paste0("--test-dir=", as.scalar.string(test.dir)),
+            if (no.stop.on.test.error) "--no-stop-on-test-error",
+            if (!is.null(check.subdirs))
+                paste0("--check-subdirs=", match.arg(check.subdirs, c("default", "yes", "no"))),
             if (as.cran) "--as-cran"
         )
 
@@ -359,206 +473,6 @@ check_this <- function (
     }
     invisible(value)
 }
-
-
-check.this <- check_this
-
-
-Check_This <- function (...)
-.Defunct("check_this")
-
-
-# Check_This <- function (
-#     build.vignettes = TRUE, no.build.vignettes = !build.vignettes,
-#     manual = TRUE, no.manual = !manual,
-#     resave.data = FALSE, no.resave.data = FALSE,
-#
-#     build = FALSE,
-#     multiarch = TRUE, no.multiarch = !multiarch,
-#     keep.source = NA,
-#
-#     check = TRUE, as.cran = FALSE,
-#
-#     chdir = FALSE, file = here())
-# {
-#     # Check_This {essentials}                                    R Documentation
-#     #
-#     # Build, Install, and Check a Package Conveniently
-#     #
-#     #
-#     #
-#     # Description:
-#     #
-#     # Performs 'R CMD build', 'R CMD INSTALL', and 'R CMD check' on a source
-#     # package specified by 'file'.
-#     #
-#     #
-#     #
-#     # Usage:
-#     #
-#     # Check_This(
-#     #
-#     #     build.vignettes = TRUE, no.build.vignettes = !build.vignettes,
-#     #     manual = TRUE, no.manual = !manual,
-#     #     resave.data = FALSE, no.resave.data = FALSE,
-#     #
-#     #     build = FALSE,
-#     #     multiarch = TRUE, no.multiarch = !multiarch,
-#     #     keep.source = NA,
-#     #
-#     #     check = TRUE, as.cran = FALSE,
-#     #
-#     #     chdir = FALSE, file = here()
-#     #
-#     # )
-#     #
-#     #
-#     #
-#     # Arguments:
-#     #
-#     #
-#     # build.vignettes, no.build.vignettes, manual, no.manual, resave.data,
-#     # no.resave.data
-#     #
-#     #     further arguments passed to 'R CMD build'
-#     #
-#     # build, multiarch, no.multiarch, keep.source
-#     #
-#     #     further arguments passed to 'R CMD INSTALL'
-#     #
-#     # check
-#     #     should 'R CMD check' be run?
-#     #
-#     # as.cran
-#     #
-#     #     further arguments passed to 'R CMD check' (if check is TRUE)
-#     #
-#     # chdir
-#     #
-#     #     temporarily change the working directory to the directory containing
-#     #     `file`?
-#     #
-#     # file
-#     #
-#     #     character string; the directory of the package source, by default
-#     #     the executing script's directory
-#
-#
-#
-#     build.args <- c(
-#         if (no.build.vignettes) "--no-build-vignettes",
-#         if (no.manual)          "--no-manual",
-#         switch2(resave.data, TRUE.expr = {
-#             "--resave-data"
-#         }, FALSE.expr = {
-#             if (no.resave.data)
-#                 "--no-resave-data"
-#         }, alt.expr = {
-#             paste0("--resave-data=", match.arg(resave.data, c("no", "best", "gzip")))
-#         })
-#     )
-#
-#
-#     keep.source
-#     INSTALL.args <- c(
-#         if (build) "--build",
-#         if (no.multiarch) "--no-multiarch",
-#         tryCatch({
-#             if (keep.source)
-#                 "--with-keep.source"
-#             else "--without-keep.source"
-#         }, error = function(c) NULL)
-#     )
-#
-#
-#     check <- if (check) TRUE else FALSE
-#     if (check)
-#         check.args <- c(
-#             if (as.cran) "--as-cran"
-#         )
-#
-#
-#     if (!is.character(file) || length(file) != 1L)
-#         stop("invalid 'file'")
-#     else if (grepl("^(ftp|ftps|http|https)://", file))
-#         stop("cannot 'Check_This' on a URL")
-#     else if (chdir && (path <- dirname(file)) != ".") {
-#         # file <- normalizePath(file)
-#         file <- basename(file)
-#
-#
-#         owd <- getwd()
-#         if (is.null(owd))
-#             stop("cannot 'chdir' as current directory is unknown")
-#         on.exit(setwd(owd))
-#         setwd(path)
-#     }
-#
-#
-#     packageInfo <- read.dcf(file.path(file, "DESCRIPTION"),
-#         fields = c("Package", "Version"))
-#     if (anyNA(packageInfo) ||
-#         !grepl(packageInfo[[1L, "Package"]], pattern = paste0("^(", .standard_regexps()$valid_package_name   , ")$")) ||
-#         !grepl(packageInfo[[1L, "Version"]], pattern = paste0("^(", .standard_regexps()$valid_package_version, ")$")))
-#         stop("invalid package DESCRIPTION file")
-#
-#
-#     finished <- unloaded <- FALSE
-#     on.exit({
-#         if (.Platform$GUI == "RStudio") {
-#             if (exists(".rs.api.restartSession", "tools:rstudio", inherits = FALSE)) {
-#                 command <- if (finished)
-#                     deparse1(call("library", as.symbol(pkgname)),
-#                         collapse = "\n", width.cutoff = 80L)
-#                 get(".rs.api.restartSession", "tools:rstudio", inherits = FALSE)(command)
-#             }
-#             else if (unloaded)
-#                 warning(gettextf("%s %s was unloaded, please restart the R session",
-#                     if (.Platform$OS.type == "windows") "DLL" else "shared object",
-#                     sQuote(pkgname)))
-#         }
-#         else if (unloaded)
-#                 warning(gettextf("%s %s was unloaded, please restart the R session",
-#                     if (.Platform$OS.type == "windows") "DLL" else "shared object",
-#                     sQuote(pkgname)))
-#     }, add = TRUE)
-#
-#
-#     pkgname <- packageInfo[[1L, "Package"]]
-#     if (isNamespaceLoaded(pkgname)) {
-#         DLLs <- names(getLoadedDLLs())
-#         if (pkgname %in% DLLs) {
-#             libpath <- getNamespaceInfo(pkgname, "path")
-#             library.dynam.unload(pkgname, libpath)
-#             unloaded <- TRUE
-#         }
-#     }
-#
-#
-#     file2 <- paste0(pkgname, "_", packageInfo[[1L, "Version"]], ".tar.gz")
-#
-#
-#     value <- Rcmd(command = "build", args = c(build.args, file),
-#         mustWork = TRUE)
-#     cat("\n")
-#
-#
-#     value <- Rcmd(command = "INSTALL", args = c(INSTALL.args, file2),
-#         mustWork = TRUE)
-#     cat("\n")
-#     finished <- TRUE
-#
-#
-#     if (check) {
-#         value <- Rcmd(command = "check", args = c(check.args, file2),
-#             mustWork = TRUE)
-#         cat("\n")
-#     }
-#     invisible(value)
-# }
-
-
-
 
 
 doc <- function (fun)

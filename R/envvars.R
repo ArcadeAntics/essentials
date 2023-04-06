@@ -3,4 +3,4 @@ envvars <- function (...)
 
 
 getEnvvar <- function (x, default = NULL)
-.External2(C_getEnvvar, x)
+.External2(C_getenvvar, x)

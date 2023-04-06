@@ -1,3 +1,6 @@
+library(methods)
+
+
 .duplicated.data.frame_transform <- function (x)
 {
     i <- seq_len(nrow(x))
@@ -63,7 +66,7 @@ rowmatch <- function (x, table, nomatch = NA_integer_, incomparables = NULL)
         return(rep(nomatch, nrow(x)))
 
 
-    type <- .Call(C_match.type, x, table)
+    type <- .External2(C_matchtype, x, table)
 
 
     # format for use in 'match'
@@ -152,14 +155,14 @@ rowmatch(x, table, nomatch, incomparables)
 
 
 row.match.data.frame <- function (x, table, nomatch = NA_integer_, incomparables = NULL)
-.External2(C_row.match.data.frame, x, table, nomatch, incomparables)
+.External2(C_rowmatchdataframe, x, table, nomatch, incomparables)
 
 
 methods::setMethod(
     f          = "row.match",
     signature  = c(
-        x     = "ANY"       ,
-        table = "data.frame"),
+        x     = `attr<-`("ANY"       , "package", "methods"),
+        table = `attr<-`("data.frame", "package", "methods")),
     definition = function (x, table, nomatch = NA_integer_, incomparables = NULL)
 row.match.data.frame(x, table, nomatch, incomparables)
 )
@@ -168,8 +171,8 @@ row.match.data.frame(x, table, nomatch, incomparables)
 methods::setMethod(
     f          = "row.match",
     signature  = c(
-        x     = "data.frame",
-        table = "ANY"       ),
+        x     = `attr<-`("data.frame", "package", "methods"),
+        table = `attr<-`("ANY"       , "package", "methods")),
     definition = function (x, table, nomatch = NA_integer_, incomparables = NULL)
 row.match.data.frame(x, table, nomatch, incomparables)
 )
@@ -178,8 +181,8 @@ row.match.data.frame(x, table, nomatch, incomparables)
 methods::setMethod(
     f          = "row.match",
     signature  = c(
-        x     = "data.frame",
-        table = "data.frame"),
+        x     = `attr<-`("data.frame", "package", "methods"),
+        table = `attr<-`("data.frame", "package", "methods")),
     definition = function (x, table, nomatch = NA_integer_, incomparables = NULL)
 row.match.data.frame(x, table, nomatch, incomparables)
 )

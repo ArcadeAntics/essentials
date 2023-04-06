@@ -36,4 +36,3 @@ Vectorize2 <- function (FUN, vectorize.args = arg.names, SIMPLIFY = TRUE, USE.NA
         }
     }
 }
-environment(Vectorize2) <- getNamespace("essentials")

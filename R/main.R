@@ -34,7 +34,7 @@ strsplit2 <- function (x, split, fixed = FALSE, perl = FALSE, useBytes = FALSE,
 
 
     if (!is.character(x))
-        stop("non-character argument")
+        stop("non-character argument", domain = "R")
     if (is.na(fixed <- as.scalar.logical(fixed)) || !fixed) {
         fixed <- FALSE
         if (missing(split))
@@ -106,18 +106,14 @@ IDW <- function (x0, u0, x, p = 2, na.rm = FALSE)
         u0 <- u0[!isna]
     }
     if (is.complex(u0))
-        .Call(C_IDW, x0, Re(u0), x, p) + 1i *
-            .Call(C_IDW, x0, Im(u0), x, p)
-    else .Call(C_IDW, x0, u0, x, p)
+        .External2(C_idw, x0, Re(u0), x, p) + 1i *
+            .External2(C_idw, x0, Im(u0), x, p)
+    else .External2(C_idw, x0, u0, x, p)
 }
-
-
-# RK4 <- function (independent, initialConditions, fun)
-# .Call(C_RK4, independent, initialConditions, fun, environment())
 
 
 
 
 
 isMissingArg <- function (x)
-.Call(C_isMissingArg, substitute(x), parent.frame())
+.External2(C_ismissingarg)

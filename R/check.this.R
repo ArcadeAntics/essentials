@@ -43,6 +43,7 @@ check.this <- function (
     md5 = FALSE,
     log = FALSE,
 
+    INSTALL = TRUE,
     INSTALL.clean = FALSE,
     preclean = FALSE,
     debug = FALSE,
@@ -96,9 +97,9 @@ check.this <- function (
     check.subdirs = NULL,
     as.cran = FALSE,
 
-    chdir = FALSE, file = here(), special = FALSE, where = "../PACKAGES")
+    chdir = FALSE, file = here(), special = FALSE, where = path.join(file, "..", "PACKAGES"))
 {
-    # Check_This {essentials}                                    R Documentation
+    # check.this {essentials}                                    R Documentation
     #
     # Build, Install, and Check a Package Conveniently
     #
@@ -113,7 +114,7 @@ check.this <- function (
     #
     # Usage:
     #
-    # Check_This(
+    # check.this(
     #
     #     build.vignettes = TRUE, no.build.vignettes = !build.vignettes,
     #     manual = TRUE, no.manual = !manual,
@@ -163,7 +164,7 @@ check.this <- function (
 
 
     # local({
-    #     x <- formals(essentials:::check_this)
+    #     x <- formals(essentials:::check.this)
     #     assign.env <- parent.env(environment())
     #     for (name in names(x)) {
     #         essentials::delayedAssign2(name, x[[name]], assign.env = assign.env, evaluated = TRUE)
@@ -173,7 +174,7 @@ check.this <- function (
     # Rcmd <- essentials:::Rcmd
     #
     #
-    # file <- "C:/Users/andre/Documents/iris"
+    # file <- "C:/Users/iris/Documents/iris"
     # special <- TRUE
     # check <- FALSE
     # chdir <- TRUE
@@ -182,6 +183,7 @@ check.this <- function (
     if (special) {
         build <- FALSE
         dir <- R.home("bin")
+        where
     } else dir <- NULL
 
 
@@ -210,93 +212,96 @@ check.this <- function (
     )
 
 
-    keep.source
-    keep.parse.data
-    INSTALL.args <- c(
-        if (INSTALL.clean) "--clean",
-        if (preclean) "--preclean",
-        if (debug) "--debug",
-        if (!is.null(INSTALL.library))
-            paste0("--library=", as.scalar.string(INSTALL.library)),
-        if (no.configure) "--no-configure",
-        if (no.docs) "--no-docs",
-        {
-            if (html)
-                "--html"
-            else if (no.html)
-                "--no-html"
-        },
-        if (latex) "--latex",
-        if (example) "--example",
-        if (fake) "--fake",
-        {
-            if (no.lock)
-                "--no-lock"
-            else if (lock)
-                "--lock"
-            else if (pkglock)
-                "--pkglock"
-        },
-        if (build) "--build",
-        if (install.tests) "--install-tests",
-        if (no.R) "--no-R",
-        if (no.libs) "--no-libs",
-        if (no.data) "--no-data",
-        if (no.help) "--no-help",
-        if (no.demo) "--no-demo",
-        if (no.exec) "--no-exec",
-        if (no.inst) "--no-inst",
-        if (no.multiarch) "--no-multiarch",
-        if (libs.only) "--libs-only",
-        if (!is.null(data.compress))
-            paste0("--data-compress=", match.arg(data.compress, c("gzip", "none", "bzip2", "xz"))),
-        if (INSTALL.resave.data) "--resave-data",
-        if (compact.docs) "--compact-docs",
-        {
-            if (with.keep.source)
-                "--with-keep.source"
-            else if (without.keep.source)
-                "--without-keep.source"
-            else tryCatch({
-                if (keep.source)
+    INSTALL <- if (INSTALL) TRUE else FALSE
+    if (INSTALL) {
+        keep.source
+        keep.parse.data
+        INSTALL.args <- c(
+            if (INSTALL.clean) "--clean",
+            if (preclean) "--preclean",
+            if (debug) "--debug",
+            if (!is.null(INSTALL.library))
+                paste0("--library=", as.scalar.string(INSTALL.library)),
+            if (no.configure) "--no-configure",
+            if (no.docs) "--no-docs",
+            {
+                if (html)
+                    "--html"
+                else if (no.html)
+                    "--no-html"
+            },
+            if (latex) "--latex",
+            if (example) "--example",
+            if (fake) "--fake",
+            {
+                if (no.lock)
+                    "--no-lock"
+                else if (lock)
+                    "--lock"
+                else if (pkglock)
+                    "--pkglock"
+            },
+            if (build) "--build",
+            if (install.tests) "--install-tests",
+            if (no.R) "--no-R",
+            if (no.libs) "--no-libs",
+            if (no.data) "--no-data",
+            if (no.help) "--no-help",
+            if (no.demo) "--no-demo",
+            if (no.exec) "--no-exec",
+            if (no.inst) "--no-inst",
+            if (no.multiarch) "--no-multiarch",
+            if (libs.only) "--libs-only",
+            if (!is.null(data.compress))
+                paste0("--data-compress=", match.arg(data.compress, c("gzip", "none", "bzip2", "xz"))),
+            if (INSTALL.resave.data) "--resave-data",
+            if (compact.docs) "--compact-docs",
+            {
+                if (with.keep.source)
                     "--with-keep.source"
-                else "--without-keep.source"
-            }, error = function(c) NULL)
-        },
-        {
-            if (with.keep.parse.data)
-                "--with-keep.parse.data"
-            else if (without.keep.parse.data)
-                "--without-keep.parse.data"
-            else tryCatch({
-                if (keep.parse.data)
+                else if (without.keep.source)
+                    "--without-keep.source"
+                else tryCatch({
+                    if (keep.source)
+                        "--with-keep.source"
+                    else "--without-keep.source"
+                }, error = function(c) NULL)
+            },
+            {
+                if (with.keep.parse.data)
                     "--with-keep.parse.data"
-                else "--without-keep.parse.data"
-            }, error = function(c) NULL)
-        },
-        {
-            if (byte.compile)
-                "--byte-compile"
-            else if (no.byte.compile)
-                "--no-byte-compile"
-        },
-        {
-            if (staged.install)
-                "--staged-install"
-            else if (no.staged.install)
-                "--no-staged-install"
-        },
-        if (no.test.load) "--no-test-load",
-        if (no.clean.on.error) "--no-clean-on-error",
-        if (merge.multiarch) "--merge-multiarch",
-        if (use.vanilla) "--use-vanilla",
-        {
-            if (use.LTO)
-                "--use-LTO"
-            else if (no.use.LTO)
-                "--no-use-LTO"
-        }
-    )
+                else if (without.keep.parse.data)
+                    "--without-keep.parse.data"
+                else tryCatch({
+                    if (keep.parse.data)
+                        "--with-keep.parse.data"
+                    else "--without-keep.parse.data"
+                }, error = function(c) NULL)
+            },
+            {
+                if (byte.compile)
+                    "--byte-compile"
+                else if (no.byte.compile)
+                    "--no-byte-compile"
+            },
+            {
+                if (staged.install)
+                    "--staged-install"
+                else if (no.staged.install)
+                    "--no-staged-install"
+            },
+            if (no.test.load) "--no-test-load",
+            if (no.clean.on.error) "--no-clean-on-error",
+            if (merge.multiarch) "--merge-multiarch",
+            if (use.vanilla) "--use-vanilla",
+            {
+                if (use.LTO)
+                    "--use-LTO"
+                else if (no.use.LTO)
+                    "--no-use-LTO"
+            }
+        )
+    }
 
 
     check <- if (check) TRUE else FALSE
@@ -334,7 +339,7 @@ check.this <- function (
     if (!is.character(file) || length(file) != 1L) {
         stop("invalid 'file'")
     } else if (grepl("^(ftp|ftps|http|https)://", file)) {
-        stop("cannot 'Check_This' on a URL")
+        stop("cannot 'check.this' on a URL")
     } else if (chdir && (path <- file) != ".") {
         file <- "."
 
@@ -369,7 +374,7 @@ check.this <- function (
             get(".rs.api.restartSession", "tools:rstudio", inherits = FALSE)(command)
         }
         else if (unloaded)
-            warning(gettextf("%s %s was unloaded, please restart the R session",
+            warning(sprintf("%s %s was unloaded, please restart the R session",
                 if (.Platform$OS.type == "windows") "DLL" else "shared object",
                 sQuote(pkgname)))
     }, add = TRUE)
@@ -380,9 +385,16 @@ check.this <- function (
         isNamespaceLoaded(pkgname))
     {
         libpath <- getNamespaceInfo(pkgname, "path")
-        for (chname in names(getNamespaceInfo(pkgname, "DLLs"))) {
-            library.dynam.unload(chname, libpath)
-            unloaded <- TRUE
+        success <- FALSE
+        tryCatch({
+            DLLs <- getNamespaceInfo(pkgname, "DLLs")
+            success <- TRUE
+        }, error = function(e) NULL)
+        if (success) {
+            for (chname in names(DLLs)) {
+                library.dynam.unload(chname, libpath)
+                unloaded <- TRUE
+            }
         }
     }
 
@@ -407,7 +419,7 @@ check.this <- function (
         PACKAGES.info <- t(PACKAGES.info)
 
 
-        tar.path <- file.path(file, where, "src", "contrib")
+        tar.path <- file.path(where, "src", "contrib")
         dir.create(tar.path, showWarnings = FALSE, recursive = TRUE)
 
 
@@ -458,10 +470,12 @@ check.this <- function (
     }
 
 
-    value <- if (is.null(dir)) {
-        .Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE)
-    } else .Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE, dir = dir)
-    cat("\n")
+    if (INSTALL) {
+        value <- if (is.null(dir)) {
+            .Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE)
+        } else .Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE, dir = dir)
+        cat("\n")
+    }
     finished <- TRUE
 
 
@@ -471,6 +485,8 @@ check.this <- function (
         else .Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE, dir = dir)
         cat("\n")
     }
+
+
     invisible(value)
 }
 

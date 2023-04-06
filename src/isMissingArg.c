@@ -1,59 +1,53 @@
 #include <R.h>
 #include <Rinternals.h>
+#include "translations.h"
 
 
-SEXP isMissingArg(SEXP x, SEXP rho)
+Rboolean isMissingArg(SEXP x, SEXP rho)
 {
     if (TYPEOF(x) != SYMSXP)
-        error("invalid 'x'");
+        error(_("not a symbol"));
     if (TYPEOF(rho) != ENVSXP)
-        error("invalid 'rho'");
-
-
-    SEXP value;
-
-
+        error(_("not an environment"));
     for (; rho != R_EmptyEnv; rho = ENCLOS(rho)) {
-        value = findVarInFrame3(rho, x, TRUE);
+        SEXP value = findVarInFrame(rho, x);
         if (value != R_UnboundValue) {
             if (TYPEOF(value) == PROMSXP) {
-                if (TYPEOF(PREXPR(value)) != SYMSXP) {
-                    value = PROTECT(eval(value, rho));
-                    defineVar(x, value, rho);
-                    value = ScalarLogical(value == R_MissingArg);
-                    UNPROTECT(1);
-                    return value;
+                if (PRVALUE(value) == R_UnboundValue) {
+                    if (TYPEOF(PREXPR(value)) != SYMSXP)
+                        return eval(value, rho) == R_MissingArg;
+                    else
+                        return isMissingArg(PREXPR(value), PRENV(value));
                 }
-                else {
-                    x = PROTECT(PREXPR(value));
-                    rho = PROTECT(PRENV(value));
-                    value = isMissingArg(x, rho);
-                    UNPROTECT(2);
-                    return value;
-                }
+                else return PRVALUE(value) == R_MissingArg;
             }
-            else return ScalarLogical(value == R_MissingArg);
+            else return value == R_MissingArg;
         }
     }
-    error("object '%s' not found", CHAR(PRINTNAME(x)));
-    return R_NilValue;
+    error(_("object '%s' not found"), CHAR(PRINTNAME(x)));
+    return NA_LOGICAL;
 }
 
 
-SEXP do_isMissingArg(SEXP x, SEXP rho)
+SEXP do_ismissingarg(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    SEXP value;
-
-
-    if (TYPEOF(rho) != ENVSXP)
-        error("invalid 'rho'");
-
-
-    if (TYPEOF(x) != SYMSXP) {
-        value = PROTECT(eval(x, rho));
-        value = ScalarLogical(value == R_MissingArg);
-        UNPROTECT(1);
-        return value;
+    static SEXP xSymbol = NULL;
+    if (xSymbol == NULL) {
+        xSymbol = install("x");
     }
-    return isMissingArg(x, rho);
+
+
+    SEXP x = findVarInFrame(rho, xSymbol);
+    if (x == R_UnboundValue)
+        error(_("object '%s' not found"), "x");
+    if (x == R_MissingArg)
+        error("0 arguments passed to 'isMissingArg' which requires 1");
+    if (TYPEOF(x) != PROMSXP)
+        error("invalid '%s', is not a promise", "x");
+
+
+    if (TYPEOF(PREXPR(x)) != SYMSXP)
+        return ScalarLogical(eval(x, R_EmptyEnv) == R_MissingArg);
+    else
+        return ScalarLogical(isMissingArg(PREXPR(x), PRENV(x)));
 }

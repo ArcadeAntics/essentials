@@ -1,6 +1,7 @@
 #include <R.h>
 #include <Rinternals.h>
 #include "defines.h"
+#include "translations.h"
 
 
 // #define debug
@@ -11,11 +12,21 @@
 
 SEXP do_envvars(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    static SEXP Sys_getenvSymbol = NULL,
+                Sys_setenvSymbol = NULL,
+                Sys_unsetenvSymbol = NULL;
+    if (Sys_getenvSymbol == NULL) {
+        Sys_getenvSymbol = install("Sys.getenv");
+        Sys_setenvSymbol = install("Sys.setenv");
+        Sys_unsetenvSymbol = install("Sys.unsetenv");
+    }
+
+
     SEXP value, names;
     int nprotect = 0;
 
 
-    SEXP dots = findVarInFrame(rho, install("..."));
+    SEXP dots = findVarInFrame(rho, R_DotsSymbol);
     if (dots == R_UnboundValue)
         error("could not find the ... list; should never happen, please report!");
 
@@ -40,7 +51,7 @@ SEXP do_envvars(SEXP call, SEXP op, SEXP args, SEXP rho)
 
             then remove its class attribute, and change 'visible' to TRUE
          */
-        SEXP expr = PROTECT(lang1(install("Sys.getenv"))); nprotect++;
+        SEXP expr = PROTECT(lang1(Sys_getenvSymbol)); nprotect++;
         value = PROTECT(eval(expr, R_BaseEnv)); nprotect++;
         value = PROTECT(coerceVector(value, VECSXP)); nprotect++;
         setAttrib(value, R_ClassSymbol, R_NilValue);
@@ -223,7 +234,7 @@ SEXP do_envvars(SEXP call, SEXP op, SEXP args, SEXP rho)
      */
     SEXP expr;
     PROTECT(expr = lang4(
-        install("Sys.getenv"),
+        Sys_getenvSymbol,
         names,
         ScalarString(NA_STRING),
         ScalarLogical(1)
@@ -293,12 +304,12 @@ SEXP do_envvars(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 
         PROTECT(expr = allocVector(LANGSXP, nset + 1));  nprotect++;
-        SETCAR(expr, install("Sys.setenv"));  // set the first element to the function name Sys.setenv
+        SETCAR(expr, Sys_setenvSymbol);  // set the first element to the function name Sys.setenv
         SEXP temp_setenv = CDR(expr);  // the next element of 'expr'
 
 
         SEXP expr2 = PROTECT(allocVector(LANGSXP, 2));  nprotect++;
-        SETCAR(expr2, install("Sys.unsetenv"));
+        SETCAR(expr2, Sys_unsetenvSymbol);
         SEXP unsetenv_arg = PROTECT(allocVector(STRSXP, nunset));  nprotect++;
         int j = 0;  /*
             we don't have a way to keep track of the next element of
@@ -398,13 +409,21 @@ SEXP do_envvars(SEXP call, SEXP op, SEXP args, SEXP rho)
 }
 
 
-SEXP do_getEnvvar(SEXP call, SEXP op, SEXP args, SEXP rho)
+SEXP do_getenvvar(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    static SEXP Sys_getenvSymbol = NULL,
+                defaultSymbol = NULL;
+    if (Sys_getenvSymbol == NULL) {
+        Sys_getenvSymbol = install("Sys.getenv");
+        defaultSymbol = install("default");
+    }
+
+
     SEXP x = CADR(args);
-    if (!isString(x) || LENGTH(x) != 1)
-        error("'%s' must be a character string", "x");
+    if (TYPEOF(x) != STRSXP || LENGTH(x) != 1)
+        error(_("'%s' must be a character string"), "x");
     SEXP expr = PROTECT(lang4(
-        install("Sys.getenv"),
+        Sys_getenvSymbol,
         isObject(x) ? ScalarString(STRING_ELT(x, 0)) : x,
         ScalarString(NA_STRING),
         ScalarLogical(FALSE)
@@ -412,7 +431,7 @@ SEXP do_getEnvvar(SEXP call, SEXP op, SEXP args, SEXP rho)
     SEXP value = PROTECT(eval(expr, R_BaseEnv));
     if (STRING_ELT(value, 0) == NA_STRING) {
         UNPROTECT(2);
-        return eval(install("default"), rho);
+        return eval(defaultSymbol, rho);
     }
     else {
         UNPROTECT(2);

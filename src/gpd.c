@@ -155,8 +155,15 @@ double qgpd6(double p, double mu, double sigma, double xi,
 }
 
 
-SEXP do_dgpd(SEXP x, SEXP mu, SEXP sigma, SEXP xi, SEXP give_log)
+SEXP do_dgpd(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    args = CDR(args);
+    SEXP x = CAR(args); args = CDR(args);
+    SEXP mu = CAR(args); args = CDR(args);
+    SEXP sigma = CAR(args); args = CDR(args);
+    SEXP xi = CAR(args); args = CDR(args);
+    int give_log = asLogical(CAR(args)); args = CDR(args);
+
     test4NumericArgument(x);
     test4NumericArgument(mu);
     test4NumericArgument(sigma);
@@ -173,8 +180,6 @@ SEXP do_dgpd(SEXP x, SEXP mu, SEXP sigma, SEXP xi, SEXP give_log)
     sigma = PROTECT(coerceVector(sigma, REALSXP));
     xi    = PROTECT(coerceVector(xi   , REALSXP));
 
-    int ilog = asLogical(give_log);
-
     R_xlen_t len = lenx;
     len = fmax(len, lenmu);
     len = fmax(len, lensigma);
@@ -186,15 +191,23 @@ SEXP do_dgpd(SEXP x, SEXP mu, SEXP sigma, SEXP xi, SEXP give_log)
 
     for (R_xlen_t i = 0; i < len; i++)
         rvalue[i] = dgpd5(rx[i % lenx], rmu[i % lenmu],
-            rsigma[i % lensigma], rxi[i % lenxi], ilog);
+            rsigma[i % lensigma], rxi[i % lenxi], give_log);
 
     UNPROTECT(5);
     return value;
 }
 
 
-SEXP do_pgpd(SEXP q, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
+SEXP do_pgpd(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    args = CDR(args);
+    SEXP q = CAR(args); args = CDR(args);
+    SEXP mu = CAR(args); args = CDR(args);
+    SEXP sigma = CAR(args); args = CDR(args);
+    SEXP xi = CAR(args); args = CDR(args);
+    int lower_tail = asLogical(CAR(args)); args = CDR(args);
+    int log_p = asLogical(CAR(args)); args = CDR(args);
+
     test4NumericArgument(q);
     test4NumericArgument(mu);
     test4NumericArgument(sigma);
@@ -205,8 +218,6 @@ SEXP do_pgpd(SEXP q, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
 
     if (lenq == 0 || lenmu == 0 || lensigma == 0 || lenxi == 0)
         return(allocVector(REALSXP, 0));
-
-    int ilog_p = asLogical(log_p), ilower_tail = asLogical(lower_tail);
 
     R_xlen_t len = lenq;
     len = fmax(len, lenmu);
@@ -223,15 +234,23 @@ SEXP do_pgpd(SEXP q, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
 
     for (R_xlen_t i = 0; i < len; i++)
         rvalue[i] = pgpd6(rq[i % lenq], rmu[i % lenmu],
-            rsigma[i % lensigma], rxi[i % lenxi], ilower_tail, ilog_p);
+            rsigma[i % lensigma], rxi[i % lenxi], lower_tail, log_p);
 
     UNPROTECT(5);
     return value;
 }
 
 
-SEXP do_qgpd(SEXP p, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
+SEXP do_qgpd(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    args = CDR(args);
+    SEXP p = CAR(args); args = CDR(args);
+    SEXP mu = CAR(args); args = CDR(args);
+    SEXP sigma = CAR(args); args = CDR(args);
+    SEXP xi = CAR(args); args = CDR(args);
+    int lower_tail = asLogical(CAR(args)); args = CDR(args);
+    int log_p = asLogical(CAR(args)); args = CDR(args);
+
     test4NumericArgument(p);
     test4NumericArgument(mu);
     test4NumericArgument(sigma);
@@ -248,8 +267,6 @@ SEXP do_qgpd(SEXP p, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
     sigma = PROTECT(coerceVector(sigma, REALSXP));
     xi    = PROTECT(coerceVector(xi   , REALSXP));
 
-    int ilog_p = asLogical(log_p), ilower_tail = asLogical(lower_tail);
-
     R_xlen_t len = lenp;
     len = fmax(len, lenmu);
     len = fmax(len, lensigma);
@@ -261,15 +278,21 @@ SEXP do_qgpd(SEXP p, SEXP mu, SEXP sigma, SEXP xi, SEXP lower_tail, SEXP log_p)
 
     for (R_xlen_t i = 0; i < len; i++)
         rvalue[i] = qgpd6(rp[i % lenp], rmu[i % lenmu],
-            rsigma[i % lensigma], rxi[i % lenxi], ilower_tail, ilog_p);
+            rsigma[i % lensigma], rxi[i % lenxi], lower_tail, log_p);
 
     UNPROTECT(5);
     return value;
 }
 
 
-SEXP do_rgpd(SEXP n, SEXP mu, SEXP sigma, SEXP xi)
+SEXP do_rgpd(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    args = CDR(args);
+    SEXP n = CAR(args); args = CDR(args);
+    SEXP mu = CAR(args); args = CDR(args);
+    SEXP sigma = CAR(args); args = CDR(args);
+    SEXP xi = CAR(args); args = CDR(args);
+
     test4NumericArgument(mu);
     test4NumericArgument(sigma);
     test4NumericArgument(xi);

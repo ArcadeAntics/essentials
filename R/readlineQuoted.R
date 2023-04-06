@@ -1,7 +1,7 @@
 readlineQuoted <- function (prompt = "", times = 1)
 {
-    prompt <- as.scalar.string(prompt)
-    times <- as.scalar.real(times)
+    prompt <- as.scalar.character(prompt)
+    times <- as.scalar.numeric(times)
     times <- min(.Machine$double.base^.Machine$double.digits,
         if (times >= 1) floor(times))
     count <- 0

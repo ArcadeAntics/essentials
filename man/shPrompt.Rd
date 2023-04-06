@@ -27,7 +27,7 @@ If \code{type} is \code{NULL} or does not match one of the above choices,
 option is \code{NULL} or does not match one of the above choices, \code{type}
 is pulled from environment variable \env{R_ESSENTIALS_SH_PROMPT_TYPE}. If this
 environment variable is unset or does not match one of the above choices,
-\code{type} is determined by \code{\link[base]{.Platform}$OS.type} and
+\code{type} is determined by \code{\link{.Platform}$OS.type} and
 \code{\link[base]{capabilities}("aqua")}.
 }
 \value{

@@ -1,7 +1,7 @@
-path.contract <- function (path, ignore.case = .Platform$OS.type == "windows")
+path.contract <- function (path, ignore.case = os.windows)
 {
     if (!is.character(path))
-        stop("invalid 'path' argument")
+        stop("a character vector argument expected", domain = "R")
     if (!length(path))
         return(character())
     attributes(path) <- NULL
@@ -17,10 +17,12 @@ path.contract <- function (path, ignore.case = .Platform$OS.type == "windows")
         else startsWith(chartr("/", "\\", path), chartr("/", "\\", tilde)) &
             substr(path, nc, nc) %in% c("/", "\\", "")
     }
-    else if (ignore.case) {
-        startsWith(tolower(path), tolower(tilde)) & substr(path, nc, nc) %in% c("/", "")
+    else {
+        if (ignore.case) {
+            startsWith(tolower(path), tolower(tilde)) & substr(path, nc, nc) %in% c("/", "")
+        }
+        else startsWith(path, tilde) & substr(path, nc, nc) %in% c("/", "")
     }
-    else startsWith(path, tilde) & substr(path, nc, nc) %in% c("/", "")
     if (any(contract))
         path[contract] <- paste0("~", substr(path[contract], nc, 1000000L))
     path

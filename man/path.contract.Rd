@@ -8,7 +8,7 @@ Contract a path name, for example by replacing the user's home directory (if
 defined on that platform) with a leading tilde.
 }
 \usage{
-path.contract(path, ignore.case = .Platform$OS.type == "windows")
+path.contract(path, ignore.case = os.windows)
 }
 \arguments{
   \item{path}{

@@ -21,7 +21,7 @@ shEncode <- function (string, type = NULL, unix.type = NULL, windows.type = "Rsc
         type <- "sh"
     else {
         type <- sub("\\.exe$", "", basename(type))
-        type <- match.arg(type, c("sh", "perl", "python3", "R", "R CMD", "Rcmd", "Rgui", "Rscript", "Rterm"))
+        type <- match.arg(type, c("sh", "cmd", "perl", "python3", "R", "R CMD", "Rcmd", "Rgui", "Rscript", "Rterm"))
     }
     switch(type, sh = {
 
@@ -33,6 +33,13 @@ shEncode <- function (string, type = NULL, unix.type = NULL, windows.type = "Rsc
 
         # surround with single quotes
         string <- paste0("'", string, "'", recycle0 = TRUE)
+
+
+    }, cmd = {
+
+
+        # escape each of the special characters ( ) % ! ^ " < > & |
+        string <- gsub("([()%!^\"<>&|])", "^\\1", string)
 
 
     }, R = , `R CMD` = , Rcmd = {

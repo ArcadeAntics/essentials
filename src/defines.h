@@ -19,7 +19,7 @@
 #define UNIMPLEMENTED_TYPE(X, Y) (error("unimplemented type '%s' in '%s'", type2char(TYPEOF((Y))), (X)))
 
 
-#define enquote(X) (lang2(findVarInFrame(R_BaseEnv, install("quote")), (X)))
+#define enquote(X) (lang2(findVarInFrame(R_BaseEnv, R_QuoteSymbol), (X)))
 
 
 #define R_print(X) (eval(lang2(findVarInFrame(R_BaseEnv, install("print")), enquote((X))), R_BaseEnv))

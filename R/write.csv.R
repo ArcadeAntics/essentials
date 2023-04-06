@@ -17,7 +17,7 @@ body(write.csv) <- bquote({
     qmethod <- "double"
     .({
         on.exit(rm(tmp))
-        tmp <- sapply(names(formals(write.csv)), as.name)
+        tmp <- sapply(names(formals(write.csv)), as.symbol, simplify = FALSE)
         names(tmp)[tmp == "..."] <- ""
         as.call(c(as.name("write.table"), tmp))
     })

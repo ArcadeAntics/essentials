@@ -12,8 +12,9 @@ ASCII <- function (extended = TRUE, cex = par("cex"), family = par("family"),
         ylim <- c(8, 0)
         yvals <- 0:7
     }
-    ASCII <- vapply(as.raw(codes), (rawToChar), "", USE.NAMES = FALSE)
+    ASCII <- rawToChar(as.raw(codes), multiple = TRUE)
     Encoding(ASCII) <- "latin1"
+    # should be in UTF-8 for plotting
     ASCII <- enc2utf8(ASCII)
     names(ASCII) <- sprintf("0x%02X", codes)
     if (plot) {

@@ -11,7 +11,7 @@ normalizeAgainst <- function (..., against = this.dir(verbose = FALSE))
             normalizePath(...)
         }
     }
-    else stop("invalid 'against' argument")
+    else stop(gettextf("invalid '%s' argument", "against", domain = "R"))
 }
 
 

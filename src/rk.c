@@ -4,13 +4,19 @@
 #include "defines.h"
 
 
-SEXP do_RK4(SEXP independent, SEXP initialConditions, SEXP fun, SEXP rho)
+SEXP do_rk4(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    // args = CDR(args);
+    // SEXP independent = CAR(args); args = CDR(args);
+    // SEXP initialConditions = CAR(args); args = CDR(args);
+    // SEXP fun = CAR(args); args = CDR(args);
+    // SEXP env = CAR(args); args = CDR(args);
+
     /*
     test4NumericArgument(independent);
     test4NumericArgument(initialConditions);
     if (!isFunction(fun))    error("invalid '%s'", "fun");
-    if (!isEnvironment(rho)) error("invalid '%s'", "rho");
+    if (!isEnvironment(env)) error("invalid '%s'", "env");
 
     SEXP R_fcall = PROTECT(lang3(
         install("+"),
@@ -89,7 +95,7 @@ SEXP do_RK4(SEXP independent, SEXP initialConditions, SEXP fun, SEXP rho)
     SEXP value = PROTECT(allocVector(VECSXP, xlength(initialConditions) + 1));
     SET_VECTOR_ELT(value, 0, Rf_lazy_duplicate(independent));
 
-    SEXP h = PROTECT(eval(lang2(install("diff"), independent), rho));
+    SEXP h = PROTECT(eval(lang2(install("diff"), independent), env));
     int n, len_h = xlength(h);
 
     double t, h1, h2, *rh = REAL(h), *rindependent = REAL(independent);
@@ -98,11 +104,11 @@ SEXP do_RK4(SEXP independent, SEXP initialConditions, SEXP fun, SEXP rho)
         t = rindependent[n];
         h1 = rh[n];
         h2 = h1/2;
-        eval(R_fcall, rho);
+        eval(R_fcall, env);
     }
 
     UNPROTECT(2);
-    return rho;
+    return env;
     return h;
      */
     return R_NilValue;
@@ -110,7 +116,7 @@ SEXP do_RK4(SEXP independent, SEXP initialConditions, SEXP fun, SEXP rho)
 
 
 /*
-SEXP do_RK4(SEXP independent, SEXP initialConditions, SEXP fun, SEXP xname)
+SEXP do_rk4(SEXP independent, SEXP initialConditions, SEXP fun, SEXP xname)
 {
     switch (TYPEOF(independent)) {
     case INTSXP:

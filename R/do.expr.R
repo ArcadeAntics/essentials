@@ -78,7 +78,7 @@ quoteLang <- function (cl, quote.MissingArg = FALSE)
 do.expr <- function (expr, envir = parent.frame(),
                 enclos = if (is.list(envir) || is.pairlist(envir))
                              parent.frame() else baseenv())
-.External2(C_do.expr, as.env(envir, enclos))
+.External2(C_doexpr, envir, enclos)
 
 
 ##x <- 1:3

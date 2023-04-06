@@ -13,6 +13,7 @@
 
 
 #include "defines.h"
+#include "translations.h"
 
 
 
@@ -21,7 +22,7 @@
 extern R_xlen_t dispatchLength(SEXP x, SEXP rho);
 
 
-R_xlen_t * do_lengths(SEXP x, R_xlen_t length_x, const char *name)
+R_xlen_t * get_lengths(SEXP x, R_xlen_t length_x, const char *name)
 {
     // x
     //
@@ -40,13 +41,14 @@ R_xlen_t * do_lengths(SEXP x, R_xlen_t length_x, const char *name)
     /* find lengths(x), and convert to a R_xlen_t array */
 
 
-    SEXP expr = PROTECT(lang2(  /* lengths(x) */
-        install("lengths"),
-        lang2(
-            install("quote"),
-            x
-        )
-    ));
+    static SEXP lengthsSymbol = NULL;
+    if (lengthsSymbol == NULL) {
+        lengthsSymbol = install("lengths");
+    }
+
+
+    /* lengths(x) */
+    SEXP expr = PROTECT(lang2(lengthsSymbol, lang2(R_QuoteSymbol, x)));
     SEXP tmp = PROTECT(eval(expr, R_BaseEnv));
     if (xlength(tmp) != length_x)
         error("'length(%s)' (%.0f) and 'length(lengths(%s))' (%.0f) are not equal",
@@ -57,12 +59,18 @@ R_xlen_t * do_lengths(SEXP x, R_xlen_t length_x, const char *name)
     lengths_x = (R_xlen_t *) R_alloc(length_x, sizeof(R_xlen_t));
     switch (TYPEOF(tmp)) {
     case REALSXP:
+    {
+        double *rtmp = REAL(tmp);
         for (R_xlen_t i = 0; i < length_x; i++)
-            lengths_x[i] = (R_xlen_t) (REAL(tmp)[i]);
+            lengths_x[i] = (R_xlen_t) (rtmp[i]);
+    }
         break;
     case INTSXP:
+    {
+        int *itmp = INTEGER(tmp);
         for (R_xlen_t i = 0; i < length_x; i++)
-            lengths_x[i] = (R_xlen_t) (INTEGER(tmp)[i]);
+            lengths_x[i] = (R_xlen_t) (itmp[i]);
+    }
         break;
     default:
         error("invalid 'lengths(%s)' of type '%s'", name, type2char(TYPEOF(tmp)));
@@ -90,14 +98,74 @@ R_xlen_t get_commonLength(R_xlen_t *lengths, R_xlen_t length)
 
 
 
+typedef struct mfor_info {
+    Rboolean realIndx;
+    R_xlen_t commonLength;
+    SEXP i;
+    SEXP updaters;
+    SEXP mfor_rho;
+    SEXP p;
+} MFOR_INFO, *ptrMFOR_INFO;
+
+
+static void finalizer(SEXP ptr)
+{
+    if (!R_ExternalPtrAddr(ptr)) return;
+    /* Rprintf("\nfinalizing %p\n", R_ExternalPtrAddr(ptr)); */
+    ptrMFOR_INFO info = R_ExternalPtrAddr(ptr);
+    R_Free(info);
+    R_ClearExternalPtr(ptr);
+}
+
+
+SEXP getInFrame(SEXP sym, SEXP env, int unbound_ok)
+{
+    SEXP value = findVarInFrame(env, sym);
+    if (!unbound_ok && value == R_UnboundValue)
+        error(_("object '%s' not found"), CHAR(PRINTNAME(sym)));
+    if (TYPEOF(value) == PROMSXP) {
+        if (PRVALUE(value) == R_UnboundValue)
+            return eval(value, R_EmptyEnv);
+        else
+            return PRVALUE(value);
+    }
+    else return value;
+}
+
+
 /* mfor(*vars, seqs, expr) */
 SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    static SEXP is_mfor_doneSymbol = NULL,
+                parent_frameSymbol = NULL,
+                seqsSymbol = NULL,
+                iSymbol = NULL,
+                equalsSymbol = NULL,
+                plusSymbol = NULL,
+                modSymbol = NULL,
+                minusSymbol = NULL,
+                repeatSymbol = NULL,
+                ifSymbol = NULL,
+                breakSymbol = NULL;
+    if (is_mfor_doneSymbol == NULL) {
+        is_mfor_doneSymbol = install("is.mfor.done");
+        parent_frameSymbol = install("parent.frame");
+        seqsSymbol = install("seqs");
+        iSymbol = install("i");
+        equalsSymbol = install("=");
+        plusSymbol = install("+");
+        modSymbol = install("%%");
+        minusSymbol = install("-");
+        repeatSymbol = install("repeat");
+        ifSymbol = install("if");
+        breakSymbol = install("break");
+    }
+
+
     int nprotect = 0;
 
 
-    SEXP is_mfor_done = PROTECT(eval(      install("is.mfor.done") , rho)); nprotect++;
-    SEXP p            = PROTECT(eval(lang1(install("parent.frame")), rho)); nprotect++;
+    SEXP p = PROTECT(eval(lang1(parent_frameSymbol), rho)); nprotect++;
 
 
     SEXP dots = findVarInFrame(rho, R_DotsSymbol);
@@ -117,48 +185,38 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
         );
 
 
-    SEXP vars, seqs, expr, updaters, x, tmp, seqs_symbol, i_symbol;
-    seqs_symbol = install("seqs");
-    i_symbol    = install("i");
-    vars        = PROTECT(allocVector(VECSXP, n_vars));  nprotect++;
+    SEXP seqs, expr, updaters, tmp;
+    updaters = PROTECT(allocVector(LISTSXP, n_vars)); nprotect++;
 
 
-    x = dots;
-    for (int i = 0; i < n_vars; i++, x = CDR(x)) {
-        tmp = PREXPR(CAR(x));
-        if (!isSymbol(tmp) || tmp == R_MissingArg)
+    SEXP d = dots, u = updaters;
+    for (int i = 0; i < n_vars; i++, d = CDR(d), u = CDR(u)) {
+        if (TAG(d) != R_NilValue)
+            error("invalid 'vars', should not be named");
+        tmp = PREXPR(CAR(d));
+        if (TYPEOF(tmp) != SYMSXP || tmp == R_MissingArg)
             error("non-symbol loop variable, argument %d", i + 1);
-        SET_VECTOR_ELT(vars, i, tmp);
+        SET_TAG(u, tmp);
     }
-#ifdef debug
-    Rprintf("\n> vars\n");
-    R_print(vars);
-    Rprintf("\n");
-#endif
 
 
-    if (!isNull(TAG(x)))
+    if (!isNull(TAG(d)))
         error("invalid 'seqs', should not be named");
 
 
-    seqs = PROTECT(eval(CAR(x), p));  nprotect++;
+    seqs = PROTECT(eval(CAR(d), p)); nprotect++; d = CDR(d);
 #ifdef debug
     Rprintf(n_vars == 1 ? "\n> seq\n" : "\n> seqs\n");
     R_print(seqs);
-    Rprintf("\n");
 #endif
 
 
-    expr = PREXPR(CADR(x));
-    if (!isNull(TAG(CDR(x)))) {
-        expr = PROTECT(lang3(
-            install("="),
-            TAG(CDR(x)),
-            expr
-        ));  nprotect++;
+    expr = PREXPR(CAR(d));
+    if (!isNull(TAG(d))) {
+        expr = PROTECT(lang3(equalsSymbol, TAG(d), expr)); nprotect++;
     }
 #ifdef debug
-    Rprintf("> expr\n");
+    Rprintf("\n> expr\n");
     R_print(expr);
 #endif
 
@@ -173,16 +231,13 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
     if (n_vars == 1) {
         commonLength = dispatchLength(seqs, p);
 #ifdef debug
-        Rprintf("> length(seq)\n");
+        Rprintf("\n> length(seq)\n");
         R_print(ScalarReal((double) commonLength));
 #endif
         realIndx = commonLength > INT_MAX;
-        updaters = PROTECT(allocVector(VECSXP, 1));  nprotect++;
-        SET_VECTOR_ELT(updaters, 0, lang3(
-            R_Bracket2Symbol, seqs_symbol, i_symbol
-        ));
+        SETCAR(updaters, lang3(R_Bracket2Symbol, seqsSymbol, iSymbol));
 #ifdef debug
-        Rprintf("> updater\n");
+        Rprintf("\n> updater\n");
         R_print(updaters);
 #endif
     }
@@ -191,7 +246,6 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
 #ifdef debug
         Rprintf("\n> length(seqs)\n");
         R_print(ScalarReal((double) n_seqs));
-        Rprintf("\n");
 #endif
 
 
@@ -204,14 +258,13 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
             );
 
 
-        R_xlen_t *lengths_seqs = do_lengths(seqs, n_seqs, "seqs");
+        R_xlen_t *lengths_seqs = get_lengths(seqs, n_seqs, "seqs");
 #ifdef debug
         SEXP print_this = PROTECT(allocVector(REALSXP, n_seqs));
         for (R_xlen_t i = 0; i < n_seqs; i++)
             REAL(print_this)[i] = (double) lengths_seqs[i];
         Rprintf("\n> lengths(seqs)\n");
         R_print(print_this);
-        Rprintf("\n");
         UNPROTECT(1);
 #endif
 
@@ -220,7 +273,6 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
 #ifdef debug
         Rprintf("\n> commonLength(seqs)\n");
         R_print(ScalarReal(commonLength));
-        Rprintf("\n");
 #endif
         do_eval = (commonLength != 0);
         if (do_eval) {
@@ -236,54 +288,49 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 
             realIndx = commonLength > INT_MAX;
-            updaters = PROTECT(allocVector(VECSXP, n_seqs));  nprotect++;
 
 
-            for (R_xlen_t j = 0; j < n_seqs; j++) {
+            u = updaters;
+            for (R_xlen_t j = 0; j < n_seqs; j++, u = CDR(u)) {
+                /* seqs[[j]] */
                 SEXP v = PROTECT(lang3(
                     R_Bracket2Symbol,
-                    seqs_symbol,
+                    seqsSymbol,
                     ScalarInteger(j + 1)
                 ));
                 if (lengths_seqs[j] == 1)
-                    v = PROTECT(lang3(
-                        R_Bracket2Symbol,
-                        v,
-                        ScalarInteger(1)
-                    ));
+                    /* seqs[[j]][[1L]] */
+                    v = PROTECT(lang3(R_Bracket2Symbol, v, ScalarInteger(1)));
                 else if (lengths_seqs[j] == commonLength)
-                    v = PROTECT(lang3(
-                        R_Bracket2Symbol,
-                        v,
-                        i_symbol
-                    ));
+                    /* seqs[[j]][[i]] */
+                    v = PROTECT(lang3(R_Bracket2Symbol, v, iSymbol));
                 else {
+                    /* seqs[[j]][[(i - 1) %% length(seqs[[j]]) + 1]] */
                     v = PROTECT(lang3(
                         R_Bracket2Symbol,
                         v,
                         lang3(
-                            install("+"),
+                            plusSymbol,
                             lang3(
-                                install("%%"),
+                                modSymbol,
                                 lang3(
-                                    install("-"),
-                                    i_symbol,
-                                    ScalarInteger(1)
+                                    minusSymbol,
+                                    iSymbol,
+                                    realIndx ? ScalarReal(1.0) : ScalarInteger(1)
                                 ),
                                 realIndx ? ScalarReal   (lengths_seqs[j]) :
                                            ScalarInteger(lengths_seqs[j])
                             ),
-                            ScalarInteger(1)
+                            realIndx ? ScalarReal(1.0) : ScalarInteger(1)
                         )
                     ));
                 }
-                SET_VECTOR_ELT(updaters, j, v);
+                SETCAR(u, v);
                 UNPROTECT(2);
             }
 #ifdef debug
             Rprintf("\n> updaters\n");
             R_print(updaters);
-            Rprintf("\n");
 #endif
         }
     }
@@ -292,58 +339,49 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
     SEXP loop_expr = R_NilValue;
 
 
+    ptrMFOR_INFO info = R_Calloc(1, MFOR_INFO);
+    SEXP ptr = R_MakeExternalPtr(info, R_NilValue, R_NilValue);
+    PROTECT(ptr); nprotect++;
+    R_RegisterCFinalizerEx(ptr, finalizer, TRUE);
     if (do_eval) {
+
+
+        info->realIndx = realIndx;
+        info->commonLength = commonLength;
+        defineVar(iSymbol, info->i = realIndx ? ScalarReal(0.0) : ScalarInteger(0), rho);
+        info->updaters = updaters;
+        info->mfor_rho = rho;
+        info->p = p;
+
+
         loop_expr = PROTECT(lang2(
-            findVarInFrame(R_BaseEnv, install("repeat")),
-            lang3(
-                findVarInFrame(R_BaseEnv, R_BraceSymbol),
-                lang3(
-                    findVarInFrame(R_BaseEnv, install("if")),
-                    lang2(
-                        is_mfor_done,
-                        rho
-                    ),
-                    lang1(findVarInFrame(R_BaseEnv, install("break")))
-                ),
+            getInFrame(repeatSymbol, R_BaseEnv, FALSE),
+            lang4(
+                getInFrame(ifSymbol, R_BaseEnv, FALSE),
+                lang2(eval(is_mfor_doneSymbol, rho), ptr),
+                lang1(getInFrame(breakSymbol, R_BaseEnv, FALSE)),
                 expr
             )
-        ));  nprotect++;
+        )); nprotect++;
 #ifdef debug
         Rprintf("\n> loop_expr\n");
-        R_print(loop_expr);
-        Rprintf("\n");
+        R_print(PROTECT(lang2(
+            repeatSymbol,
+            lang4(
+                ifSymbol,
+                lang2(is_mfor_doneSymbol, ptr),
+                lang1(breakSymbol),
+                expr
+            )
+        ))); UNPROTECT(1);
 #endif
 
-
-        defineVar(
-            i_symbol,
-            realIndx ? ScalarReal(0.0) : ScalarInteger(0),
-            rho
-        );
-        defineVar(install("seqs"), seqs, rho);
-        defineVar(
-            install("commonLength"),
-            realIndx ? ScalarReal(commonLength) : ScalarInteger(commonLength),
-            rho
-        );
-        defineVar(
-            install("realIndx"),
-            ScalarLogical(realIndx),
-            rho
-        );
-        defineVar(
-            install("n_vars"),
-            ScalarInteger(n_vars),
-            rho
-        );
-        defineVar(install("vars"), vars, rho);
-        defineVar(install("updaters"), updaters, rho);
-        defineVar(install("p"), p, rho);
+        defineVar(seqsSymbol, seqs, rho);
     }
 
 
     /*
-    SEXP value = PROTECT(allocVector(LISTSXP, 4));  nprotect++;
+    SEXP value = PROTECT(allocVector(LISTSXP, 4)); nprotect++;
     tmp = value;
 
 
@@ -358,21 +396,16 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
      */
 
 
-    for (int i = 0; i < n_vars; i++) {
-        defineVar(
-            VECTOR_ELT(vars, i),
-            R_NilValue,
-            p
-        );
-    }
+    for (SEXP u = updaters; u != R_NilValue; u = CDR(u))
+        defineVar(TAG(u), R_NilValue, p);
 
 
     if (do_eval)
         eval(loop_expr, p);
 
 
-    set_R_Visible(0);
     UNPROTECT(nprotect);
+    set_R_Visible(0);
     return R_NilValue;
 }
 
@@ -380,72 +413,37 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 
 
-SEXP do_ismfordone(SEXP rho)
+SEXP do_ismfordone(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    if (TYPEOF(rho) != ENVSXP)
-        error("invalid 'rho'");
-
-
-    SEXP i = findVarInFrame(rho, install("i"));
-    if (i == R_UnboundValue)
-        SOMETHING_WRONG_WITH_MFOR("i");
-
-
-    SEXP commonLength = findVarInFrame(rho, install("commonLength"));
-    if (commonLength == R_UnboundValue)
-        SOMETHING_WRONG_WITH_MFOR("commonLength");
-
-
-    SEXP realIndx = findVarInFrame(rho, install("realIndx"));
-    if (realIndx == R_UnboundValue)
-        SOMETHING_WRONG_WITH_MFOR("realIndx");
-
-
-    Rboolean _realIndx = LOGICAL(realIndx)[0];
+    SEXP ptr = CADR(args);
+    if (TYPEOF(ptr) != EXTPTRSXP)
+        error("not an external pointer");
+    ptrMFOR_INFO info = R_ExternalPtrAddr(ptr);
+    if (info == NULL)
+        error("external pointer is NULL");
 
 
     /* return TRUE to signify end of looping */
-    if (_realIndx ? (REAL   (i)[0] >= REAL   (commonLength)[0]) :
-                    (INTEGER(i)[0] >= INTEGER(commonLength)[0]))
-        return ScalarLogical(1);
-
-
-    SEXP n_vars = findVarInFrame(rho, install("n_vars"));
-    if (n_vars == R_UnboundValue)
-        SOMETHING_WRONG_WITH_MFOR("n_vars");
-
-
-    SEXP vars = findVarInFrame(rho, install("vars"));
-    if (vars == R_UnboundValue)
-        SOMETHING_WRONG_WITH_MFOR("vars");
-
-
-    SEXP updaters = findVarInFrame(rho, install("updaters"));
-    if (updaters == R_UnboundValue)
-        SOMETHING_WRONG_WITH_MFOR("updaters");
-
-
-    SEXP p = findVarInFrame(rho, install("p"));
-    if (p == R_UnboundValue)
-        SOMETHING_WRONG_WITH_MFOR("p");
-
-
-    int _n_vars = INTEGER_ELT(n_vars, 0);
-
-
-    if (_realIndx)
-        REAL(i)[0]++;
-    else INTEGER(i)[0]++;
-
-
-    for (int indx = 0; indx < _n_vars; indx++) {
-        defineVar(
-            VECTOR_ELT(vars, indx),
-            eval(VECTOR_ELT(updaters, indx), rho),
-            p
-        );
+    if (info->realIndx) {
+        if (REAL(info->i)[0] >= info->commonLength)
+            return ScalarLogical(TRUE);
+        ++REAL(info->i)[0];
+    } else {
+        if (INTEGER(info->i)[0] >= info->commonLength)
+            return ScalarLogical(TRUE);
+        ++INTEGER(info->i)[0];
     }
 
 
-    return ScalarLogical(0);
+    SEXP updaters = info->updaters,
+         mfor_rho = info->mfor_rho,
+         p = info->p;
+
+
+    for (SEXP u = updaters; u != R_NilValue; u = CDR(u))
+        defineVar(TAG(u), eval(CAR(u), mfor_rho), p);
+
+
+
+    return ScalarLogical(FALSE);
 }

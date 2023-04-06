@@ -7,6 +7,7 @@
 generator <- function (X, FUN, ...)
 {
     FUN <- match.fun(FUN)
+    lockEnvironment(environment(), bindings = TRUE)
     structure(function(i) FUN(X[[i]], ...), class = c("generator", "function"))
 }
 
@@ -28,6 +29,7 @@ generator <- function (X, FUN, ...)
         ),
         parent = parent.env(x.envir)
     )
+    lockEnvironment(environment(value), bindings = TRUE)
     as.list.generator(value)
 }
 

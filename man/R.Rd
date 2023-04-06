@@ -11,15 +11,19 @@ Start a new \R session with the specified options.
 }
 \usage{
 R(options = NULL, file = NULL, exprs = NULL, args = NULL,
-    chdir = FALSE, ..., name = "R")
+    chdir = FALSE, ..., name = windows.type, dir, evaluated,
+    simplify.brace = TRUE)
 
-Rcmd(options = NULL, command = "", args = NULL, ..., name = "R")
+Rcmd(options = NULL, command = "", args = NULL, ..., name = windows.type,
+    dir)
 
 Rscript(options = NULL, file = NULL, exprs = NULL, args = NULL,
-    chdir = FALSE, ..., name = "Rscript")
+    chdir = FALSE, ..., name = windows.type, dir, evaluated,
+    simplify.brace = TRUE)
 
 Rterm(options = NULL, file = NULL, exprs = NULL, args = NULL,
-    chdir = FALSE, ..., name = windows.type)
+    chdir = FALSE, ..., name = windows.type, dir, evaluated,
+    simplify.brace = TRUE)
 }
 \arguments{
   \item{options}{
@@ -81,6 +85,13 @@ the name or path of the \R executable to use. By default, they will use the
 \R executable found on \env{Path}. Specifying \code{name} can allow you to
 select a different version of \R to run, or select a version of \R tied
 to another application.
+  }
+  \item{dir}{
+character string; directory in which the \R executables are located.
+  }
+  \item{evaluated, simplify.brace}{
+Should \code{exprs} be evaluated or \code{\link{substitute}d}? Should
+\code{exprs} then be simplified if it is wrapped with braces?
   }
 %   \item{quiet}{
 % logical. Should the command-line / / terminal prompt and exit message be printed

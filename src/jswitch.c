@@ -36,8 +36,10 @@
 
 
 
-SEXP do_intequal(SEXP e1, SEXP e2)
+SEXP do_intequal(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    SEXP e1 = CADR(args),
+         e2 = CADDR(args);
     if (!isInteger(e1) || LENGTH(e1) != 1) {
         error("invalid 'e1'");
         return ScalarLogical(FALSE);
@@ -53,8 +55,16 @@ SEXP do_intequal(SEXP e1, SEXP e2)
 
 
 
-SEXP do_strequal(SEXP e1, SEXP e2)
+SEXP do_strequal(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    static SEXP equalsSymbol = NULL;
+    if (equalsSymbol == NULL) {
+        equalsSymbol = install("==");
+    }
+
+
+    SEXP e1 = CADR(args),
+         e2 = CADDR(args);
     if (!isString(e1) || LENGTH(e1) != 1) {
         error("invalid 'e1'");
         return ScalarLogical(FALSE);
@@ -76,7 +86,7 @@ SEXP do_strequal(SEXP e1, SEXP e2)
         return ScalarLogical(FALSE);
     else {
         SEXP expr = PROTECT(lang3(
-            findVarInFrame(R_BaseEnv, install("==")),
+            findVarInFrame(R_BaseEnv, equalsSymbol),
             ScalarString(e1),  // don't want to call method dispatch
             ScalarString(e2)
         ));
@@ -90,8 +100,18 @@ SEXP do_strequal(SEXP e1, SEXP e2)
 
 
 
-SEXP do_strcaseequal(SEXP e1, SEXP e2)
+SEXP do_strcaseequal(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    static SEXP equalsSymbol = NULL,
+                tolowerSymbol = NULL;
+    if (equalsSymbol == NULL) {
+        equalsSymbol = install("==");
+        tolowerSymbol = install("tolower");
+    }
+
+
+    SEXP e1 = CADR(args),
+         e2 = CADDR(args);
     if (!isString(e1) || LENGTH(e1) != 1) {
         error("invalid 'e1'");
         return ScalarLogical(FALSE);
@@ -113,15 +133,9 @@ SEXP do_strcaseequal(SEXP e1, SEXP e2)
         return ScalarLogical(FALSE);
     else {
         SEXP expr = PROTECT(lang3(
-            findVarInFrame(R_BaseEnv, install("==")),
-            lang2(
-                findVarInFrame(R_BaseEnv, install("tolower")),
-                ScalarString(e1)  // don't want to call method dispatch
-            ),
-            lang2(
-                findVarInFrame(R_BaseEnv, install("tolower")),
-                ScalarString(e2)
-            )
+            equalsSymbol,
+            lang2(tolowerSymbol, ScalarString(e1)), // don't want to call method dispatch
+            lang2(tolowerSymbol, ScalarString(e2))
         ));
         SEXP value = eval(expr, R_BaseEnv);
         UNPROTECT(1);
@@ -135,8 +149,8 @@ SEXP do_strcaseequal(SEXP e1, SEXP e2)
 
 #ifdef debug
     #define define_vars do {                                       \
-        cont = install("cont");                                    \
-        first_time = install("first_time");                        \
+        cont = contSymbol;                                         \
+        first_time = first_timeSymbol;                             \
     } while (0)
     #define R_print_and_error do {                                 \
         Rprintf("\n> expr\n");                                     \
@@ -164,7 +178,7 @@ SEXP do_strcaseequal(SEXP e1, SEXP e2)
     SEXP expr = R_NilValue;                                    \
     PROTECT_INDEX expr_index;                                  \
     PROTECT_WITH_INDEX(expr, &expr_index); nprotect++;         \
-    REPROTECT(expr = LCONS(lang1(getFromBase(install("break"))), expr), expr_index);\
+    REPROTECT(expr = LCONS(lang1(getFromBase(breakSymbol)), expr), expr_index);\
     SEXP dot, ccase, eexpr;                                    \
     int nprotect2,                                             \
         dots_indx = dots_length - 1,                           \
@@ -178,14 +192,14 @@ SEXP do_strcaseequal(SEXP e1, SEXP e2)
         if (last_dot) {                                        \
             last_dot = 0;                                      \
             if (TYPEOF(dot) == SYMSXP) {                       \
-                if (dot == install("default"))                 \
+                if (dot == defaultSymbol)                      \
                     continue;                                  \
                 else error("invalid case call");               \
             }                                                  \
             if (TYPEOF(dot) == LANGSXP &&                      \
                 length(dot) == 3L &&                           \
-                CAR(dot) == install(":=") &&                   \
-                CADR(dot) == install("default"))               \
+                CAR(dot) == walrusSymbol &&                    \
+                CADR(dot) == defaultSymbol)                    \
             {                                                  \
                 REPROTECT(expr = LCONS(CADDR(dot), expr), expr_index);\
                 continue;                                      \
@@ -202,7 +216,7 @@ SEXP do_strcaseequal(SEXP e1, SEXP e2)
             cont,                                              \
             ScalarLogical(TRUE)                                \
         )); nprotect2++;                                       \
-        if (CAR(dot) == install(":=")) {                       \
+        if (CAR(dot) == walrusSymbol) {                        \
             if (length(dot) != 3) {                            \
                 error("invalid case call");                    \
                 return R_NilValue;                             \
@@ -223,7 +237,7 @@ SEXP do_strcaseequal(SEXP e1, SEXP e2)
             error("invalid case call");                        \
             return R_NilValue;                                 \
         }                                                      \
-        if (CAR(ccase) == install("case") &&                   \
+        if (CAR(ccase) == caseSymbol &&                        \
             length(ccase) == 2)                                \
         {                                                      \
             ccase = PROTECT(lang3(equal, EXPR, CADR(ccase)));  \
@@ -237,9 +251,9 @@ SEXP do_strcaseequal(SEXP e1, SEXP e2)
             return R_NilValue;                                 \
         }                                                      \
         REPROTECT(expr = LCONS(lang3(                          \
-            getFromBase(install("if")),                        \
+            getFromBase(ifSymbol),                             \
             lang3(                                             \
-                getFromBase(install("||")),                    \
+                getFromBase(orSymbol),                         \
                 cont,                                          \
                 ccase                                          \
             ),                                                 \
@@ -253,16 +267,16 @@ SEXP do_strcaseequal(SEXP e1, SEXP e2)
         ScalarLogical(FALSE)                                   \
     ), expr), expr_index);                                     \
     REPROTECT(expr = LCONS(lang4(                              \
-        getFromBase(install("if")),                            \
+        getFromBase(ifSymbol),                                 \
         first_time,                                            \
         lang1(getFromBase(R_BraceSymbol)),                     \
         lang2(                                                 \
-            getFromBase(install("stop")),                      \
+            getFromBase(stopSymbol),                           \
             mkString("cannot use next within 'jswitch'")       \
         )                                                      \
     ), expr), expr_index);                                     \
     REPROTECT(expr = LCONS(getFromBase(R_BraceSymbol), expr), expr_index);\
-    REPROTECT(expr = lang2(getFromBase(install("repeat")), expr), expr_index);\
+    REPROTECT(expr = lang2(getFromBase(repeatSymbol), expr), expr_index);\
     R_print_and_error;                                         \
     eval(expr, parent_frame);
 
@@ -273,19 +287,19 @@ SEXP do_strcaseequal(SEXP e1, SEXP e2)
 #define jswitch_str do {                                       \
     EXPR = PROTECT(ScalarString(EXPR)); nprotect++;            \
     jswitch_beginning(strequal)                                \
-        else if (CAR(ccase) == install("icase") &&             \
+        else if (CAR(ccase) == icaseSymbol &&                  \
                  length(ccase) == 2)                           \
         {                                                      \
             ccase = PROTECT(lang3(strcaseequal, EXPR, CADR(ccase)));\
             nprotect2++;                                       \
         }                                                      \
-        else if (CAR(ccase) == install("recase") &&            \
+        else if (CAR(ccase) == recaseSymbol &&                 \
                  length(ccase) >= 2)                           \
         {                                                      \
             ccase = PROTECT(LCONS(EXPR, CDR(ccase))); nprotect2++;\
-            SET_TAG(ccase, install("x"));                      \
-            ccase = PROTECT(LCONS(getFromBase(install("grepl")), ccase)); nprotect2++;\
-            ccase = PROTECT(lang2(getFromBase(install("isTRUE")), ccase)); nprotect2++;\
+            SET_TAG(ccase, xSymbol);                           \
+            ccase = PROTECT(LCONS(getFromBase(greplSymbol), ccase)); nprotect2++;\
+            ccase = PROTECT(lang2(getFromBase(isTRUESymbol), ccase)); nprotect2++;\
         }                                                      \
     jswitch_end                                                \
 } while (0)
@@ -303,15 +317,65 @@ SEXP do_strcaseequal(SEXP e1, SEXP e2)
 
 SEXP do_jswitch(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    static SEXP contSymbol = NULL,
+#ifdef debug
+                first_timeSymbol = NULL,
+                setSymbol = NULL,
+#endif
+                breakSymbol = NULL,
+                defaultSymbol = NULL,
+                walrusSymbol = NULL,
+                caseSymbol = NULL,
+                ifSymbol = NULL,
+                orSymbol = NULL,
+                stopSymbol = NULL,
+                repeatSymbol = NULL,
+                icaseSymbol = NULL,
+                recaseSymbol = NULL,
+                xSymbol = NULL,
+                greplSymbol = NULL,
+                isTRUESymbol = NULL,
+                parent_frameSymbol = NULL,
+                intequalSymbol = NULL,
+                strequalSymbol = NULL,
+                strcaseequalSymbol = NULL,
+                assign_in_placeSymbol = NULL;
+    if (contSymbol == NULL) {
+        contSymbol = install("cont");
+#ifdef debug
+        first_timeSymbol = install("first_time");
+        setSymbol = install("<-");
+#endif
+        breakSymbol = install("break");
+        defaultSymbol = install("default");
+        walrusSymbol = install(":=");
+        caseSymbol = install("case");
+        ifSymbol = install("if");
+        orSymbol = install("||");
+        stopSymbol = install("stop");
+        repeatSymbol = install("repeat");
+        icaseSymbol = install("icase");
+        recaseSymbol = install("recase");
+        xSymbol = install("x");
+        greplSymbol = install("grepl");
+        isTRUESymbol = install("isTRUE");
+        parent_frameSymbol = install("parent.frame");
+        intequalSymbol = install("intequal");
+        strequalSymbol = install("strequal");
+        strcaseequalSymbol = install("strcaseequal");
+        assign_in_placeSymbol = install("assign.in.place");
+    }
+
+
     int nprotect = 0;
 
 
     SEXP parent_frame;
-    parent_frame = PROTECT(lang1(install("parent.frame"))); nprotect++;
+    parent_frame = PROTECT(lang1(parent_frameSymbol)); nprotect++;
     parent_frame = PROTECT(eval(parent_frame, rho)); nprotect++;
 
 
-    SEXP dots = findVarInFrame(rho, install("..."));
+    SEXP dots = findVarInFrame(rho, R_DotsSymbol);
     if (dots == R_UnboundValue) {
         error("something is wrong with 'jswitch'");
         UNPROTECT(nprotect);
@@ -349,15 +413,15 @@ SEXP do_jswitch(SEXP call, SEXP op, SEXP args, SEXP rho)
 
     SEXP assign_in_place, intequal, strequal, strcaseequal;
 #ifdef debug
-    assign_in_place = install("<-");
-    intequal = install("intequal");
-    strequal = install("strequal");
-    strcaseequal = install("strcaseequal");
+    assign_in_place = setSymbol;
+    intequal = intequalSymbol;
+    strequal = strequalSymbol;
+    strcaseequal = strcaseequalSymbol;
 #else
-    assign_in_place = PROTECT(eval(install("assign.in.place"), rho)); nprotect++;
-    intequal        = PROTECT(eval(install("intequal"       ), rho)); nprotect++;
-    strequal        = PROTECT(eval(install("strequal"       ), rho)); nprotect++;
-    strcaseequal    = PROTECT(eval(install("strcaseequal"   ), rho)); nprotect++;
+    assign_in_place = PROTECT(eval(assign_in_placeSymbol, rho)); nprotect++;
+    intequal        = PROTECT(eval(intequalSymbol       , rho)); nprotect++;
+    strequal        = PROTECT(eval(strequalSymbol       , rho)); nprotect++;
+    strcaseequal    = PROTECT(eval(strcaseequalSymbol   , rho)); nprotect++;
 #endif
 
 

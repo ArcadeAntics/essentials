@@ -1,6 +1,7 @@
 #include <R.h>
 #include <Rinternals.h>
 #include "defines.h"
+#include "translations.h"
 
 
 
@@ -73,98 +74,88 @@ Rbyte asRaw(SEXP x)
 
 
 
-// as.scalar.logical(x) :
-SEXP do_asscalarlogical(SEXP x)
+SEXP do_asscalarlogical(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    return ScalarLogical(asLogical(x));
+    return ScalarLogical(asLogical(CADR(args)));
 }
 
 
-// as.scalar.integer(x) :
-SEXP do_asscalarinteger(SEXP x)
+SEXP do_asscalarinteger(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    return ScalarInteger(asInteger2(x));
+    return ScalarInteger(asInteger2(CADR(args)));
 }
 
 
-// as.scalar.real(x)
-// as.scalar.double(x)
-// as.scalar.numeric(x) :
-SEXP do_asscalarreal(SEXP x)
+SEXP do_asscalardouble(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    return ScalarReal(asReal2(x));
+    return ScalarReal(asReal2(CADR(args)));
 }
 
 
-// as.scalar.complex(x) :
-SEXP do_asscalarcomplex(SEXP x)
+SEXP do_asscalarcomplex(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    return ScalarComplex(asComplex2(x));
+    return ScalarComplex(asComplex2(CADR(args)));
 }
 
 
-// as.scalar.string(x)
-// as.scalar.character(x) :
-SEXP do_asscalarstring(SEXP x)
+SEXP do_asscalarcharacter(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    return ScalarString(asChar2(x));
+    return ScalarString(asChar2(CADR(args)));
 }
 
 
-// as.scalar.raw(x) :
-SEXP do_asscalarraw(SEXP x)
+SEXP do_asscalarraw(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    return ScalarRaw(asRaw(x));
+    return ScalarRaw(asRaw(CADR(args)));
 }
 
 
-// as.scalar.number(x) :
-SEXP do_asscalarnumber(SEXP x, SEXP strict)
+SEXP do_asscalarnumber(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    switch(TYPEOF(x)) {
+    args = CDR(args);
+    switch(TYPEOF(CAR(args))) {
     case NILSXP:
     case LGLSXP:
     case INTSXP:
     case REALSXP:
     case RAWSXP:
-        return do_asscalarreal(x);
+        return ScalarReal(asReal2(CAR(args)));
     default:
-        if (asLogical(strict)) {
-            Rcomplex value = asComplex(x);
+        if (asLogical(CADR(args))) {
+            Rcomplex value = asComplex(CAR(args));
             if (cISNAN(value))
                 return ScalarReal(NA_REAL);
             else if (value.i == 0)
                 return ScalarReal(value.r);
             else return ScalarComplex(value);
         }
-        return do_asscalarcomplex(x);
+        return ScalarComplex(asComplex2(CAR(args)));
     }
 }
 
 
-// as.scalar(x, mode) :
-SEXP do_asscalar(SEXP x, SEXP mode)
+SEXP do_asscalar(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    if (!isString(mode) || xlength(mode) != 1) {
-        error("invalid 'mode' argument");
-        return R_NilValue;
-    }
-    int type = str2type(CHAR(STRING_ELT(mode, 0)));
+    args = CDR(args);
+    SEXP x = CAR(args); args = CDR(args);
+    SEXP mode = CAR(args); args = CDR(args);
+    if (TYPEOF(mode) != STRSXP || XLENGTH(mode) != 1)
+        error(_("invalid '%s' argument"), "mode");
+    SEXPTYPE type = str2type(CHAR(STRING_ELT(mode, 0)));
     if (type == ANYSXP) type = TYPEOF(x);
     switch(type) {
-    case LGLSXP: return do_asscalarlogical(x);
-    case INTSXP: return do_asscalarinteger(x);
-    case REALSXP: return do_asscalarreal(x);
-    case CPLXSXP: return do_asscalarcomplex(x);
-    case RAWSXP: return do_asscalarraw(x);
-    default: return do_asscalarstring(x);
+    case LGLSXP: return ScalarLogical(asLogical(x));
+    case INTSXP: return ScalarInteger(asInteger2(x));
+    case REALSXP: return ScalarReal(asReal2(x));
+    case CPLXSXP: return ScalarComplex(asComplex2(x));
+    case RAWSXP: return ScalarRaw(asRaw(x));
+    default: return ScalarString(asChar2(x));
     }
 }
 
 
-int isScalar(SEXP x)
+Rboolean isscalar(SEXP x, const char *mode)
 {
-    if (xlength(x) != 1) return 0;
     switch(TYPEOF(x)) {
     case LGLSXP:
     case INTSXP:
@@ -172,72 +163,69 @@ int isScalar(SEXP x)
     case CPLXSXP:
     case STRSXP:
     case RAWSXP:
-        return 1;
+        break;
     default:
-        return 0;
+        return FALSE;
     }
-}
 
 
-// is.scalar(x, mode) :
-SEXP do_isscalar(SEXP x, SEXP mode)
-{
-    SEXP a, value;
-    const char *type;
+    if (xlength(x) != 1) return FALSE;
 
 
-    if (!isString(mode) || xlength(mode) != 1) {
-        error("invalid 'mode' argument");
-        return R_NilValue;
-    }
-    type = CHAR(STRING_ELT(mode, 0));
-
-
-    PROTECT(value = allocVector(LGLSXP, 1));
-
-
-    if (!isScalar(x)) {
-        LOGICAL0(value)[0] = 0;
-    }
-    else if (streql(type, "any")) {
-        LOGICAL0(value)[0] = 1;
-    }
-    else if (streql(type, "numeric")) {
+    if (streql(mode, "any"));
+    else if (streql(mode, "numeric")) {
         switch(TYPEOF(x)) {
         case INTSXP:
         case REALSXP:
-            LOGICAL0(value)[0] = 1;
             break;
         default:
-            LOGICAL0(value)[0] = 0;
-            break;
+            return FALSE;
         }
     }
-    else if (streql(type, type2char(TYPEOF(x)))) {
-        LOGICAL0(value)[0] = 1;
-    }
-    else LOGICAL0(value)[0] = 0;
+    else if (streql(mode, type2char(TYPEOF(x))));
+    else return FALSE;
 
 
-    if (LOGICAL0(value)[0] && ATTRIB(x) != R_NilValue) {
-        for (a = ATTRIB(x); a != R_NilValue; a = CDR(a)) {
+    if (ATTRIB(x) != R_NilValue) {
+        for (SEXP a = ATTRIB(x); a != R_NilValue; a = CDR(a)) {
             if (TAG(a) != R_NamesSymbol) {
-                LOGICAL0(value)[0] = 0;
-                break;
+                return FALSE;
             }
         }
     }
-    UNPROTECT(1);
-    return value;
+
+
+    return TRUE;
+}
+
+
+SEXP do_isscalar(SEXP call, SEXP op, SEXP args, SEXP rho)
+{
+    args = CDR(args);
+    SEXP x = CAR(args); args = CDR(args);
+    SEXP mode = CAR(args); args = CDR(args);
+
+
+    if (TYPEOF(mode) != STRSXP || XLENGTH(mode) != 1)
+        error(_("invalid '%s' argument"), "mode");
+
+
+    return ScalarLogical(isscalar(x, CHAR(STRING_ELT(mode, 0))));
 }
 
 
 
 
 
-SEXP do_as_numbers(SEXP x, SEXP strict)
+SEXP do_asnumbers(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    args = CDR(args);
+    SEXP x = CAR(args); args = CDR(args);
+    SEXP strict = CAR(args); args = CDR(args);
+
+
     SEXP value;
+
 
     switch(TYPEOF(x)) {
     case LGLSXP:
@@ -275,8 +263,9 @@ SEXP do_as_numbers(SEXP x, SEXP strict)
             }
         }
         if (coerce) {
+            value = coerceVector(value, REALSXP);
             UNPROTECT(1);
-            return coerceVector(value, REALSXP);
+            return value;
         }
     }
 

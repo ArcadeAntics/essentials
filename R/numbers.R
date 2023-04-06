@@ -1,12 +1,17 @@
+library(methods)
+
+
 methods::setClassUnion(
     name = "numbers",
-    members = c("numeric", "complex")
+    members = list(`attr<-`("numeric", "package", "methods"),
+                   `attr<-`("complex", "package", "methods"))
 )
 
 
+coerce <- methods::coerce
 methods::setMethod(
-    f = methods::coerce,
-    signature = c(from = "ANY", to = "numbers"),
+    f = coerce,
+    signature = c(from = `attr<-`("ANY", "package", "methods"), to = "numbers"),
     definition = function (from, to, strict = TRUE)
 {
     value <- as.numbers(from)
@@ -14,6 +19,7 @@ methods::setMethod(
         attributes(value) <- NULL
     value
 })
+rm(coerce)
 
 
 
@@ -28,7 +34,7 @@ UseMethod("as.numbers")
 
 
 as.numbers.default <- function (x, strict = TRUE, ...)
-.Call(C_as.numbers, if (missing(x)) NULL else x, strict)
+.External2(C_asnumbers, if (missing(x)) NULL else x, strict)
 
 
 is.numbers <- function (x)

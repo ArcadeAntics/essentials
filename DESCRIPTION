@@ -1,12 +1,12 @@
 Package: essentials
-Version: 0.3.0.10
+Version: 0.3.0.13
 License: MIT + file LICENSE
 Title: Essential Functions not Included in Base R
 Description: Functions for converting objects to scalars (vectors of length 1) 
     and a more inclusive definition of data that can be interpreted as numbers 
     (numeric and complex alike).
-Author: Andrew Simmons
-Maintainer: Andrew Simmons <akwsimmo@gmail.com>
+Author: Iris Simmons
+Maintainer: Iris Simmons <ikwsimmo@gmail.com>
 Imports: graphics, grDevices, methods, utils, this.path
 Suggests: tools
 Enhances: tcltk

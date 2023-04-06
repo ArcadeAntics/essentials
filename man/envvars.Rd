@@ -46,7 +46,7 @@ list with the previous values of the environment variables changed (returned
 invisibly).
 }
 \seealso{
-\code{\link[base:environment variables]{Environment Variables}}
+\code{\link[base:EnvVar]{Environment Variables}}
 }
 %\examples{
 %# this example runs incredibly weird using 'example', best

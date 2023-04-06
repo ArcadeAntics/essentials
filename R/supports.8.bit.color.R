@@ -1,4 +1,4 @@
-supports.8.bit.color <- evalq(envir = new.env(), function ()
+supports.8.bit.color <- function ()
 {
     # if output is being diverted, there is no support for 8 bit color
     if (sink.number() || sink.number("message") != 2L)
@@ -23,20 +23,19 @@ supports.8.bit.color <- evalq(envir = new.env(), function ()
 
         # .rs.api.getConsoleHasColor is not available on
         # older versions of RStudio (for example, 1.0.143) :(
-        if (exists(".rs.api.getConsoleHasColor", "tools:rstudio", inherits = FALSE))
+        return(if (exists(".rs.api.getConsoleHasColor", "tools:rstudio", inherits = FALSE))
             get(".rs.api.getConsoleHasColor", "tools:rstudio", inherits = FALSE)()
-        else FALSE
+        else FALSE)
     }
 
 
-    # if we have already evaluated the next part,
-    # don't do it again (because it takes a while to run)
-    if (is.null(.__supports.8.bit.color__)) {
-
-
+    .supports.8.bit.color
+}
+evalq(envir = environment(supports.8.bit.color) <- new.env(), {
+    delayedAssign(".supports.8.bit.color", {
         # if we are on Windows 10, build (at least) 16257,
         # there is support for 8 bit color (after we turn it on)
-        .__supports.8.bit.color__ <<- if (.Platform$OS.type == "windows") {
+        if (.Platform$OS.type == "windows") {
             if (startsWith((temp <- Sys.info())[["release"]], "10 ") &&
                 grepl(pattern <- "^build ([0123456789]+)$", temp <- temp[["version"]]) &&
                 as.integer(sub(pattern, "\\1", temp)) >= 16257) {
@@ -54,11 +53,7 @@ supports.8.bit.color <- evalq(envir = new.env(), function ()
         # which will tell us how many colors are supported (hopefully 256)
         else max(0L, suppressWarnings(as.integer(system("tput colors 2",
             intern = TRUE))), na.rm = TRUE) >= 256L
-    }
-    .__supports.8.bit.color__
-})
-evalq(envir = environment(supports.8.bit.color), {
-    .__supports.8.bit.color__ <- NULL
+    })
 })
 
 

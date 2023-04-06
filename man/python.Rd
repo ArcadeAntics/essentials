@@ -10,7 +10,7 @@ Make sure you have \href{https://www.python.org/downloads/}{python} installed.
 }
 \usage{
 python(options = NULL, command = NULL, module = NULL, file = NULL,
-    args = NULL, chdir = FALSE, ..., name = "python")
+    args = NULL, chdir = FALSE, ..., name = windows.type, dir)
 }
 \arguments{
   \item{options}{
@@ -55,6 +55,9 @@ Python executable found on \env{Path}. Specifying \code{name} can allow you to
 select a different version of Python to run, or select a version of Python tied
 to another application (for example: ArcGIS comes with a Python executable and
 the ArcPy module).
+  }
+  \item{dir}{
+character string; directory in which the Python executable is located.
   }
 %   \item{quiet}{
 % logical. Should the command-line / / terminal prompt and exit message be printed

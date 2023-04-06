@@ -16,6 +16,30 @@
 
 SEXP dowhile(SEXP call, SEXP op, SEXP args, SEXP rho, int until)
 {
+    static SEXP exprSymbol = NULL,
+                condSymbol = NULL,
+                assign_in_placeSymbol = NULL,
+                parent_frameSymbol = NULL,
+                doSymbol = NULL,
+                equalsSymbol = NULL,
+                parenthesisSymbol = NULL,
+                repeatSymbol = NULL,
+                ifSymbol = NULL,
+                breakSymbol = NULL;
+    if (exprSymbol == NULL) {
+        exprSymbol = install("expr");
+        condSymbol = install("cond");
+        assign_in_placeSymbol = install("assign.in.place");
+        parent_frameSymbol = install("parent.frame");
+        doSymbol = install("do");
+        equalsSymbol = install("=");
+        parenthesisSymbol = install("(");
+        repeatSymbol = install("repeat");
+        ifSymbol = install("if");
+        breakSymbol = install("break");
+    }
+
+
     int nprotect = 0;
 
 
@@ -23,23 +47,23 @@ SEXP dowhile(SEXP call, SEXP op, SEXP args, SEXP rho, int until)
        cond is an (unevaluated) expression, the condition of the do while/until loop */
 
 
-    SEXP expr = findVarInFrame(rho, install("expr"));
+    SEXP expr = findVarInFrame(rho, exprSymbol);
     if (expr == R_UnboundValue)
         error("something is wrong with 'dowhile'");
     expr = PREXPR(expr);
 
 
-    SEXP cond = findVarInFrame(rho, install("cond"));
+    SEXP cond = findVarInFrame(rho, condSymbol);
     if (cond == R_UnboundValue)
         error("something is wrong with 'dowhile'");
     cond = PREXPR(cond);
 
 
-    SEXP assign_in_place = PROTECT(eval(install("assign.in.place"), rho)); nprotect++;
+    SEXP assign_in_place = PROTECT(eval(assign_in_placeSymbol, rho)); nprotect++;
 
 
     SEXP parent_frame;
-    parent_frame = PROTECT(lang1(install("parent.frame"))); nprotect++;
+    parent_frame = PROTECT(lang1(parent_frameSymbol)); nprotect++;
     parent_frame = PROTECT(eval(parent_frame, rho)); nprotect++;
 
 
@@ -61,7 +85,7 @@ SEXP dowhile(SEXP call, SEXP op, SEXP args, SEXP rho, int until)
     /* we're looking for an expression of the form
        do ( expr )
        do ( { expr1 ; expr2 } ) */
-    if (TYPEOF(expr) != LANGSXP || CAR(expr) != install("do"))
+    if (TYPEOF(expr) != LANGSXP || CAR(expr) != doSymbol)
         error("invalid 'expr', must be wrapped with do()\n  instead of: expr %s (cond)\n  try:        do(expr) %s (cond)",
             fun, fun);
     else if (xlength(expr) != 2) {
@@ -86,7 +110,7 @@ SEXP dowhile(SEXP call, SEXP op, SEXP args, SEXP rho, int until)
        meant, so might as well fix it quietly */
     else if (!isNull(TAG(CDR(expr)))) {
         expr = PROTECT(lang3(
-            install("="),
+            equalsSymbol,
             TAG(CDR(expr)),
             CADR(expr)
         )); nprotect++;
@@ -106,7 +130,7 @@ SEXP dowhile(SEXP call, SEXP op, SEXP args, SEXP rho, int until)
     /* we're looking for an expression of the form
        ( expr )
        ( { expr1 ; expr2 } ) */
-    if (TYPEOF(cond) != LANGSXP || CAR(cond) != install("("))
+    if (TYPEOF(cond) != LANGSXP || CAR(cond) != parenthesisSymbol)
         error("invalid 'cond', must be wrapped with parenthesis\n  instead of: do(expr) %s cond\n  try:        do(expr) %s (cond)",
             fun, fun);
     else if (xlength(cond) != 2)
@@ -153,7 +177,7 @@ SEXP dowhile(SEXP call, SEXP op, SEXP args, SEXP rho, int until)
        }) %while% (var = expr)
 
        works perfectly fine, i want it to parse identically */
-    if (TYPEOF(cond) == LANGSXP && CAR(cond) == install("="))
+    if (TYPEOF(cond) == LANGSXP && CAR(cond) == equalsSymbol)
         error("invalid 'cond', unexpected '='\n  if you intended to use '=' within 'cond' like:\n\n  do(expr) %s (var = cond)\n\n  use '<-' instead or wrap with parenthesis like:\n\n  do(expr) %s (var <- cond)\n  do(expr) %s ((var = cond))",
             fun, fun, fun);
 
@@ -220,11 +244,11 @@ SEXP dowhile(SEXP call, SEXP op, SEXP args, SEXP rho, int until)
        }
      */
     PROTECT(expr = lang2(
-        getFromBase(install("repeat")),
+        getFromBase(repeatSymbol),
         lang3(
             getFromBase(R_BraceSymbol),
             lang4(
- /* if   */     getFromBase(install("if")),
+ /* if   */     getFromBase(ifSymbol),
  /* cond */     skip,
  /* expr */     lang3(
                     assign_in_place,
@@ -232,9 +256,9 @@ SEXP dowhile(SEXP call, SEXP op, SEXP args, SEXP rho, int until)
                     ScalarLogical(FALSE)
                 ),
  /* alt.expr */ until ? lang3(
-                    getFromBase(install("if")),
+                    getFromBase(ifSymbol),
                     cond,
-                    lang1(getFromBase(install("break")))) :
+                    lang1(getFromBase(breakSymbol))) :
 
 
                 /* we could use
@@ -249,10 +273,10 @@ SEXP dowhile(SEXP call, SEXP op, SEXP args, SEXP rho, int until)
                    * a raw byte (since '!' is defined differently for that class)
                    * any other classed objects (might have a method for '!') */
                 lang4(
-                    getFromBase(install("if")),
+                    getFromBase(ifSymbol),
                     cond,
                     lang1(getFromBase(R_BraceSymbol)),
-         /* else */ lang1(getFromBase(install("break")))
+         /* else */ lang1(getFromBase(breakSymbol))
                 )
             ),
             expr

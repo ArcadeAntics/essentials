@@ -3,6 +3,7 @@
 
 
 #include "defines.h"
+#include "translations.h"
 
 
 
@@ -237,34 +238,58 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
 
 
 
+extern SEXP asenv(SEXP, SEXP, SEXP);
+
+
 SEXP do_doexpr(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    args = CDR(args);
+
+
+    static SEXP exprSymbol = NULL,
+                parent_frameSymbol = NULL,
+                pairlistSymbol = NULL,
+                withVisibleSymbol = NULL,
+                asteriskSymbol = NULL,
+                asterisk2Symbol = NULL;
+    if (exprSymbol == NULL) {
+        exprSymbol = install("expr");
+        parent_frameSymbol = install("parent.frame");
+        pairlistSymbol = install("pairlist");
+        withVisibleSymbol = install("withVisible");
+        asteriskSymbol = install("*");
+        asterisk2Symbol = install("**");
+    }
+
+
     int nprotect = 0;
 
 
-    SEXP sexpr = findVarInFrame(rho, install("expr"));
+    SEXP sexpr = findVarInFrame(rho, exprSymbol);
     if (sexpr == R_UnboundValue)
-        error("could not find 'expr'; should never happen, please report!");
+        error(_("object '%s' not found"), "expr");
+    if (sexpr == R_MissingArg)
+        error(_("argument \"%s\" is missing, with no default"), "expr");
+    if (TYPEOF(sexpr) != PROMSXP)
+        error(_("invalid '%s' value"), "expr");
     sexpr = PREXPR(sexpr);
     if (sexpr == R_MissingArg)
-        error("argument \"expr\" is missing, with no default");
+        error(_("argument \"%s\" is missing, with no default"), "expr");
 
 
     /* environment in which we should evaluate the entire expression */
-    SEXP sexpr_rho = CADR(args);
-    if (TYPEOF(sexpr_rho) != ENVSXP)
-        error("invalid 'sexpr_rho', must be an environment");
+    SEXP env = asenv(CAR(args), CADR(args), rho);
 
 
     if (TYPEOF(sexpr) != LANGSXP) {
-        SEXP value = eval(sexpr, sexpr_rho);
+        SEXP value = eval(sexpr, env);
         UNPROTECT(nprotect);
         return value;
     }
 
 
     /* environment in which we should evaluate the arguments to unpack */
-    SEXP args_rho = PROTECT(eval(lang1(install("parent.frame")), rho)); nprotect++;
+    SEXP args_rho = PROTECT(eval(lang1(parent_frameSymbol), rho)); nprotect++;
 
 
     SEXP value;
@@ -287,8 +312,8 @@ SEXP do_doexpr(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 
     R_xlen_t len;
-    SEXP pairlist    = findVarInFrame(R_BaseEnv, install("pairlist"   ));
-    SEXP withVisible = findVarInFrame(R_BaseEnv, install("withVisible"));
+    SEXP pairlist    = findVarInFrame(R_BaseEnv, pairlistSymbol);
+    SEXP withVisible = findVarInFrame(R_BaseEnv, withVisibleSymbol);
 
 
     for (int n = length(sargs) - 1; n >= 0; n--) {
@@ -300,7 +325,7 @@ SEXP do_doexpr(SEXP call, SEXP op, SEXP args, SEXP rho)
             if (!isNull(tag))
                 SET_TAG(expr, tag);
         }
-        else if (TYPEOF(sarg) == LANGSXP && CAR(sarg) == install("*") && length(sarg) == 2) {
+        else if (TYPEOF(sarg) == LANGSXP && CAR(sarg) == asteriskSymbol && length(sarg) == 2) {
             if (!isNull(tag))
                 error("do not name arguments which are being unpacked");
             sarg = CADR(sarg);
@@ -316,7 +341,7 @@ SEXP do_doexpr(SEXP call, SEXP op, SEXP args, SEXP rho)
                 UNPROTECT(1);
             }
         }
-        else if (TYPEOF(sarg) == LANGSXP && CAR(sarg) == install("**") && length(sarg) == 2) {
+        else if (TYPEOF(sarg) == LANGSXP && CAR(sarg) == asterisk2Symbol && length(sarg) == 2) {
             if (!isNull(tag))
                 error("do not name arguments which are being unpacked");
             sarg = CADR(sarg);
@@ -338,10 +363,10 @@ SEXP do_doexpr(SEXP call, SEXP op, SEXP args, SEXP rho)
                 SET_TAG(expr, tag);
         }
     }
-    // REPROTECT(expr = LCONS(eval(CAR(sexpr), sexpr_rho), expr), indx);
+    // REPROTECT(expr = LCONS(eval(CAR(sexpr), env), expr), indx);
     REPROTECT(expr = LCONS(CAR(sexpr), expr), indx);
     REPROTECT(expr = lang2(withVisible, expr), indx);
-    value = eval(expr, sexpr_rho);
+    value = eval(expr, env);
     set_R_Visible(LOGICAL_ELT(VECTOR_ELT(value, 1), 0));
     UNPROTECT(nprotect);
     return VECTOR_ELT(value, 0);

@@ -3,6 +3,8 @@
 \alias{\%rowin\%}
 \alias{row.match}
 \alias{row.match,data.frame,data.frame-method}
+\alias{row.match,data.frame,ANY-method}
+\alias{row.match,ANY,data.frame-method}
 \alias{\%row.in\%}
 \alias{row.match.data.frame}
 \title{
@@ -24,6 +26,10 @@ x \%rowin\% table
 row.match(x, table, nomatch = NA_integer_, incomparables = NULL)
 
 \S4method{row.match}{data.frame,data.frame}(x, table, nomatch = NA_integer_, incomparables = NULL)
+
+\S4method{row.match}{data.frame,ANY}(x, table, nomatch = NA_integer_, incomparables = NULL)
+
+\S4method{row.match}{ANY,data.frame}(x, table, nomatch = NA_integer_, incomparables = NULL)
 
 x \%row.in\% table
 

@@ -1,6 +1,7 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
+#include "translations.h"
 
 
 
@@ -17,17 +18,23 @@
 
 
 // call s1:s2
-SEXP do_colon(SEXP s1, SEXP s2, SEXP rho)
+SEXP colon(SEXP s1, SEXP s2, SEXP rho)
 {
+    static SEXP colonSymbol = NULL;
+    if (colonSymbol == NULL) {
+        colonSymbol = install(":");
+    }
+
+
     PROTECT(s1);
     PROTECT(s2);
     SEXP expr = PROTECT(lang3(
-        findVarInFrame(R_BaseEnv, install(":")),
+        findVarInFrame(R_BaseEnv, colonSymbol),
         s1,
         s2
     ));
     SEXP value = eval(expr, rho);
-    UNPROTECT(4);
+    UNPROTECT(3);
     return value;
 }
 
@@ -62,8 +69,24 @@ SEXP asMaybeInteger(double r, Rboolean missing, SEXP x)
 
 
 // seq2(from, to, by, length.out, along.with, endpoint, ...)
-SEXP do_seq(SEXP call, SEXP op, SEXP args, SEXP rho)
+SEXP do_seq2(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    static SEXP fromSymbol = NULL,
+                toSymbol = NULL,
+                bySymbol = NULL,
+                length_outSymbol = NULL,
+                along_withSymbol = NULL,
+                endpointSymbol = NULL;
+    if (fromSymbol == NULL) {
+        fromSymbol = install("from");
+        toSymbol = install("to");
+        bySymbol = install("by");
+        length_outSymbol = install("length.out");
+        along_withSymbol = install("along.with");
+        endpointSymbol = install("endpoint");
+    }
+
+
     int nprotect = 0;
 
 
@@ -72,7 +95,7 @@ SEXP do_seq(SEXP call, SEXP op, SEXP args, SEXP rho)
         missing_along_with, endpoint;
 
 
-    from = findVarInFrame(rho, install("from"));
+    from = findVarInFrame(rho, fromSymbol);
     if (from == R_UnboundValue)
         SMTH_WRONG_W_SEQ2("from");
     if (!(missing_from = (from == R_MissingArg))) {
@@ -80,7 +103,7 @@ SEXP do_seq(SEXP call, SEXP op, SEXP args, SEXP rho)
     }
 
 
-    to = findVarInFrame(rho, install("to"));
+    to = findVarInFrame(rho, toSymbol);
     if (to == R_UnboundValue)
         SMTH_WRONG_W_SEQ2("to");
     if (!(missing_to = (to == R_MissingArg))) {
@@ -88,7 +111,7 @@ SEXP do_seq(SEXP call, SEXP op, SEXP args, SEXP rho)
     }
 
 
-    by = findVarInFrame(rho, install("by"));
+    by = findVarInFrame(rho, bySymbol);
     if (by == R_UnboundValue)
         SMTH_WRONG_W_SEQ2("by");
     if (!(missing_by = (by == R_MissingArg))) {
@@ -96,7 +119,7 @@ SEXP do_seq(SEXP call, SEXP op, SEXP args, SEXP rho)
     }
 
 
-    length_out = findVarInFrame(rho, install("length.out"));
+    length_out = findVarInFrame(rho, length_outSymbol);
     if (length_out == R_UnboundValue)
         SMTH_WRONG_W_SEQ2("length.out");
     if (!(missing_length_out = (length_out == R_MissingArg))) {
@@ -104,7 +127,7 @@ SEXP do_seq(SEXP call, SEXP op, SEXP args, SEXP rho)
     }
 
 
-    along_with = findVarInFrame(rho, install("along.with"));
+    along_with = findVarInFrame(rho, along_withSymbol);
     if (along_with == R_UnboundValue)
         SMTH_WRONG_W_SEQ2("along.with");
     if (!(missing_along_with = (along_with == R_MissingArg))) {
@@ -112,15 +135,15 @@ SEXP do_seq(SEXP call, SEXP op, SEXP args, SEXP rho)
     }
 
 
-    R_endpoint = findVarInFrame(rho, install("endpoint"));
+    R_endpoint = findVarInFrame(rho, endpointSymbol);
     if (R_endpoint == R_UnboundValue)
         SMTH_WRONG_W_SEQ2("endpoint");
     if (R_endpoint == R_MissingArg) {
-        endpoint = 1;
+        endpoint = TRUE;
     } else {
         endpoint = asLogical(eval(R_endpoint, rho));
         if (endpoint == NA_LOGICAL)
-            error("invalid 'endpoint' argument");
+            error(_("invalid '%s' argument"), "endpoint");
     }
 
 
@@ -152,14 +175,14 @@ SEXP do_seq(SEXP call, SEXP op, SEXP args, SEXP rho)
             if (!R_FINITE(rfrom))
                 error("'from' must be a finite number");
             if (rfrom >= 1)
-                my_return(do_colon(ScalarReal(1.0), ScalarReal(rfrom), rho));
+                my_return(colon(ScalarReal(1.0), ScalarReal(rfrom), rho));
             else my_return(allocVector(INTSXP, 0));
         }
 
 
         /* do something like seq_along() */
         else if (lf >= 1)
-            my_return(do_colon(ScalarReal(1.0), ScalarReal(lf), rho));
+            my_return(colon(ScalarReal(1.0), ScalarReal(lf), rho));
         else my_return(allocVector(INTSXP, 0));
     }
 
@@ -175,7 +198,7 @@ SEXP do_seq(SEXP call, SEXP op, SEXP args, SEXP rho)
         lout = xlength(along_with);
         if (One) {
             if (lout >= 1)
-                my_return(do_colon(ScalarReal(1.0), ScalarReal(lout), rho));
+                my_return(colon(ScalarReal(1.0), ScalarReal(lout), rho));
             else my_return(allocVector(INTSXP, 0));
         }
     }
@@ -231,7 +254,7 @@ SEXP do_seq(SEXP call, SEXP op, SEXP args, SEXP rho)
 
             /* if (user wants endpoint), just do from:to as normal*/
             if (endpoint)
-                my_return(do_colon(ScalarReal(rfrom), ScalarReal(rto), rho));
+                my_return(colon(ScalarReal(rfrom), ScalarReal(rto), rho));
 
 
             /* the user does not want the endpoint */
@@ -251,7 +274,7 @@ SEXP do_seq(SEXP call, SEXP op, SEXP args, SEXP rho)
                 if (rfrom == rto || increasing != (rto > rfrom))
                     my_return(asMaybeInteger(rfrom, missing_from, from));
             }
-            my_return(do_colon(ScalarReal(rfrom), ScalarReal(rto), rho));
+            my_return(colon(ScalarReal(rfrom), ScalarReal(rto), rho));
         }
 
 
@@ -359,7 +382,7 @@ SEXP do_seq(SEXP call, SEXP op, SEXP args, SEXP rho)
     else if (lout < 1)
         my_return(allocVector(INTSXP, 0));
     else if (One)
-        my_return(do_colon(ScalarReal(1.0), ScalarReal((double) lout), rho));
+        my_return(colon(ScalarReal(1.0), ScalarReal((double) lout), rho));
     else if (missing_by) {
         double rfrom, rto, rby = 0, temp;
         if (missing_to) {

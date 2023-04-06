@@ -155,18 +155,21 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
 
 
 
-.R <- function (options, file, exprs, args, chdir, ..., name, windows.type, extra)
+.R <- function (options, file, exprs, args, chdir, ..., name, windows.type, extra,
+    width.cutoff = 60L, deparseCtrl = c("keepInteger", "showAttributes", "useSource", "keepNA", "digits17"))
 {
     if (is.character(file) || is.null(file)) {
-        if (length(file) == 0) file <- NULL
+        if (length(file) <= 0L)
+            file <- NULL
         else {
-            if (length(file) > 1) {
+            if (length(file) > 1L) {
                 warning("first element used of 'file' argument")
                 file <- file[[1L]]
             }
             file <- path.expand(file)
             if (grepl("^(ftp|ftps|http|https|file)://", file)) {
-                if (chdir) warning("'chdir = TRUE' makes no sense for a URL")
+                if (chdir)
+                    warning("'chdir = TRUE' makes no sense for a URL")
             }
             else if (chdir && (path <- dirname(file)) != ".") {
                 # if 'file' is a relative path, we change it to only the
@@ -197,8 +200,15 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
     else stop("invalid 'file' argument")
 
 
-    if (is.character(exprs) || is.null(exprs)) {
-        if (length(exprs) == 0) exprs <- NULL
+    if (is.null(exprs) || is.character(exprs)) {
+        if (length(exprs) <= 0L)
+            exprs <- NULL
+        else exprs <- paste("-e", shEncode(exprs, windows.type = windows.type))
+    }
+    else if (is.language(exprs)) {
+        exprs <- this.path:::code2character(exprs, width.cutoff, deparseCtrl)
+        if (length(exprs) <= 0L)
+            exprs <- NULL
         else exprs <- paste("-e", shEncode(exprs, windows.type = windows.type))
     }
     else stop("invalid 'exprs' argument")
@@ -225,7 +235,8 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
 
 
 R <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
-    chdir = FALSE, ..., name = windows.type, dir)
+    chdir = FALSE, ..., name = windows.type, dir,
+    evaluated, simplify.brace = TRUE)
 {
     windows.type <- if (os.windows) "Rterm.exe" else "R"
     if (!missing(name)) {
@@ -237,6 +248,7 @@ R <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
     }
     else if (!missing(dir))
         name <- shEncode(paste0(dir, "/", windows.type))
+    exprs <- this.path:::maybeQuote(exprs, evaluated, simplify.brace)
     .R(options = options, file = file, exprs = exprs, args = args,
         chdir = chdir, ..., name = name, windows.type = windows.type,
         extra = TRUE)
@@ -285,7 +297,8 @@ Rgui <- function (options = NULL, args = NULL, ..., name = "Rgui.exe", dir)
 
 
 Rscript <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
-    chdir = FALSE, ..., name = windows.type, dir)
+    chdir = FALSE, ..., name = windows.type, dir,
+    evaluated, simplify.brace = TRUE)
 {
     windows.type <- if (os.windows) "Rscript.exe" else "Rscript"
     if (!missing(name)) {
@@ -297,6 +310,7 @@ Rscript <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
     }
     else if (!missing(dir))
         name <- shEncode(paste0(dir, "/", windows.type))
+    exprs <- this.path:::maybeQuote(exprs, evaluated, simplify.brace)
     .R(options = options, file = file, exprs = exprs, args = args,
         chdir = chdir, ..., name = name, windows.type = windows.type,
         extra = FALSE)
@@ -304,7 +318,8 @@ Rscript <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
 
 
 Rterm <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
-    chdir = FALSE, ..., name = windows.type, dir)
+    chdir = FALSE, ..., name = windows.type, dir,
+    evaluated, simplify.brace = TRUE)
 {
     windows.type <- if (os.windows) "Rterm.exe" else "R"
     if (!missing(name)) {
@@ -316,6 +331,7 @@ Rterm <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
     }
     else if (!missing(dir))
         name <- shEncode(paste0(dir, "/", windows.type))
+    exprs <- this.path:::maybeQuote(exprs, evaluated, simplify.brace)
     .R(options = options, file = file, exprs = exprs, args = args,
         chdir = chdir, ..., name = name, windows.type = windows.type,
         extra = TRUE)

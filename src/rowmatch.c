@@ -74,7 +74,7 @@ SEXP match_transform(SEXP x, SEXP rho)
 }
 
 
-int match_type(SEXP x, SEXP table)
+SEXPTYPE match_type(SEXP x, SEXP table)
 {
     /*
      * determine the common type of 'x' and 'table'
@@ -87,15 +87,13 @@ int match_type(SEXP x, SEXP table)
 }
 
 
-SEXP do_match_type(SEXP x, SEXP table)
+SEXP do_matchtype(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
     /*
      * match_type(x, table) but at the R level,
      * for use in 'rowmatch' at the R level
      */
-
-
-    return ScalarString(type2str(match_type(x, table)));
+    return ScalarString(type2str(match_type(CADR(args), CADDR(args))));
 }
 
 
@@ -266,8 +264,8 @@ SEXP do_rowmatchdataframe(SEXP call, SEXP op, SEXP args, SEXP rho)
      *
      *     is incomparables not NULL?
      */
-    int i, nrx, nrtable, nrincomparables = 0, nmatch, fix_xi, fix_ti, nprotect = 0,
-        has_incomparables;
+    int i, nrx, nrtable, nrincomparables = 0, nmatch, fix_xi, fix_ti,
+        nprotect = 0, has_incomparables;
 
 
     /* when 'x' is NULL, simply return integer(0) */

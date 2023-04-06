@@ -2,6 +2,7 @@
 #include <Rinternals.h>
 #include <Rmath.h>
 #include "defines.h"
+#include "translations.h"
 
 
 
@@ -49,9 +50,9 @@ SEXP do_phypot(SEXP call, SEXP op, SEXP args, SEXP rho)
     na_rm = asLogical(CAR(args));
 
 
-    SEXP dots = findVarInFrame(rho, install("..."));
+    SEXP dots = findVarInFrame(rho, R_DotsSymbol);
     if (dots == R_UnboundValue)
-        error("could not find the ... list; should never happen, please report!");
+        error(_("object '%s' not found"), "...");
 
 
     int dots_length = dotsLength(dots);
@@ -91,7 +92,8 @@ SEXP do_phypot(SEXP call, SEXP op, SEXP args, SEXP rho)
     }
 
 
-    eval(R_NilValue, R_BaseEnv);  /* in eval(x, rho), argument might set R_Visible to FALSE, change it back to TRUE */
+    /* in eval(x, rho), argument might set R_Visible to FALSE, change it back to TRUE */
+    eval(R_NilValue, R_BaseEnv);
 
 
     if (len == 0) {
@@ -322,9 +324,9 @@ SEXP do_hypot(SEXP call, SEXP op, SEXP args, SEXP rho)
     na_rm = asLogical(CAR(args));
 
 
-    SEXP dots = findVarInFrame(rho, install("..."));
+    SEXP dots = findVarInFrame(rho, R_DotsSymbol);
     if (dots == R_UnboundValue)
-        error("could not find the ... list; should never happen, please report!");
+        error(_("object '%s' not found"), "...");
 
 
     int dots_length = dotsLength(dots);
@@ -442,8 +444,21 @@ SEXP do_hypot(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 
 
-SEXP do_IDW(SEXP x0, SEXP u0, SEXP x, SEXP p)
+SEXP do_idw(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
+    static SEXP meanSymbol = NULL;
+    if (meanSymbol == NULL) {
+        meanSymbol = install("mean");
+    }
+
+
+    args = CDR(args);
+    SEXP x0 = CAR(args); args = CDR(args);
+    SEXP u0 = CAR(args); args = CDR(args);
+    SEXP x = CAR(args); args = CDR(args);
+    SEXP p = CAR(args); args = CDR(args);
+
+
     test4NumericArgument(x0);
     test4NumericArgument(u0);
     test4NumericArgument(x);
@@ -451,7 +466,7 @@ SEXP do_IDW(SEXP x0, SEXP u0, SEXP x, SEXP p)
     double pp = asReal(p);
 
     if (xlength(p) > 1)
-        warning("first element used of '%s' argument", "p");
+        warning(_("first element used of '%s' argument"), "p");
 
     if (ISNAN(pp) || pp <= 0)
         error("'%s' must be positive", "p");
@@ -500,10 +515,10 @@ SEXP do_IDW(SEXP x0, SEXP u0, SEXP x, SEXP p)
     x  = PROTECT(coerceVector(x , REALSXP));
     double *rx0 = REAL(x0), *ru0 = REAL(u0), *rx = REAL(x), tmp_x[nc_x], tmp_x0[nc_x0];
 
-    SEXP tmp = eval(lang2(install("mean"), u0), R_GlobalEnv), tmp2;
+    SEXP tmp = eval(lang2(meanSymbol, u0), R_BaseEnv), tmp2;
     if (!isReal(tmp) || xlength(tmp) != 1)
         error("mean(u0) should be a numeric vector of length 1");
-    double mean_u0 = asReal(tmp), *rtmp2;
+    double mean_u0 = REAL(tmp)[0], *rtmp2;
 
     double distances[nr_x0], dmin, dsum;
     int num_0_distances;
@@ -556,7 +571,7 @@ SEXP do_IDW(SEXP x0, SEXP u0, SEXP x, SEXP p)
                     k++;
                 }
             }
-            rvalue[i] = asReal(eval(lang2(install("mean"), tmp2), R_GlobalEnv));
+            rvalue[i] = asReal(eval(lang2(meanSymbol, tmp2), R_BaseEnv));
             UNPROTECT(1);
             continue;
         }

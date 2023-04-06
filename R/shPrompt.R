@@ -1,4 +1,4 @@
-.shPrompt <- evalq(envir = new.env(), function (type, arg.name, option.name, env.name)
+.shPrompt <- function (type, arg.name, option.name, env.name)
 {
     match.type <- function(type, ...) {
         if (is.character(type)) {
@@ -21,7 +21,7 @@
                         "windows"
                     )
                 }
-                else if (on.macOS) {                   # on macOS (see ?capabilities)
+                else if (on.macOS) {                   # on macOS
                     type <- "macOS"
                 }
                 else type <- "ubuntu"                  # on any other Linux flavour
@@ -82,11 +82,11 @@
 
 
     }, stop("invalid 'type'; should never happen, please report!"))
-})
-evalq(envir = environment(.shPrompt), {
+}
+evalq(envir = environment(.shPrompt) <- new.env(), {
     types <- c("windows", "cmd", "powershell", "macOS", "bash", "ubuntu", "unix")
     table <- tolower(types)
-    delayedAssign("on.macOS", .Platform$OS.type == "unix" && capabilities("aqua"))
+    delayedAssign("on.macOS", this.path::OS.type$darwin)
     delayedAssign("sys.info", Sys.info())
     delayedAssign("user", sys.info[["effective_user"]])
     delayedAssign("nodename", {

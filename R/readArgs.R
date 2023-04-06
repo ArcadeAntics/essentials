@@ -1,5 +1,3 @@
-
-
 as.comment <- function (x, comment.char = "",
     comchar = nchar(comment.char, type = "bytes", keepNA = FALSE))
 {
@@ -511,7 +509,3 @@ Args <- function (x, type = c("original", "all", "trailingOnly"))
         return(attr(x, "args")[[match.arg(type)]])
     .Defunct("this.path::fileArgs()")
 }
-
-
-withArgs <- function (...)
-.Defunct("this.path::withArgs()")

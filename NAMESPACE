@@ -2,7 +2,7 @@ useDynLib(essentials, .registration = TRUE, .fixes = "C_")
 
 
 importFrom(this.path,
-    this.path, this.dir, here,
+    this.path, this.dir, here, path.join,
     asArgs, fileArgs, withArgs)
 
 
@@ -280,16 +280,11 @@ export(RungeKuttaMethod, RK4)
 # scalars.R                 ----
 
 
-export(as.scalar.logical)
-export(as.scalar.integer)
-export(as.scalar.real, as.scalar.double, as.scalar.numeric)
-export(as.scalar.complex)
-export(as.scalar.number)
-export(as.scalar.string, as.scalar.character)
-export(as.scalar.raw)
-export(as.scalar)
-export(is.scalar)
-export(aslength1)
+export(as.scalar.logical, as.scalar.integer, as.scalar.double,
+    as.scalar.numeric, as.scalar.complex, as.scalar.character,
+    as.scalar.string, as.scalar.raw, as.scalar.number,
+
+    as.scalar, is.scalar, aslength1)
 
 
 # seq2.R                    ----

@@ -8,8 +8,8 @@ Delay Evaluation
 if its value is requested.
 }
 \usage{
-delayedAssign2(x, value, eval.env = parent.frame(1),
-    assign.env = parent.frame(1), evaluated = FALSE)
+delayedAssign2(x, value, eval.env = parent.frame(),
+    assign.env = parent.frame(), evaluated = TRUE)
 }
 \arguments{
   \item{x}{

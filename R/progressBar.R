@@ -5,8 +5,9 @@ setProgressBarMethod <- function (name, definition)
     progressBars[[name]] <<- definition
     invisible()
 }
-environment(setProgressBarMethod) <- new.env()
-environment(setProgressBarMethod)$progressBars <- list()
+evalq(envir = environment(setProgressBarMethod) <- new.env(), {
+    progressBars <- list()
+})
 
 
 setProgressBarMethod("tk",

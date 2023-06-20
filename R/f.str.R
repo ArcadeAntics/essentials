@@ -1,7 +1,7 @@
 as.env <- function (envir = parent.frame(2),
           enclos = if (is.list(envir) || is.pairlist(envir))
                        parent.frame(2) else baseenv())
-.External2(C_asenv, envir, enclos)
+.External2(.C_asenv, envir, enclos)
 
 
 f.str.old <- function (x, envir = parent.frame(),
@@ -188,7 +188,7 @@ f.str.old <- function (x, envir = parent.frame(),
 
             # turn a list of a expressions into an expression
             exprs <- unlist(exprs, recursive = FALSE, use.names = FALSE)
-            .External2(C_fstrold, sprintf, fmt, exprs, envir)  # evaluate where requested
+            .External2(.C_fstrold, sprintf, fmt, exprs, envir)  # evaluate where requested
         } else sprintf(fmt)
     })
 
@@ -214,7 +214,7 @@ f.str <- function (x, envir = parent.frame(),
              enclos = if (is.list(envir) || is.pairlist(envir))
                           parent.frame() else baseenv(),
     simplify = TRUE)
-.External2(C_fstr, x, envir, enclos, simplify)
+.External2(.C_fstr, x, envir, enclos, simplify)
 
 
 consecutiveTRUE <- function (x)

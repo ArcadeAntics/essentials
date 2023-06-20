@@ -1,9 +1,9 @@
-useDynLib(essentials, .registration = TRUE, .fixes = "C_")
+useDynLib(essentials, .registration = TRUE, .fixes = ".C_")
 
 
 importFrom(this.path,
     this.path, this.dir, here, path.join,
-    asArgs, fileArgs, withArgs)
+    asArgs, fileArgs, progArgs, withArgs)
 
 
 importFrom(utils, write.table)

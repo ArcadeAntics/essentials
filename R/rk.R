@@ -178,5 +178,5 @@ remove(EMT1, EMT2, EMT3, EMF)
         xname <- deparse1(substitute(independent), collapse = "\n",
             width.cutoff = 60L)
     xname
-    # .External2(C_rk4, independent, initialConditions, fun, xname)
+    # .External2(.C_rk4, independent, initialConditions, fun, xname)
 }

@@ -1,14 +1,14 @@
 `%<-%` <- function (x, value)
 {
     value  # we need to force 'value' immediately
-    .External2(C_unpackset, substitute(x), `<-`, value)
+    .External2(.C_unpackset, substitute(x), `<-`, value)
 }
 
 
 `%<<-%` <- function (x, value)
 {
     value  # we need to force 'value' immediately
-    .External2(C_unpackset, substitute(x), `<<-`, value)
+    .External2(.C_unpackset, substitute(x), `<<-`, value)
 }
 
 
@@ -23,21 +23,21 @@ formals(`%->>%`) <- rev(formals(`%->>%`))
 `%=%` <- function (x, value)
 {
     value  # we need to force 'value' immediately
-    .External2(C_unpackset, substitute(x), `=`, value)
+    .External2(.C_unpackset, substitute(x), `=`, value)
 }
 
 
 unpack.assign <- function (x, value, evaluated = TRUE)
 {
     value  # we need to force 'value' immediately
-    .External2(C_unpackset, if (evaluated) x else substitute(x), `<-`, value)
+    .External2(.C_unpackset, if (evaluated) x else substitute(x), `<-`, value)
 }
 
 
 unpack.super.assign <- function (x, value, evaluated = TRUE)
 {
     value  # we need to force 'value' immediately
-    .External2(C_unpackset, if (evaluated) x else substitute(x), `<<-`, value)
+    .External2(.C_unpackset, if (evaluated) x else substitute(x), `<<-`, value)
 }
 
 

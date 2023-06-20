@@ -106,9 +106,9 @@ IDW <- function (x0, u0, x, p = 2, na.rm = FALSE)
         u0 <- u0[!isna]
     }
     if (is.complex(u0))
-        .External2(C_idw, x0, Re(u0), x, p) + 1i *
-            .External2(C_idw, x0, Im(u0), x, p)
-    else .External2(C_idw, x0, u0, x, p)
+        .External2(.C_idw, x0, Re(u0), x, p) + 1i *
+            .External2(.C_idw, x0, Im(u0), x, p)
+    else .External2(.C_idw, x0, u0, x, p)
 }
 
 
@@ -116,4 +116,4 @@ IDW <- function (x0, u0, x, p = 2, na.rm = FALSE)
 
 
 isMissingArg <- function (x)
-.External2(C_ismissingarg)
+.External2(.C_ismissingarg)

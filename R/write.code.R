@@ -1,2 +1,2 @@
-write.code <- function (...)
-.Defunct("this.path:::write.code()")
+.write.code <- function (...)
+.Defunct("this.path:::.write.code()")

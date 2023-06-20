@@ -72,16 +72,16 @@
 
 
 intequal <- function (e1, e2)
-.External2(C_intequal, e1, e2)
+.External2(.C_intequal, e1, e2)
 
 
 strequal <- function (e1, e2)
-.External2(C_strequal, e1, e2)
+.External2(.C_strequal, e1, e2)
 
 
 strcaseequal <- function (e1, e2)
-.External2(C_strcaseequal, e1, e2)
+.External2(.C_strcaseequal, e1, e2)
 
 
 jswitch <- function (...)
-.External2(C_jswitch)
+.External2(.C_jswitch)

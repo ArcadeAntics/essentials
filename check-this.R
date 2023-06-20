@@ -1,16 +1,16 @@
-essentials:::check.this(  # essentials
+essentials:::check.this(  ## essentials
     special = TRUE,
 
-    check = TRUE, as.cran = TRUE,
+    check = FALSE, as.cran = TRUE,
 
     chdir = TRUE
 )
 
 
 essentials::delayedAssign2("x", compiler::compile(quote(5 + 6)))
-this.path:::PRINFO(x)
+this.path:::.PRINFO(x)
 x
-this.path:::PRINFO(x)
+this.path:::.PRINFO(x)
 
 
 jswitch("a",

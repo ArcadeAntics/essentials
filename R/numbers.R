@@ -34,7 +34,7 @@ UseMethod("as.numbers")
 
 
 as.numbers.default <- function (x, strict = TRUE, ...)
-.External2(C_asnumbers, if (missing(x)) NULL else x, strict)
+.External2(.C_asnumbers, if (missing(x)) NULL else x, strict)
 
 
 is.numbers <- function (x)

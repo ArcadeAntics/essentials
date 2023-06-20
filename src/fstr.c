@@ -15,12 +15,7 @@ SEXP R_NewEnv(SEXP enclos, int hash, int size)
 
 
     if (TYPEOF(enclos) != ENVSXP) error("invalid 'enclos'");
-    SEXP expr = lang4(
-        new_envSymbol,
-        ScalarInteger(hash),
-        enclos,
-        ScalarInteger(size)
-    );
+    SEXP expr = LCONS(new_envSymbol, CONS(ScalarLogical(hash), CONS(enclos, CONS(ScalarInteger(size), R_NilValue))));
     PROTECT(expr);
     SEXP value = eval(expr, R_BaseEnv);
     UNPROTECT(1);
@@ -469,7 +464,7 @@ SEXP do_fstr(SEXP call, SEXP op, SEXP args, SEXP rho)
 
     PROTECT_INDEX indx;
     SEXP expr = R_NilValue;
-    PROTECT_WITH_INDEX(expr, &indx);
+    PROTECT_WITH_INDEX(expr, &indx); nprotect++;
 
 
     SEXP pattern, m, y, fmt, sprintf, value, mm, yy, vvalue;

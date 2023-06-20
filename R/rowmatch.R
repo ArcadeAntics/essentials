@@ -66,7 +66,7 @@ rowmatch <- function (x, table, nomatch = NA_integer_, incomparables = NULL)
         return(rep(nomatch, nrow(x)))
 
 
-    type <- .External2(C_matchtype, x, table)
+    type <- .External2(.C_matchtype, x, table)
 
 
     # format for use in 'match'
@@ -155,7 +155,7 @@ rowmatch(x, table, nomatch, incomparables)
 
 
 row.match.data.frame <- function (x, table, nomatch = NA_integer_, incomparables = NULL)
-.External2(C_rowmatchdataframe, x, table, nomatch, incomparables)
+.External2(.C_rowmatchdataframe, x, table, nomatch, incomparables)
 
 
 methods::setMethod(

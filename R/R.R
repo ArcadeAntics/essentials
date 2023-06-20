@@ -206,7 +206,7 @@ python <- function (options = NULL, command = NULL, module = NULL, file = NULL,
         else exprs <- paste("-e", shEncode(exprs, windows.type = windows.type))
     }
     else if (is.language(exprs)) {
-        exprs <- this.path:::code2character(exprs, width.cutoff, deparseCtrl)
+        exprs <- this.path:::.code2character(exprs, width.cutoff, deparseCtrl)
         if (length(exprs) <= 0L)
             exprs <- NULL
         else exprs <- paste("-e", shEncode(exprs, windows.type = windows.type))
@@ -248,7 +248,7 @@ R <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
     }
     else if (!missing(dir))
         name <- shEncode(paste0(dir, "/", windows.type))
-    exprs <- this.path:::maybeQuote(exprs, evaluated, simplify.brace)
+    exprs <- this.path:::.maybeQuote(exprs, evaluated, simplify.brace)
     .R(options = options, file = file, exprs = exprs, args = args,
         chdir = chdir, ..., name = name, windows.type = windows.type,
         extra = TRUE)
@@ -310,7 +310,7 @@ Rscript <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
     }
     else if (!missing(dir))
         name <- shEncode(paste0(dir, "/", windows.type))
-    exprs <- this.path:::maybeQuote(exprs, evaluated, simplify.brace)
+    exprs <- this.path:::.maybeQuote(exprs, evaluated, simplify.brace)
     .R(options = options, file = file, exprs = exprs, args = args,
         chdir = chdir, ..., name = name, windows.type = windows.type,
         extra = FALSE)
@@ -331,7 +331,7 @@ Rterm <- function (options = NULL, file = NULL, exprs = NULL, args = NULL,
     }
     else if (!missing(dir))
         name <- shEncode(paste0(dir, "/", windows.type))
-    exprs <- this.path:::maybeQuote(exprs, evaluated, simplify.brace)
+    exprs <- this.path:::.maybeQuote(exprs, evaluated, simplify.brace)
     .R(options = options, file = file, exprs = exprs, args = args,
         chdir = chdir, ..., name = name, windows.type = windows.type,
         extra = TRUE)

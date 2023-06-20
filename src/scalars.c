@@ -48,7 +48,7 @@ SEXP asChar2(SEXP x)
     if (TYPEOF(x) != RAWSXP) return asChar(x);
     if (xlength(x) >= 1) {
         char buf[3];
-        sprintf(buf, "%02x", RAW_ELT(x, 0));
+        snprintf(buf, 3, "%02x", RAW_ELT(x, 0));
         return mkChar(buf);
     }
     else return NA_STRING;

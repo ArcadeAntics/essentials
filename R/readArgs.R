@@ -466,7 +466,7 @@ if (FALSE)
         str2expression(sprintf("\"\\u%04x\"", c(256:55295, 57344:65533))),
         str2expression(sprintf("\"\\u%04x\"", c(256:55295, 57344:65533)))
     )
-    X <- this.path:::asArgs(X)
+    X <- this.path::asArgs(X)
     Y <- setdiff(X, c("\b", "\f", "\r", "\033"))
     Z <- setdiff(X, c("\n", "\r"))
     this.path::writeArgs(X, file = "", name = "Rargs")
@@ -488,14 +488,14 @@ if (FALSE)
 
 if (FALSE)
 {
-    K <- this.path:::all.char()
+    K <- this.path:::.all.char()
     local({
         x <- grep("[a-zA-Z]", K, value = TRUE)
         y <- c(LETTERS, letters)
         stopifnot(length(x) == length(y), x == y)
     })
-    FILE <- this.path::writeArgs(K, at = FALSE)
-    X <- this.path::readArgs(FILE)
+    FILE <- essentials::writeArgs(K, at = FALSE)
+    X <- essentials::readArgs(FILE)
     identical(X, unname(K))
 }
 

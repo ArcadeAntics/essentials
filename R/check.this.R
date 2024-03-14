@@ -32,7 +32,7 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
 }
 
 
-check.this <- function (
+.check_this <- function (
     force = FALSE,
     keep.empty.dirs = FALSE,
     build.build.vignettes = TRUE, build.no.build.vignettes = !build.build.vignettes,
@@ -96,10 +96,12 @@ check.this <- function (
     no.stop.on.test.error = FALSE,
     check.subdirs = NULL,
     as.cran = FALSE,
+    `_R_CHECK_CRAN_INCOMING_` = NULL,
 
-    chdir = FALSE, file = here(), special = FALSE, where = path.join(file, "..", "PACKAGES"))
+    chdir = FALSE, n = 0L, file = this.dir(verbose = FALSE, n = n + 1L),
+    special = !missing(repos), repos = path.join(if (file == ".") "" else file, "..", "PACKAGES"))
 {
-    # check.this {essentials}                                    R Documentation
+    # check.this               package:essentials                R Documentation
     #
     # Build, Install, and Check a Package Conveniently
     #
@@ -145,6 +147,7 @@ check.this <- function (
     #     further arguments passed to 'R CMD INSTALL'
     #
     # check
+    #
     #     should 'R CMD check' be run?
     #
     # as.cran
@@ -153,41 +156,26 @@ check.this <- function (
     #
     # chdir
     #
-    #     temporarily change the working directory to the directory containing
-    #     `file`?
+    #     temporarily change the working directory to `file`?
     #
-    # file
+    # n, file
     #
     #     character string; the directory of the package source, by default
     #     the executing script's directory
-
-
-
-    # local({
-    #     x <- formals(essentials:::check.this)
-    #     assign.env <- parent.env(environment())
-    #     for (name in names(x)) {
-    #         essentials::delayedAssign2(name, x[[name]], assign.env = assign.env, evaluated = TRUE)
-    #     }
-    # })
-    # switch2 <- essentials:::switch2
-    # Rcmd <- essentials:::Rcmd
     #
+    # special
     #
-    # file <- "C:/Users/iris/Documents/iris"
-    # special <- TRUE
-    # check <- FALSE
-    # chdir <- TRUE
+    #     move the tarball to the local repository specified by `repos`?
+    #
+    # repos
+    #
+    #     character string; directory of the local repository
 
 
-    if (special) {
-        build <- FALSE
-        dir <- R.home("bin")
-        where
-    } else dir <- NULL
+    if (special) build <- FALSE
 
 
-    build.args <- c(
+    build_args <- c(
         if (force) "--force",
         if (keep.empty.dirs) "--keep-empty-dirs",
         if (build.no.build.vignettes) "--no-build-vignettes",
@@ -216,7 +204,7 @@ check.this <- function (
     if (INSTALL) {
         keep.source
         keep.parse.data
-        INSTALL.args <- c(
+        INSTALL_args <- c(
             if (INSTALL.clean) "--clean",
             if (preclean) "--preclean",
             if (debug) "--debug",
@@ -305,8 +293,9 @@ check.this <- function (
 
 
     check <- if (check) TRUE else FALSE
-    if (check)
-        check.args <- c(
+    if (check) {
+        `_R_CHECK_CRAN_INCOMING_`
+        check_args <- c(
             if (!is.null(check.library))
                 paste0("--library=", as.scalar.string(check.library)),
             if (!is.null(output))
@@ -334,30 +323,32 @@ check.this <- function (
                 paste0("--check-subdirs=", match.arg(check.subdirs, c("default", "yes", "no"))),
             if (as.cran) "--as-cran"
         )
+    }
 
 
     if (!is.character(file) || length(file) != 1L) {
         stop("invalid 'file'")
     } else if (grepl("^(ftp|ftps|http|https)://", file)) {
         stop("cannot 'check.this' on a URL")
-    } else if (chdir && (path <- file) != ".") {
-        file <- "."
-
-
+    } else if (chdir && file != ".") {
         owd <- getwd()
         if (is.null(owd))
             stop("cannot 'chdir' as current directory is unknown")
         on.exit(setwd(owd))
-        setwd(path)
+        setwd(file)
+        file <- "."
     }
+    ## force any remaining promises before unloading the DLLs
+    special
+    repos
 
 
-    packageInfo <- read.dcf(file.path(file, "DESCRIPTION"))
-    if (nrow(packageInfo) != 1L)
+    desc <- read.dcf(file.path(file, "DESCRIPTION"))
+    if (nrow(desc) != 1L)
         stop("bruh wtf are you doing???")
-    packageInfo <- structure(c(packageInfo), names = colnames(packageInfo))
-    pkgname <- packageInfo[["Package"]]
-    version <- packageInfo[["Version"]]
+    desc <- structure(c(desc), names = colnames(desc))
+    pkgname <- desc[["Package"]]
+    version <- desc[["Version"]]
     if (anyNA(c(pkgname, version)) ||
         !grepl(pkgname, pattern = paste0("^(", .standard_regexps()$valid_package_name   , ")$")) ||
         !grepl(version, pattern = paste0("^(", .standard_regexps()$valid_package_version, ")$")))
@@ -396,15 +387,18 @@ check.this <- function (
                 unloaded <- TRUE
             }
         }
+        DLLs <- getLoadedDLLs()
+        DLLs <- DLLs[startsWith(vapply(DLLs, `[[`, "path", FUN.VALUE = ""), paste0(libpath, "/"))]
+        for (DLL in DLLs) {
+            dyn.unload(DLL[["path"]])
+        }
     }
 
 
-    tar.file <- paste0(pkgname, "_", version, ".tar.gz")
+    tar_file <- paste0(pkgname, "_", version, ".tar.gz")
 
 
-    value <- if (is.null(dir)) {
-        .Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE)
-    } else .Rcmd(command = "build", args = c(build.args, file), mustWork = TRUE, dir = dir)
+    value <- .Rcmd(command = "build", args = c(build_args, file), mustWork = TRUE)
     cat("\n")
 
 
@@ -412,77 +406,93 @@ check.this <- function (
         fields <- c("Package", "Version", "Depends", "Suggests",
             "License", "MD5sum", "NeedsCompilation", "Imports",
             "LinkingTo", "Enhances", "OS_type")
-        PACKAGES.info <- structure(packageInfo[fields], names = fields)
-        if (is.na(PACKAGES.info["NeedsCompilation"]))
-            PACKAGES.info["NeedsCompilation"] <- if (dir.exists(file.path(file, "src"))) "yes" else "no"
-        PACKAGES.info["MD5sum"] <- tools::md5sum(tar.file)
-        PACKAGES.info <- t(PACKAGES.info)
+        desc <- structure(desc[fields], names = fields)
+        if (is.na(desc["NeedsCompilation"]))
+            desc["NeedsCompilation"] <- if (dir.exists(file.path(file, "src"))) "yes" else "no"
+        desc["MD5sum"] <- tools::md5sum(tar_file)
+        desc <- t(desc)
 
 
-        tar.path <- file.path(where, "src", "contrib")
-        dir.create(tar.path, showWarnings = FALSE, recursive = TRUE)
+        tar_path <- file.path(repos, "src", "contrib")
+        dir.create(tar_path, showWarnings = FALSE, recursive = TRUE)
 
 
-        PACKAGES.file <- file.path(tar.path, "PACKAGES")
-        if (file.exists(PACKAGES.file)) {
-            text <- readLines(PACKAGES.file)
-            con <- file(PACKAGES.file, "w")
-            # con <- stdout()
+        PACKAGES_file <- file.path(tar_path, "PACKAGES")
+        if (file.exists(PACKAGES_file)) {
+            text <- readLines(PACKAGES_file)
+            tmpfile <- tempfile("PACKAGES")
+            on.exit(unlink(tmpfile), add = TRUE)
+            conn <- file(tmpfile, "w")
             tryCatch({
-                if (i <- match(paste0("Package: ", pkgname), text, 0L)) {
-                    writeLines(text[seq_len(i - 1L)], con)
-                } else if (i <- match(TRUE, startsWith(text, "Package: ") & substr(text, 10L, 1000000L) > pkgname, 0L)) {
-                    writeLines(text[seq_len(i - 1L)], con)
+                matchThis <- paste0("Package: ", pkgname)
+                if (i <- match(matchThis, text, 0L)) {
+                    writeLines(text[seq_len(i - 1L)], conn)
+                } else if (i <- match(TRUE, startsWith(text, "Package: ") & text > matchThis, 0L)) {
+                    writeLines(text[seq_len(i - 1L)], conn)
                     i <- i - 2L
                 } else {
                     i <- length(text)
-                    writeLines(c(text, ""), con)
+                    writeLines(c(text, ""), conn)
                 }
-                write.dcf(PACKAGES.info, con)
+                write.dcf(desc, conn, indent = 8L, width = 72L)
                 j <- which(text == "")
                 j <- j[j > i]
                 if (length(j) > 0) {
                     j <- j[[1L]]
-                    writeLines(text[j:length(text)], con)
+                    writeLines(text[j:length(text)], conn)
                 }
-            }, finally = close(con))
-        } else write.dcf(PACKAGES.info, PACKAGES.file)
+            }, finally = close(conn))
+        } else {
+            tmpfile <- tempfile("PACKAGES")
+            on.exit(unlink(tmpfile), add = TRUE)
+            write.dcf(desc, tmpfile, indent = 8L, width = 72L)
+        }
+        if (!file.rename(tmpfile, PACKAGES_file))
+            stop(sprinf("unable to rename file '%s' to '%s'", tmpfile, PACKAGES_file))
 
 
-        archive.path <- file.path(tar.path, "Archive", pkgname)
-        dir.create(archive.path, showWarnings = FALSE, recursive = TRUE)
+        archive_path <- file.path(tar_path, "Archive", pkgname)
+        dir.create(archive_path, showWarnings = FALSE, recursive = TRUE)
 
 
-        to <- file.path(tar.path, tar.file)
-        if (!file.rename(tar.file, to))
+        to <- file.path(tar_path, tar_file)
+        if (!file.rename(tar_file, to))
             stop("failure to rename")
 
 
-        files <- setdiff(list.files(tar.path), tar.file)
+        files <- setdiff(list.files(tar_path), tar_file)
         files <- files[startsWith(files, paste0(pkgname, "_"))]
-        new.files <- file.path(archive.path, files)
-        files <- file.path(tar.path, files)
-        if (!all(file.rename(files, new.files)))
+        new_files <- file.path(archive_path, files)
+        files <- file.path(tar_path, files)
+        if (!all(file.rename(files, new_files)))
             stop("failure to rename")
 
 
-        tar.file <- to
+        tar_file <- to
     }
 
 
     if (INSTALL) {
-        value <- if (is.null(dir)) {
-            .Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE)
-        } else .Rcmd(command = "INSTALL", args = c(INSTALL.args, tar.file), mustWork = TRUE, dir = dir)
+        value <- .Rcmd(command = "INSTALL", args = c(INSTALL_args, tar_file), mustWork = TRUE)
         cat("\n")
     }
     finished <- TRUE
 
 
     if (check) {
-        value <- if (is.null(dir))
-            .Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE)
-        else .Rcmd(command = "check", args = c(check.args, tar.file), mustWork = TRUE, dir = dir)
+        if (!is.null(`_R_CHECK_CRAN_INCOMING_`)) {
+            `_R_CHECK_CRAN_INCOMING_` <- as.logical(`_R_CHECK_CRAN_INCOMING_`)[1L]
+            oenv <- Sys.getenv("_R_CHECK_CRAN_INCOMING_", NA)
+            if (is.na(oenv))
+                on.exit(Sys.unsetenv("_R_CHECK_CRAN_INCOMING_"), add = TRUE)
+            else on.exit(Sys.setenv(`_R_CHECK_CRAN_INCOMING_` = oenv), add = TRUE)
+            Sys.setenv(`_R_CHECK_CRAN_INCOMING_` = if (is.na(`_R_CHECK_CRAN_INCOMING_`))
+                ""
+            else if (`_R_CHECK_CRAN_INCOMING_`)
+                "TRUE"
+            else "FALSE")
+        }
+        value <- .Rcmd(command = "check", args = c(check_args, tar_file), mustWork = TRUE)
         cat("\n")
     }
 
@@ -540,4 +550,40 @@ doc <- function (fun)
     x <- x[[2]]
     if (is.character(x))
         essentials::dedent(x)
+}
+
+
+.update_DESCRIPTION_Date <- function (file = this.dir(verbose = FALSE, n = n + 1L), n = 0L)
+{
+    ## change the Date in the DESCRIPTION to the current date
+    if (!is.character(file) || length(file) != 1L)
+        stop(gettextf("'%s' must be a character string", "file", domain = "R"))
+    file <- path.join(file, "DESCRIPTION")
+    x <- local({
+        conn <- file(file, "rb", encoding = "")
+        on.exit(close(conn))
+        readLines(conn)
+    })
+    n <- grep("^Date: ", x)
+    if (length(n) > 1L)
+        stop(gettextf("in '%s':\n multiple lines that start with \"Date: \"", file))
+    if (length(n) < 1L) {}
+    else {
+        date <- format(Sys.time(), "Date: %Y-%m-%d", "UTC")
+        if (x[[n]] != date) {
+            x[[n]] <- date
+            tmpfile <- tempfile("DESCRIPTION")
+            on.exit(unlink(tmpfile))
+            local({
+                conn <- file(tmpfile, "w", encoding = "")
+                on.exit(close(conn))
+                writeLines(x, conn, useBytes = TRUE)
+            })
+            if (!file.rename(tmpfile, file))
+                stop(sprintf("unable to rename file '%s' to '%s'",
+                    tmpfile, file))
+            on.exit()
+        }
+    }
+    invisible()
 }

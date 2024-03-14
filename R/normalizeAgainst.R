@@ -1,6 +1,8 @@
-normalizeAgainst <- function (..., against = this.dir(verbose = FALSE))
+normalizeAgainst <- function (..., n = 0L, against = this.dir(verbose = FALSE, n = n + 1L))
 {
-    if (is.character(against) || is.null(against)) {
+    if (is.null(against))
+        normalizePath(...)
+    else if (is.character(against)) {
         if (length(against) == 0) normalizePath(...)
         else {
             owd <- getwd()

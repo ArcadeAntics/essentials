@@ -917,7 +917,7 @@ add.subparsers = function (title = NA, description = NA, program = NA, required 
 },
 
 
-parse.args = function (args = fileArgs(), warnPartialMatchArgs = getOption("warnPartialMatchArgs", FALSE))
+parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warnPartialMatchArgs", FALSE), n = 0L)
 {
     if (!missing(args)) args <- asArgs(args)
     add.arg <- quote(x[[i]]$value <- c(x[[i]]$value, if (!is.null(val) && j == len) {  # hasValue(arg) && last.flag
@@ -1152,7 +1152,7 @@ parse.args = function (args = fileArgs(), warnPartialMatchArgs = getOption("warn
             data.frame(arg = args, code = codes, dir = dirs)
         }
     }
-    try.both <- (has.wd <- !is.null(owd <- getwd())) && !is.null(alternate <- this.dir(default = NULL, verbose = FALSE))
+    try.both <- (has.wd <- !is.null(owd <- getwd())) && !is.null(alternate <- this.dir(verbose = FALSE, n = n + 1L, default = NULL))
     from.file.substitute <- function(table, n) {
 
 
@@ -1510,15 +1510,15 @@ ArgumentParser <- function (program = NA, usage = NA, description = NA, epilogue
     indent.description = indent, exdent.description = exdent,
     wrap.epilogue = wrap, indent.epilogue = indent, exdent.epilogue = exdent,
     style = NA, wrap.help = FALSE, help.help = default.help("help"), ...,
-    help.message = NULL)
+    help.message = NULL, n = 0L)
 {
     .program <- as.character(program)[1L]
     if (is.na(.program)) {
-        .program <- this.path(default = NULL, verbose = FALSE)
-        if (is.null(.program))
+        .program <- try.this.path(n = n + 1L)
+        if (is.na(.program))
             .program <- "/path/to/script"
         else if (!grepl("^(ftp|ftps|http|https)://", .program))
-            .program <- basename(.program)
+            .program <- basename2(.program)
     }
     .usage <- format.help(usage)
     .description <- as.description(description, wrap = wrap.description,

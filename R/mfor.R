@@ -1,4 +1,4 @@
-is.mfor.done <- function (ptr)
+.is_mfor_done <- function (ptr)
 .External2(.C_ismfordone, ptr)
 
 

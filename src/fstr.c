@@ -101,15 +101,15 @@ SEXP do_delayedassign2(SEXP call, SEXP op, SEXP args, SEXP rho)
 
     if (!isString(x) || LENGTH(x) == 0)
         error(_("invalid first argument"));
-	SEXP sym = installTrChar(STRING_ELT(x, 0));
+    SEXP sym = installTrChar(STRING_ELT(x, 0));
 
 
-	if (!isEnvironment(eval_env))
-	    error(_("invalid '%s' argument"), "eval.env");
+    if (!isEnvironment(eval_env))
+        error(_("invalid '%s' argument"), "eval.env");
 
 
-	if (!isEnvironment(assign_env))
-	    error(_("invalid '%s' argument"), "assign.env");
+    if (!isEnvironment(assign_env))
+        error(_("invalid '%s' argument"), "assign.env");
 
 
     SEXP expr = PROTECT(lang5(delayedAssignSymbol, x, R_NilValue, eval_env, assign_env));

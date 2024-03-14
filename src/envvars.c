@@ -101,26 +101,8 @@ SEXP do_envvars(SEXP call, SEXP op, SEXP args, SEXP rho)
     }
 
 
-    /* if 'args' is a list, grab the attribute 'names' */
-    SEXP argnames = R_NilValue;
-    switch (TYPEOF(args)) {
-    case NILSXP:
-    case LISTSXP:
-        break;
-    case VECSXP:
-        if (n > 0) {
-            argnames = PROTECT(getAttrib(args, R_NamesSymbol)); nprotect++;
-        }
-        break;
-    default:
-        UNIMPLEMENTED_TYPE("envvars", args);
-    }
-
-
     /* if 'args' has no arguments */
     if (n <= 0) {
-
-
         /* return an empty named list, invisibly */
         value = PROTECT(allocVector(VECSXP, 0)); nprotect++;
         names = PROTECT(allocVector(STRSXP, 0)); nprotect++;
@@ -129,6 +111,17 @@ SEXP do_envvars(SEXP call, SEXP op, SEXP args, SEXP rho)
         UNPROTECT(nprotect);
         return value;
     }
+
+
+    /* if 'args' is a list, grab the attribute 'names' */
+    SEXP argnames = R_NilValue;
+    if (isPairList(args));
+    else if (isVectorList(args)) {
+        if (n > 0) {
+            argnames = PROTECT(getAttrib(args, R_NamesSymbol)); nprotect++;
+        }
+    }
+    else UNIMPLEMENTED_TYPE("envvars", args);
 
 
     SEXP temp_args;
@@ -140,8 +133,7 @@ SEXP do_envvars(SEXP call, SEXP op, SEXP args, SEXP rho)
     */
     int nset = 0, nunset = 0;
     PROTECT(names = allocVector(STRSXP, n)); nprotect++;
-    switch (TYPEOF(args)) {
-    case LISTSXP:
+    if (isPairList(args)) {
         temp_args = args;
 
 
@@ -189,11 +181,8 @@ SEXP do_envvars(SEXP call, SEXP op, SEXP args, SEXP rho)
                 SET_STRING_ELT(names, i, asChar(CAR(temp_args)));
             }
         }
-        break;
-
-
-    /* same ideas but for a list this time, above was a pairlist */
-    case VECSXP:
+    }
+    else if (isVectorList(args)) {
         if (argnames == R_NilValue) {
             for (int i = 0; i < n; i++) {
                 visible = 1;
@@ -212,10 +201,8 @@ SEXP do_envvars(SEXP call, SEXP op, SEXP args, SEXP rho)
                 SET_STRING_ELT(names, i, asChar(VECTOR_ELT(args, i)));
             }
         }
-        break;
-    default:
-        UNIMPLEMENTED_TYPE("envvars", args);
     }
+    else UNIMPLEMENTED_TYPE("envvars", args);
 
 
 #ifdef debug

@@ -2,7 +2,7 @@
 
 %\VignetteIndexEntry{Argument Parsing}
 \title{Argument Parsing}
-\author{akwsimmo}
+\author{ikwsimmo}
 
 \begin{document}
 
@@ -21,6 +21,8 @@ for more on function \texttt{essentials::ArgumentParser}):
 <<>>==
 parser <- essentials::ArgumentParser(
     description = "Produce a plot")
+print(sys.calls())
+print(this.path::try.this.path())
 @
 
 Then, we use \texttt{add.argument} to add an argument to the argument parser:

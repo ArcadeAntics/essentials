@@ -1,29 +1,33 @@
-path.contract <- function (path, ignore.case = os.windows)
+path.contract <- function (path, ignore.case = os.windows, home = "~")
 {
     if (!is.character(path))
         stop("a character vector argument expected", domain = "R")
     if (!length(path))
         return(character())
     attributes(path) <- NULL
-    tilde <- path.expand("~")
-    if (tilde == "~") # if the home directory is unknown or none is specified
+    home <- path.expand(home)
+    if (home == "~")  ## if the home directory is unknown or none is specified
         return(path)
-    nc <- nchar(tilde) + 1L
-    contract <- if (.Platform$OS.type == "windows") {
-        if (ignore.case) {
-            startsWith(chartr("/", "\\", tolower(path)), chartr("/", "\\", tolower(tilde))) &
-                substr(path, nc, nc) %in% c("/", "\\", "")
-        }
-        else startsWith(chartr("/", "\\", path), chartr("/", "\\", tilde)) &
-            substr(path, nc, nc) %in% c("/", "\\", "")
+    opath <- path
+    if (os.windows) {
+        path <- chartr("\\", "/", path)
+        home <- chartr("\\", "/", home)
     }
-    else {
-        if (ignore.case) {
-            startsWith(tolower(path), tolower(tilde)) & substr(path, nc, nc) %in% c("/", "")
-        }
-        else startsWith(path, tilde) & substr(path, nc, nc) %in% c("/", "")
+    if (ignore.case) {
+        path <- tolower(path)
+        home <- tolower(home)
     }
+    nc <- nchar(home) + 1L
+    contract <- startsWith(path, home) & substr(path, nc, nc) %in% c("/", "")
     if (any(contract))
-        path[contract] <- paste0("~", substr(path[contract], nc, 1000000L))
-    path
+        opath[contract] <- paste0("~", substr(opath[contract], nc, 1000000L))
+    opath
 }
+
+
+# path.contract <- compiler::cmpfun(utils::removeSource(`environment<-`(path.contract, getNamespace("essentials"))))
+#
+#
+# path <- f.str("%{Sys.getenv('LOCALAPPDATA')}s\\Test\\code.R")
+# path <- path.contract(path, home = Sys.getenv("LOCALAPPDATA"))
+# path

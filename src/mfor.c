@@ -30,12 +30,12 @@ R_xlen_t * get_lengths(SEXP x, R_xlen_t length_x, const char *name)
     //
     // length_x
     //
-    //     the length of 'x', this is usually pre-calculated so don't wany to
-    //     recalculate
+    //     the length of 'x', this is usually pre-calculated so don't want to
+    //     re-calculate
     //
     // name
     //
-    //     string; name of the variable at the R level. for error messages
+    //     name of R level variable, for error messages
 
 
     /* find lengths(x), and convert to a R_xlen_t array */
@@ -110,9 +110,9 @@ typedef struct mfor_info {
 
 static void finalizer(SEXP ptr)
 {
-    if (!R_ExternalPtrAddr(ptr)) return;
-    /* Rprintf("\nfinalizing %p\n", R_ExternalPtrAddr(ptr)); */
     ptrMFOR_INFO info = R_ExternalPtrAddr(ptr);
+    if (!info) return;
+    /* Rprintf("\nfinalizing %p\n", R_ExternalPtrAddr(ptr)); */
     R_Free(info);
     R_ClearExternalPtr(ptr);
 }
@@ -136,7 +136,7 @@ SEXP getInFrame(SEXP sym, SEXP env, int unbound_ok)
 /* mfor(*vars, seqs, expr) */
 SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
 {
-    static SEXP is_mfor_doneSymbol = NULL,
+    static SEXP _is_mfor_doneSymbol = NULL,
                 parent_frameSymbol = NULL,
                 seqsSymbol = NULL,
                 iSymbol = NULL,
@@ -147,8 +147,8 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
                 repeatSymbol = NULL,
                 ifSymbol = NULL,
                 breakSymbol = NULL;
-    if (is_mfor_doneSymbol == NULL) {
-        is_mfor_doneSymbol = install("is.mfor.done");
+    if (_is_mfor_doneSymbol == NULL) {
+        _is_mfor_doneSymbol = install(".is_mfor_done");
         parent_frameSymbol = install("parent.frame");
         seqsSymbol = install("seqs");
         iSymbol = install("i");
@@ -222,7 +222,7 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 
     Rboolean do_eval = 1;
-    Rboolean realIndx;
+    Rboolean realIndx = FALSE;
 
 
     R_xlen_t commonLength;
@@ -354,11 +354,12 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
         info->p = p;
 
 
+        /* repeat if (.is_mfor_done(ptr)) break else expr */
         loop_expr = PROTECT(lang2(
             getInFrame(repeatSymbol, R_BaseEnv, FALSE),
             lang4(
                 getInFrame(ifSymbol, R_BaseEnv, FALSE),
-                lang2(eval(is_mfor_doneSymbol, rho), ptr),
+                lang2(eval(_is_mfor_doneSymbol, rho), ptr),
                 lang1(getInFrame(breakSymbol, R_BaseEnv, FALSE)),
                 expr
             )
@@ -369,7 +370,7 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
             repeatSymbol,
             lang4(
                 ifSymbol,
-                lang2(is_mfor_doneSymbol, ptr),
+                lang2(_is_mfor_doneSymbol, ptr),
                 lang1(breakSymbol),
                 expr
             )
@@ -378,22 +379,6 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
 
         defineVar(seqsSymbol, seqs, rho);
     }
-
-
-    /*
-    SEXP value = PROTECT(allocVector(LISTSXP, 4)); nprotect++;
-    tmp = value;
-
-
-    SETCAR(tmp, vars     ); SET_TAG(tmp, install("vars"     )); tmp = CDR(tmp);
-    SETCAR(tmp, seqs     ); SET_TAG(tmp, install("seqs"     )); tmp = CDR(tmp);
-    SETCAR(tmp, expr     ); SET_TAG(tmp, install("expr"     )); tmp = CDR(tmp);
-    SETCAR(tmp, loop_expr); SET_TAG(tmp, install("loop_expr"));
-
-
-    UNPROTECT(nprotect);
-    return value;
-     */
 
 
     for (SEXP u = updaters; u != R_NilValue; u = CDR(u))

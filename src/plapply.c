@@ -598,10 +598,10 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
     }
     type_FUN_VALUE = TYPEOF(FUN_VALUE);
     if (type_FUN_VALUE != CPLXSXP && type_FUN_VALUE != REALSXP &&
-	    type_FUN_VALUE != INTSXP  && type_FUN_VALUE != LGLSXP &&
-	    type_FUN_VALUE != RAWSXP  && type_FUN_VALUE != STRSXP &&
-	    type_FUN_VALUE != VECSXP)
-	    error("type '%s' is not supported", type2char(type_FUN_VALUE));
+        type_FUN_VALUE != INTSXP  && type_FUN_VALUE != LGLSXP &&
+        type_FUN_VALUE != RAWSXP  && type_FUN_VALUE != STRSXP &&
+        type_FUN_VALUE != VECSXP)
+        error("type '%s' is not supported", type2char(type_FUN_VALUE));
     dim_FUN_VALUE = PROTECT(getAttrib(FUN_VALUE, R_DimSymbol)); np++;
     is_array = ( ( TYPEOF(dim_FUN_VALUE) == INTSXP ) &&
                  ( length(dim_FUN_VALUE) >= 1 ) );

@@ -1,6 +1,6 @@
+import csv
 import dbfread
 import os
-import pandas
 import sys
 
 
@@ -13,8 +13,11 @@ def convert_dbf_to_csv(input_dir = None, output_dir = None, names = None):
         input_path = os.path.join(input_dir, name)
         output_path = os.path.join(output_dir, name[:-3] + 'csv')
         db = dbfread.DBF(input_path)
-        df = pandas.DataFrame(db)
-        df.to_csv(output_path, index=False)
+        with open(output_path, 'w', newline = '') as conn:
+            writer = csv.writer(conn)
+            writer.writerow(db.field_names)
+            for record in db:
+                writer.writerow(list(record.values()))
     return
 
 

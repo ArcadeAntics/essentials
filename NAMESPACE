@@ -3,7 +3,7 @@ useDynLib(essentials, .registration = TRUE, .fixes = ".C_")
 
 importFrom(this.path,
     this.path, this.dir, try.this.path, path.join,
-    asArgs, fileArgs, progArgs, withArgs,
+    asArgs, progArgs, withArgs,
     basename2)
 
 

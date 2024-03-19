@@ -507,5 +507,5 @@ Args <- function (x, type = c("original", "all", "trailingOnly"))
 {
     if (nargs())
         return(attr(x, "args")[[match.arg(type)]])
-    .Defunct("this.path::fileArgs()")
+    .Defunct("this.path::progArgs()")
 }

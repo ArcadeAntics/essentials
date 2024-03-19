@@ -16,7 +16,7 @@
 #
 #
 #
-# # jswitch(fileArgs()[[1L]],
+# # jswitch(progArgs()[[1L]],
 # # case("foo"),
 # # case("bar") := {
 # #     writeLines("\n\"foo\" or \"bar\" (case sensitive)\n")

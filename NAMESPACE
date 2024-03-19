@@ -14,6 +14,9 @@ export(flat.list, hypot, phypot, listify, strip, strsplit2, IDW,
     isMissingArg)
 
 
+export(convert_dbf_to_csv)
+
+
 # ArgumentParser-class.R    ----
 
 

@@ -308,6 +308,9 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
 #endif
 
 
+#define set_R_Visible_TRUE (eval(R_NilValue, R_EmptyEnv))
+
+
 
 
 
@@ -382,6 +385,7 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 
     if (length_X == 0) {
+        set_R_Visible_TRUE;
         UNPROTECT(np);
         return allocVector(VECSXP, 0);
     }
@@ -437,6 +441,7 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 
     if (commonLength == 0) {
+        set_R_Visible_TRUE;
         UNPROTECT(np);
         return value;
     }
@@ -481,6 +486,7 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
     }
 
 
+    set_R_Visible_TRUE;
     UNPROTECT(np);
     return value;
 }
@@ -804,6 +810,7 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
     }
 
 
+    set_R_Visible_TRUE;
     UNPROTECT(np);
     return value;
 }

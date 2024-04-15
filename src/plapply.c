@@ -50,14 +50,13 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
 
 
 #define MAKE_FUN_CALL do {                                     \
-    X_index1 = PROTECT(allocVector(VECSXP, length_X));         \
-    X_index2 = PROTECT(allocVector(VECSXP, length_X));         \
-    np += 2;                                                   \
+    X_index1 = PROTECT(allocVector(VECSXP, length_X)); nprotect++;\
+    X_index2 = PROTECT(allocVector(VECSXP, length_X)); nprotect++;\
                                                                \
                                                                \
     nForce = length_X;                                         \
     FUN_call = R_NilValue;                                     \
-    PROTECT_WITH_INDEX(FUN_call, &FUN_call_index); np++;       \
+    PROTECT_WITH_INDEX(FUN_call, &FUN_call_index); nprotect++; \
     if (dots == NULL) {                                        \
         REPROTECT(FUN_call = LCONS(dotsSymbol, FUN_call), FUN_call_index);\
     }                                                          \
@@ -78,21 +77,19 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
                                                                \
                                                                \
             if (isObject(dots)) {                              \
-                names_dots = PROTECT(dispatchNames(dots, rho));\
+                names_dots = dispatchNames(dots, rho);         \
                                                                \
                                                                \
                 if (names_dots != R_NilValue) {                \
+                    PROTECT(names_dots); nprotect++;           \
                     if (TYPEOF(names_dots) != STRSXP)          \
                         error("'names(dots)' is not NULL or a character vector");\
                     else if (xlength(names_dots) != length_dots)\
                         error("'length(dots)' and 'length(names(dots))' are not equal");\
-                    np++;                                      \
                 }                                              \
-                else UNPROTECT(1);                             \
             }                                                  \
             else {                                             \
-                names_dots = PROTECT(getAttrib(dots, R_NamesSymbol));\
-                np++;                                          \
+                names_dots = PROTECT(getAttrib(dots, R_NamesSymbol)); nprotect++;\
             }                                                  \
                                                                \
                                                                \
@@ -133,24 +130,6 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
         ));                                                    \
                                                                \
                                                                \
-        /*                                                     \
-           SET_VECTOR_ELT(X_index2, j, allocVector(X_realIndx2 ? REALSXP : INTSXP, 1));\
-           SEXP tmp2 = PROTECT(lang3(                          \
-               R_Bracket2Symbol,                               \
-               lang3(                                          \
-                   R_Bracket2Symbol,                           \
-                   XSymbol,                                    \
-#ifdef int_nargs                                               \
-                   ScalarInteger(j + 1)                        \
-#else                                                          \
-                   X_realIndx1 ? ScalarReal(j + 1) : ScalarInteger(j + 1)\
-#endif                                                         \
-               ),                                              \
-               VECTOR_ELT(X_index2, j)                         \
-           ))                                                  \
-         */                                                    \
-                                                               \
-                                                               \
         REPROTECT(FUN_call = LCONS(tmp2, FUN_call), FUN_call_index);\
         UNPROTECT(2);                                          \
         if (X_has_names && CHAR(STRING_ELT(names_X, j))[0] != '\0')\
@@ -164,10 +143,11 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
 
 #define GET_NAMES_X do {                                       \
     if (isObject(X)) {                                         \
-        names_X = PROTECT(dispatchNames(X, rho));              \
+        names_X = dispatchNames(X, rho);                       \
                                                                \
                                                                \
         if (names_X != R_NilValue) {                           \
+            PROTECT(names_X); nprotect++;                      \
             if (TYPEOF(names_X) != STRSXP)                     \
                 error("'names(X)' is not NULL or a character vector, but of type '%s'",\
                     type2char(TYPEOF(names_X)));               \
@@ -178,8 +158,7 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
         }                                                      \
     }                                                          \
     else {                                                     \
-        names_X = PROTECT(getAttrib(X, R_NamesSymbol));        \
-        np++;                                                  \
+        names_X = PROTECT(getAttrib(X, R_NamesSymbol)); nprotect++;\
     }                                                          \
     X_has_names = names_X != R_NilValue;                       \
 } while (0)
@@ -375,10 +354,10 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
     R_xlen_t length_X, *lengths_X, commonLength, *counters,
         length_dots,
         nForce;
-    int np;  // number of protected arguments
+    int nprotect;  // number of protected arguments
 
 
-    np = 0;
+    nprotect = 0;
 
 
     GET_LENGTH_X;
@@ -386,7 +365,7 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
 
     if (length_X == 0) {
         set_R_Visible_TRUE;
-        UNPROTECT(np);
+        UNPROTECT(nprotect);
         return allocVector(VECSXP, 0);
     }
 
@@ -411,7 +390,7 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
     //   'commonLength' to output list
 
 
-    value = PROTECT(allocVector(VECSXP, commonLength)); np++;
+    value = PROTECT(allocVector(VECSXP, commonLength)); nprotect++;
     for (R_xlen_t i = 0; i < length_X; i++) {
         if (lengths_X[i] == commonLength) {
             expr = PROTECT(lang2( // names(X[[i + 1]])
@@ -422,7 +401,8 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
                     INDEX(i + 1, X_realIndx1)
                 )
             ));
-            tmp = PROTECT(eval(expr, rho));
+            tmp = eval(expr, rho);
+            UNPROTECT(1);
             if (tmp != R_NilValue) {
                 if (TYPEOF(tmp) != STRSXP)
                     error("'names(X[[%.0f]])' is not NULL or a character vector, but of type '%s'",
@@ -432,17 +412,15 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
                         (double) (i + 1), (double) (lengths_X[i]),
                         (double) (i + 1), (double) commonLength);
                 setAttrib(value, R_NamesSymbol, tmp);
-                np += 2;
                 break;
             }
-            UNPROTECT(2);
         }
     }
 
 
     if (commonLength == 0) {
         set_R_Visible_TRUE;
-        UNPROTECT(np);
+        UNPROTECT(nprotect);
         return value;
     }
 
@@ -487,7 +465,7 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 
     set_R_Visible_TRUE;
-    UNPROTECT(np);
+    UNPROTECT(nprotect);
     return value;
 }
 
@@ -559,7 +537,7 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
     R_xlen_t length_X, *lengths_X, commonLength, *counters,
         length_dots,
         nForce;
-    int np;  // number of protected arguments
+    int nprotect;  // number of protected arguments
 
 
     // extra arguments specific to pvapply
@@ -576,7 +554,7 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
     if (use_names == NA_LOGICAL) error("invalid '%s' value", "USE.NAMES");
 
 
-    np = 0;
+    nprotect = 0;
 
 
     GET_LENGTH_X;
@@ -608,13 +586,13 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
         type_FUN_VALUE != RAWSXP  && type_FUN_VALUE != STRSXP &&
         type_FUN_VALUE != VECSXP)
         error("type '%s' is not supported", type2char(type_FUN_VALUE));
-    dim_FUN_VALUE = PROTECT(getAttrib(FUN_VALUE, R_DimSymbol)); np++;
+    dim_FUN_VALUE = PROTECT(getAttrib(FUN_VALUE, R_DimSymbol)); nprotect++;
     is_array = ( ( TYPEOF(dim_FUN_VALUE) == INTSXP ) &&
                  ( length(dim_FUN_VALUE) >= 1 ) );
 
 
     value = PROTECT(allocVector(type_FUN_VALUE,
-        commonLength * length_FUN_VALUE)); np++;
+        commonLength * length_FUN_VALUE)); nprotect++;
     names = R_NilValue;
     rowNames = R_NilValue;
     rowNames_index = 0;
@@ -629,7 +607,8 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
                         INDEX(i + 1, X_realIndx1)
                     )
                 ));
-                names = PROTECT(eval(expr, rho));
+                names = eval(expr, rho);
+                UNPROTECT(1);
                 if (names != R_NilValue) {
                     if (TYPEOF(names) != STRSXP)
                         error("'names(X[[%.0f]])' is not NULL or a character vector, but of type '%s'",
@@ -638,10 +617,8 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
                         error("'length(X[[%.0f]])' (%.0f) and 'length(names(X[[%.0f]]))' (%.0f) are not equal",
                             (double) (i + 1), (double) (lengths_X[i]),
                             (double) (i + 1), (double) commonLength);
-                    np += 2;
                     break;
                 }
-                UNPROTECT(2);
             }
         }
         if (names == R_NilValue) for (R_xlen_t i = 0; i < length_X; i++) {
@@ -651,17 +628,17 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
                     XSymbol,
                     INDEX(i + 1, X_realIndx1)
                 ));
-                names = PROTECT(eval(expr, rho));
+                names = eval(expr, rho);
+                UNPROTECT(1);
                 if (TYPEOF(names) == STRSXP) {
-                    np += 2;
+                    PROTECT(names); nprotect++;
                     break;
                 }
                 else names = R_NilValue;
-                UNPROTECT(2);
             }
         }
         PROTECT_WITH_INDEX(rowNames = getAttrib(FUN_VALUE,
-            is_array ? R_DimNamesSymbol : R_NamesSymbol), &rowNames_index); np++;
+            is_array ? R_DimNamesSymbol : R_NamesSymbol), &rowNames_index); nprotect++;
     }
 
 
@@ -778,7 +755,7 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
 
     if (length_FUN_VALUE != 1) {
         rank_FUN_VALUE = is_array ? length(dim_FUN_VALUE) : 1;
-        dim = PROTECT(allocVector(INTSXP, rank_FUN_VALUE + 1));
+        PROTECT(dim = allocVector(INTSXP, rank_FUN_VALUE + 1));
         if (is_array)
             for (int j = 0; j < rank_FUN_VALUE; j++)
                 INTEGER(dim)[j] = INTEGER(dim_FUN_VALUE)[j];
@@ -796,7 +773,7 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
         }
         else {
             if (!isNull(names) || !isNull(rowNames)) {
-                dimnames = PROTECT(allocVector(VECSXP, rank_FUN_VALUE + 1));
+                PROTECT(dimnames = allocVector(VECSXP, rank_FUN_VALUE + 1));
                 if (is_array && !isNull(rowNames)) {
                     for (int j = 0; j < rank_FUN_VALUE; j++)
                         SET_VECTOR_ELT(dimnames, j, VECTOR_ELT(rowNames, j));
@@ -811,6 +788,6 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
 
 
     set_R_Visible_TRUE;
-    UNPROTECT(np);
+    UNPROTECT(nprotect);
     return value;
 }

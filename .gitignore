@@ -1,6 +1,5 @@
-.Rproj.user
 /.Rproj.user/
-/.Rproj.user/**
-*.Rcheck
 /*.Rcheck/
-/*.Rcheck/**
+/*_*.tar.gz
+/*_*.tgz
+/*_*.zip

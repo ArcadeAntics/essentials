@@ -14,9 +14,6 @@ export(flat.list, hypot, phypot, listify, strip, strsplit2, IDW,
     isMissingArg)
 
 
-export(convert_dbf_to_csv)
-
-
 # ArgumentParser-class.R    ----
 
 
@@ -309,12 +306,6 @@ export(shEncode, commandEncode, commandQuote)
 export(shPrompt)
 
 
-# toProv.R                  ----
-
-
-export(toProv, toProv2, toProvince)
-
-
 # tryExcept.R               ----
 
 
@@ -339,13 +330,6 @@ export(Args, withArgs)
 
 
 export(wrapper)
-
-
-# zap                       ----
-
-
-importFrom(utils, read.table, read.csv, read.csv2, read.delim, read.delim2)
-export(zap, zap.table, zap.csv, zap.csv2, zap.delim, zap.delim2)
 
 
 export(tempname)

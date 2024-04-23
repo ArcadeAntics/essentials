@@ -11,11 +11,9 @@
 \alias{as.scalar.string}
 \alias{as.scalar.raw}
 \alias{as.scalar.number}
-\title{
-Scalars
-}
+\title{Scalars}
 \description{
-Coerce objects to scalars (vectors of length 1).
+  Coerce objects to scalars (vectors of length 1).
 }
 \usage{
 as.scalar(x, mode = "any")
@@ -38,41 +36,37 @@ as.scalar.raw(x)
 as.scalar.number(x, strict = TRUE)
 }
 \arguments{
-  \item{x}{
-object to be coerced or tested.
-  }
-  \item{mode}{
-character string naming an atomic mode or \code{"any"}.
-  }
-  \item{strict}{
-\code{TRUE} or \code{FALSE}, should a complex number that is strictly real (real
-component is NA or NaN or imaginary component is NA or NaN or 0) be converted to
-a real number?
-  }
+  \item{x}{object to be coerced or tested.}
+
+  \item{mode}{character string naming an atomic mode or \code{"any"}.}
+
+  \item{strict}{\code{TRUE} or \code{FALSE}, should a complex number that is
+    strictly real (real component is NA or NaN or imaginary component is NA or
+    NaN or 0) be converted to a real number?}
 }
 \details{
-\code{as.scalar.logical} coerces an object to a vector of type \dQuote{logical}
-of length 1.
+  \code{as.scalar.logical} coerces an object to a vector of type
+  \dQuote{logical} of length 1.
 
-\code{as.scalar.integer} coerces an object to a vector of type \dQuote{integer}
-of length 1.
+  \code{as.scalar.integer} coerces an object to a vector of type
+  \dQuote{integer} of length 1.
 
-\code{as.scalar.real}, \code{as.scalar.double} and \code{as.scalar.numeric}
-coerces an object to a vector of type \dQuote{numeric} of length 1.
+  \code{as.scalar.real}, \code{as.scalar.double} and \code{as.scalar.numeric}
+  coerces an object to a vector of type \dQuote{numeric} of length 1.
 
-\code{as.scalar.complex} coerces an object to a vector of type \dQuote{complex}
-of length 1.
+  \code{as.scalar.complex} coerces an object to a vector of type
+  \dQuote{complex} of length 1.
 
-\code{as.scalar.number} coerces an object to a vector of type \dQuote{numeric}
-or \dQuote{complex} of length 1.
+  \code{as.scalar.number} coerces an object to a vector of type
+  \dQuote{numeric} or \dQuote{complex} of length 1.
 
-\code{as.scalar.string} and \code{as.scalar.character} coerces an object to a
-vector of type \dQuote{character} of length 1.
+  \code{as.scalar.string} and \code{as.scalar.character} coerces an object to a
+  vector of type \dQuote{character} of length 1.
 
-\code{as.scalar} coerces an object to a vector of length 1 of a specified mode.
+  \code{as.scalar} coerces an object to a vector of length 1 of a specified mode.
 }
 \value{
-A vector of length 1.
+  A vector of length 1.
 }
 \examples{
 ## if the type converting from and converting to are identical,

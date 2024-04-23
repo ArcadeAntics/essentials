@@ -1,29 +1,24 @@
 \name{Commands}
 \alias{Commands}
-\title{
-Extract Commands From an Object of Class "ParsedArgs"
-}
+\title{Extract Commands From an Object of Class "ParsedArgs"}
 \description{
-Provides access to a copy of the commands supplied to an object of class
-"ParsedArgs".
+  Provides access to a copy of the commands supplied to an object of class
+  "ParsedArgs".
 }
 \usage{
 Commands(x, type = c("original", "string"))
 }
 \arguments{
-  \item{x}{
- an object of class "ParsedArgs".
-  }
-  \item{type}{
-a string naming the type to return.
-  }
+  \item{x}{an object of class "ParsedArgs".}
+
+  \item{type}{a string naming the type to return.}
 }
 \value{
-If \code{type = "original"}, a character vector of the commands supplied when
-\code{x} was created.
+  If \code{type = "original"}, a character vector of the commands supplied when
+  \code{x} was created.
 
-If \code{type = "string"}, a character string of the commands supplied when
-\code{x} was created, separated by \code{"/"}.
+  If \code{type = "string"}, a character string of the commands supplied when
+  \code{x} was created, separated by \code{"/"}.
 }
 \examples{
 parser <- essentials::ArgumentParser()

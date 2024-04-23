@@ -1,31 +1,27 @@
 \name{Missing}
 \alias{Missing}
-\title{
-Does an Argument have a Value?
-}
+\title{Does an Argument have a Value?}
 \description{
-\code{Missing} can be used to test whether a value is the missing argument.
+  \code{Missing} can be used to test whether a value is the missing argument.
 }
 \usage{
 Missing(x, name)
 }
 \arguments{
-  \item{x}{
-an object of class \code{"ParsedArgs"}.
-  }
-  \item{name}{
-character string or symbol, the name of the argument to test for missing-ness.
-  }
+  \item{x}{an object of class \code{"ParsedArgs"}.}
+
+  \item{name}{character string or symbol, the name of the argument to test for
+    missing-ness.}
 }
 \details{
-\code{Missing} will return \code{FALSE} when an argument has a value, even if it
-wasn't provided. See \strong{Examples}.
+  \code{Missing} will return \code{FALSE} when an argument has a value, even if
+  it was not provided. See \strong{Examples}.
 
-\code{Missing} does not evaluate its argument \code{name}, similar to
-\code{missing}.
+  \code{Missing} does not evaluate its argument \code{name}, similar to
+  \code{missing}.
 }
 \value{
-\code{TRUE} or \code{FALSE}
+  \code{TRUE} or \code{FALSE}
 }
 \examples{
 parser <- essentials::ArgumentParser()

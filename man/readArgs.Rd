@@ -1,23 +1,21 @@
 \name{readArgs}
 \alias{readArgs}
 \alias{writeArgs}
-\title{
-Read/Write Command-Line Arguments from/to a File
-}
+\title{Read/Write Command-Line Arguments from/to a File}
 \description{
-When providing arguments to an \R script, it is often necessary to quote the
-arguments such that they are interpreted correctly by the shell before being
-passed to the script. However, this comes with the issue of different quoting
-conventions for different shells, meaning that the strings will not be
-interpreted the same between different shells. Additionally, some characters
-may not be allowed for certain shells.
+  When providing arguments to an \R script, it is often necessary to quote the
+  arguments such that they are interpreted correctly by the shell before being
+  passed to the script. However, this comes with the issue of different quoting
+  conventions for different shells, meaning that the strings will not be
+  interpreted the same between different shells. Additionally, some characters
+  may not be allowed for certain shells.
 
-You can get around this with \code{writeArgs} which will right your arguments
-(and comments!) to a file, and returns a filename that can be used in the
-arguments place.
+  You can get around this with \code{writeArgs} which will right your arguments
+  (and comments!) to a file, and returns a filename that can be used in the
+  arguments place.
 
-\code{readArgs} is the corresponding function to read those arguments back into
-\R.
+  \code{readArgs} is the corresponding function to read those arguments back
+  into \R.
 }
 \usage{
 writeArgs(x, file = tempfile(pattern = pattern, fileext = fileext),
@@ -28,96 +26,89 @@ writeArgs(x, file = tempfile(pattern = pattern, fileext = fileext),
 readArgs(file, name = NULL)
 }
 \arguments{
-  \item{x}{
-any \R object. If a list, each element will be turned into a character vector
-(in the same way as \code{\link{withArgs}} converts its arguments), otherwise
-will be turned into a character vector (same as \code{withArgs}). The arguments
-to be written.
-  }
-  \item{file}{
-character string or \code{NULL}. Name of the file to be read from, or \code{""}
-to write to \code{\link[base:showConnections]{stdout}()} (intended for verifying
-the output looks as expected), or \code{NULL} to return the formatted text
-without writing anywhere.
-  }
-  \item{pattern, fileext}{
-character string. Allows for easier means of editing the filename created.
-  }
-  \item{comments}{
-logical. Should the \code{\link[base:comment]{comments}} of \code{x} be written
-as well?
-  }
-  \item{nlines.between.comment.and.args}{
-a non-negative integer specifying the number of empty lines between each set of
-comments and arguments.
-  }
-  \item{nlines.between.args}{
-a non-negative integer specifying the number of empty lines between each set of
-arguments. Only used for a list \code{x}.
-  }
-  \item{at}{
-logical. Should an \code{"@"} character be placed before the returned filename?
-  }
-  \item{name}{
-The name of the format for reading/writing, see \strong{Details}. For writing,
-will be ignored if \code{file} is a non-empty character string.
-  }
+  \item{x}{any \R object. If a list, each element will be turned into a
+    character vector (in the same way as \code{\link{withArgs}} converts its
+    arguments), otherwise will be turned into a character vector (same as
+    \code{withArgs}). The arguments to be written.}
+
+  \item{file}{character string or \code{NULL}. Name of the file to be read
+    from, or \code{""} to write to \code{\link[base:showConnections]{stdout}()}
+    (intended for verifying the output looks as expected), or \code{NULL} to
+    return the formatted text without writing anywhere.}
+
+  \item{pattern, fileext}{character string. Allows for easier means of editing
+    the filename created.}
+
+  \item{comments}{logical. Should the \code{\link[base:comment]{comments}} of
+    \code{x} be written as well?}
+
+  \item{nlines.between.comment.and.args}{a non-negative integer specifying the
+    number of empty lines between each set of comments and arguments.}
+
+  \item{nlines.between.args}{a non-negative integer specifying the number of
+    empty lines between each set of arguments. Only used for a list \code{x}.}
+
+  \item{at}{logical. Should an \code{"@"} character be placed before the
+    returned filename?}
+
+  \item{name}{The name of the format for reading/writing, see \strong{Details}.
+    For writing, will be ignored if \code{file} is a non-empty character
+    string.}
 }
 \details{
-\code{readArgs} and \code{writeArgs} accept many formats for reading and writing
-arguments, based on the file extension.
+  \code{readArgs} and \code{writeArgs} accept many formats for reading and
+  writing arguments, based on the file extension.
 
-\describe{
-  \item{R arguments, extension \code{".Rargs"}}{
-Arguments are read as though they were \R strings, separated by newline
-\code{"\\n"} or semicolon \code{" ; "}. This means arguments must be quoted and
-can use any of the escape sequences seen in \link[base]{Quotes}. The most
-reliable method, also the slowest (but not by much). Can contain \R comments,
-will be ignored when read.
-  }
-  \item{Python arguments, extension \code{".pyargs"}}{
-Arguments are read one per line. No quoting rules apply. Arguments cannot
-contain newline or carriage return, and will not be read/written properly if so.
-The fastest method. Cannot contain comments.
-  }
-  \item{Comma-separated arguments, extension \code{".csv"}}{
-Arguments are read using \code{\link[base]{scan}}, delimited/separated by comma
-\code{","}. Arguments may be quoted with double quotes \code{"\\""}, and must be
-quoted if they contain comma, newline, or double quotes. Arguments cannot
-contain carriage return. Cannot contain comments.
-  }
-  \item{Tab-separated arguments, extension \code{".tsv"}}{
-Arguments are read using \code{\link[base]{scan}}, delimited/separated by tab
-\code{"\\t"}. Arguments may be quoted with double quotes \code{"\\""}, and must
-be quoted if they contain tab, newline, or double quotes. Arguments cannot
-contain carriage return.  Cannot contain comments.
-  }
-  \item{Other arguments, other extension}{
-Arguments are read using \code{\link[base]{scan}}, delimited/separated by
-\sQuote{white-space}. Arguments may be quoted with single quotes \code{"'"} and
-double quotes \code{"\\""}, and must be quoted if they contain white-space,
-single quotes, or double quotes. Arguments cannot contain carriage return.
-Quoted arguments cannot contain an odd number of trailing backslashes, or an odd
-number of backslashes before an embedded quoting character. Can contain
-comments, marked by a non-quoted hash character \code{"#"}.
-  }
-}
+  \describe{
+    \item{R arguments, extension \code{".Rargs"}}{Arguments are read as though
+      they were \R strings, separated by newline \code{"\\n"} or semicolon
+      \code{" ; "}. This means arguments must be quoted and can use any of the
+      escape sequences seen in \link[base]{Quotes}. The most reliable method,
+      also the slowest (but not by much). Can contain \R comments, will be
+      ignored when read.}
 
-The methods listed above can read/write from compressed files (see
-\link[base:connections]{gzfile}). For \code{"csv"}, \code{"tsv"}, and
-\code{"other"} methods, \code{writeArgs} tries to space the text such that the
-file will look nice to open within a text editor and \sQuote{Excel}. Each line
-of \emph{arguments} (not comments) will have at most 80 characters (to look nice
-in a text editor) or at most 10 columns (to look nice in \sQuote{Excel}),
-whichever comes first (though this rule is broken by strings with more than 80
-characters).
+    \item{Python arguments, extension \code{".pyargs"}}{Arguments are read one
+      per line. No quoting rules apply. Arguments cannot contain newline or
+      carriage return, and will not be read/written properly if so. The fastest
+      method. Cannot contain comments.}
+
+    \item{Comma-separated arguments, extension \code{".csv"}}{Arguments are
+      read using \code{\link[base]{scan}}, delimited/separated by comma
+      \code{","}. Arguments may be quoted with double quotes \code{"\\""}, and
+      must be quoted if they contain comma, newline, or double quotes.
+      Arguments cannot contain carriage return. Cannot contain comments.}
+
+    \item{Tab-separated arguments, extension \code{".tsv"}}{Arguments are read
+      using \code{\link[base]{scan}}, delimited/separated by tab \code{"\\t"}.
+      Arguments may be quoted with double quotes \code{"\\""}, and must be
+      quoted if they contain tab, newline, or double quotes. Arguments cannot
+      contain carriage return. Cannot contain comments.}
+
+    \item{Other arguments, other extension}{Arguments are read using
+      \code{\link[base]{scan}}, delimited/separated by \sQuote{white-space}.
+      Arguments may be quoted with single quotes \code{"'"} and double quotes
+      \code{"\\""}, and must be quoted if they contain white-space, single
+      quotes, or double quotes. Arguments cannot contain carriage return.
+      Quoted arguments cannot contain an odd number of trailing backslashes,
+      nor an odd number of backslashes before an embedded quoting character.
+      Can contain comments, marked by a non-quoted hash character \code{"#"}.}
+  }
+
+  The methods listed above can read/write from compressed files (see
+  \link[base:connections]{gzfile}). For \code{"csv"}, \code{"tsv"}, and
+  \code{"other"} methods, \code{writeArgs} tries to space the text such that
+  the file will look nice to open within a text editor and \sQuote{Excel}. Each
+  line of \emph{arguments} (not comments) will have at most 80 characters (to
+  look nice in a text editor) or at most 10 columns (to look nice in
+  \sQuote{Excel}), whichever comes first (though this rule is broken by strings
+  with more than 80 characters).
 }
 \value{
-for \code{file = NULL}, the formatted text.
+  for \code{file = NULL}, the formatted text.
 
-for \code{file = ""}, the formatted text invisibly.
+  for \code{file = ""}, the formatted text invisibly.
 
-otherwise, a character string naming a file containing your arguments.
+  otherwise, a character string naming a file containing your arguments.
 }
 \examples{
 x <- letters; essentials::writeArgs(x, file = "")

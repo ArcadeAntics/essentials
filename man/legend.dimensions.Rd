@@ -1,10 +1,9 @@
 \name{legend.dimensions}
 \alias{legend.dimensions}
-\title{
-Size of a Legend
-}
+\title{Size of a Legend}
 \description{
-This function is used to determine the size of a legend as it appears on a plot.
+  This function is used to determine the size of a legend as it appears on a
+  plot.
 }
 \usage{
 legend.dimensions(expr, envir = parent.frame(),
@@ -13,42 +12,38 @@ legend.dimensions(expr, envir = parent.frame(),
     trace = FALSE)
 }
 \arguments{
-  \item{expr}{
-a \code{\link[base]{call}}, an \code{\link[base]{expression}} of length 1, or a
-\code{\link[stats]{formula}} of length 2.
-  }
-  \item{envir}{
-the \code{\link[base]{environment}} in which \code{expr} is to be evaluated. May
-also be \code{NULL}, a list, a data frame, a pairlist or an integer as specified
-to \code{\link[base:sys.parent]{sys.call}}.
-  }
-  \item{enclos}{
-Relevant when \code{envir} is a (pair)list or a data frame. Specifies the
-enclosure, i.e., where \R looks for objects not found in \code{envir}. This can
-be \code{NULL} (interpreted as the base package environment,
-\code{\link[base:environment]{baseenv()}}) or an environment.
-  }
-  \item{trace}{
-Should \code{legend.dimensions} print debugging messages?
-  }
+  \item{expr}{a \code{\link[base]{call}}, an \code{\link[base]{expression}} of
+    length 1, or a \code{\link[stats]{formula}} of length 2.}
+
+  \item{envir}{the \code{\link[base]{environment}} in which \code{expr} is to
+    be evaluated. May also be \code{NULL}, a list, a data frame, a pairlist or
+    an integer as specified to \code{\link[base:sys.parent]{sys.call}}.}
+
+  \item{enclos}{Relevant when \code{envir} is a (pair)list or a data frame.
+    Specifies the enclosure, i.e., where \R looks for objects not found in
+    \code{envir}. This can be \code{NULL} (interpreted as the base package
+    environment, \code{\link[base:environment]{baseenv()}}) or an environment.}
+
+  \item{trace}{Should \code{legend.dimensions} print debugging messages?}
 }
 \details{
-\code{expr} would usually be a call to
-\code{\link[graphics:legend]{graphics::legend}}, though anything that adds a
-legend to a plot and returns identical output to \code{graphics::legend} is
-accepted.
+  \code{expr} would usually be a call to
+  \code{\link[graphics:legend]{graphics::legend}}, though anything that adds a
+  legend to a plot and returns identical output to \code{graphics::legend} is
+  accepted.
 
-If \code{expr} is a formula, it should be of the form \code{~call( .. )} where
-\code{call( .. )} is the call to be evaluated (the call that produces the
-legend when evaluated). The \code{\link[base]{environment}} of \code{expr} will
-be used instead of \code{envir}, and \code{enclos} will be ignored.
+  If \code{expr} is a formula, it should be of the form \code{~call( .. )}
+  where \code{call( .. )} is the call to be evaluated (the call that produces
+  the legend when evaluated). The \code{\link[base]{environment}} of
+  \code{expr} will be used instead of \code{envir}, and \code{enclos} will be
+  ignored.
 }
 \value{
-A list with components
+  A list with components:
+
   \describe{
-    \item{\code{w,h}}{
-positive numbers giving width and height of the legend's box \emph{IN INCHES!}
-    }
+    \item{\code{w,h}}{positive numbers giving width and height of the legend's
+      box \emph{IN INCHES!}}
   }
 }
 \examples{\dontshow{omar <- graphics::par("mar")}

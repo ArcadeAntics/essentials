@@ -1,60 +1,55 @@
 \name{path.contract}
 \alias{path.contract}
-\title{
-Contract File Paths
-}
+\title{Contract File Paths}
 \description{
-Contract a path name, for example by replacing the user's home directory (if
-defined on that platform) with a leading tilde.
+  Contract a path name, for example by replacing the user's home directory (if
+  defined on that platform) with a leading tilde.
 }
 \usage{
 path.contract(path, ignore.case = os.windows, home = "~")
 }
 \arguments{
-  \item{path}{
-character vector containing one or more path names.
-  }
-  \item{ignore.case}{
-\code{TRUE} or \code{FALSE}, should case be ignored when replacing the user's
-home directory?
-  }
-  \item{home}{
-character string, the path to contract against.
-  }
+  \item{path}{character vector containing one or more path names.}
+
+  \item{ignore.case}{\code{TRUE} or \code{FALSE}, should case be ignored when
+    replacing the user's home directory?}
+
+  \item{home}{character string, the path to contract against.}
 }
 \details{
-On Windows, paths are case insensitive, so something like
-\sQuote{\code{C:\\Users\\effective_user\\Documents}} is regarded as equivalent
-to \sQuote{\code{c:\\users\\effective_user\\documents}}.
+  On Windows, paths are case insensitive, so something like
+  \sQuote{\code{C:\\Users\\effective_user\\Documents}} is regarded as
+  equivalent to \sQuote{\code{c:\\users\\effective_user\\documents}}.
 
-Under Unix-alikes, paths are case sensitive, so something like
-\sQuote{\code{/home/effective_user}} is not equivalent to
-\sQuote{\code{/HOME/effective_user}}.
+  Under Unix-alikes, paths are case sensitive, so something like
+  \sQuote{\code{/home/effective_user}} is not equivalent to
+  \sQuote{\code{/HOME/effective_user}}.
 
-By default, \code{path.contract} respects each of these behaviours, but can be
-changed if desired.
+  By default, \code{path.contract} respects each of these behaviours, but can
+  be changed if desired.
 
-Additionally, on Windows, the file separator may be either \code{"/"} or
-\code{"\\\\"}, for example \sQuote{\code{C:\\Users\\effective_user\\Documents}}
-and \sQuote{\code{C:/Users/effective_user/Documents}} would be treated as
-equivalent (or any mixture of the two, for example
-\sQuote{\code{C:/Users\\effective_user/Documents}}).
+  Additionally, on Windows, the file separator may be either \code{"/"} or
+  \code{"\\\\"}, for example
+  \sQuote{\code{C:\\Users\\effective_user\\Documents}} and
+  \sQuote{\code{C:/Users/effective_user/Documents}} would be treated as
+  equivalent (or any mixture of the two, for example
+  \sQuote{\code{C:/Users\\effective_user/Documents}}).
 
-The 'path names' need not exist nor be valid path names.
+  The 'path names' need not exist nor be valid path names.
 }
 \value{
-A character vector of possibly contracted path names: where the home directory
-is unknown of none is specified the path is returned unchanged.
+  A character vector of possibly contracted path names: where the home
+  directory is unknown of none is specified the path is returned unchanged.
 }
 \note{
-Using \code{./}, \code{../}, symbolic links, hard links, or multiple mounts
-will \emph{NOT} be resolved before attempting to contract path names. If you
-wish to resolve these before contracting path names, see
-\code{\link[base]{normalizePath}}.
+  Using \code{./}, \code{../}, symbolic links, hard links, or multiple mounts
+  will \emph{NOT} be resolved before attempting to contract path names. If you
+  wish to resolve these before contracting path names, see
+  \code{\link[base]{normalizePath}}.
 }
 \seealso{
-\code{\link[base]{path.expand}}, \code{\link[base]{basename}},
-\code{\link[base]{normalizePath}}, \code{\link[base]{file.path}}.
+  \code{\link[base]{path.expand}}, \code{\link[base]{basename}},
+  \code{\link[base]{normalizePath}}, \code{\link[base]{file.path}}.
 }
 \examples{
 stopifnot(path.contract(path.expand(x <- c("~", "~/foo"))) == x)

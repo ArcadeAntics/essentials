@@ -1,44 +1,37 @@
 \name{delayedAssign2}
 \alias{delayedAssign2}
-\title{
-Delay Evaluation
-}
+\title{Delay Evaluation}
 \description{
-\code{delayedAssign2} creates a \emph{promise} to evaluate the given expression
-if its value is requested.
+  \code{delayedAssign2} creates a \emph{promise} to evaluate the given
+  expression if its value is requested.
 }
 \usage{
 delayedAssign2(x, value, eval.env = parent.frame(),
     assign.env = parent.frame(), evaluated = TRUE)
 }
 \arguments{
-  \item{x}{
-a variable name (given as a quoted string in the function call)
-  }
-  \item{value}{
-an expression to be assigned to \code{x}
-  }
-  \item{eval.env}{
-an environment in which to evaluate \code{value}
-  }
-  \item{assign.env}{
-an environment in which to assign \code{x}
-  }
-  \item{evaluated}{
-logical; should \code{value} be evaluated before making the promise?
-  }
+  \item{x}{a variable name (given as a quoted string in the function call)}
+
+  \item{value}{an expression to be assigned to \code{x}}
+
+  \item{eval.env}{an environment in which to evaluate \code{value}}
+
+  \item{assign.env}{an environment in which to assign \code{x}}
+
+  \item{evaluated}{logical; should \code{value} be evaluated before making the
+    promise?}
 }
 \details{
-This function is built upon \code{\link[base]{delayedAssign}}, with the extra
-argument \code{evaluated}. This is helpful in situations where an expression has
-already been grabbed with \code{substitute} somewhere else that you now wish to
-make into a promise.
+  This function is built upon \code{\link[base]{delayedAssign}}, with the extra
+  argument \code{evaluated}. This is helpful in situations where an expression
+  has already been grabbed with \code{substitute} somewhere else that you now
+  wish to make into a promise.
 
-While not implemented yet, this is used for the lazy default evaluation in
-\code{\link{ArgumentParser}}.
+  While not implemented yet, this is used for the lazy default evaluation in
+  \code{\link{ArgumentParser}}.
 }
 \value{
-\code{NULL} invisibly.
+  \code{NULL} invisibly.
 }
 \examples{
 # this is a simplified version of what ArgumentParser does with its arguments.

@@ -1,34 +1,30 @@
 \name{color.with.alpha}
 \alias{color.with.alpha}
 \alias{as.hex.code}
-\title{
-Color Opacity
-}
+\title{Color Opacity}
 \description{
-Change the alpha (opacity) of a series of colors.
+  Change the alpha (opacity) of a series of colors.
 }
 \usage{
 color.with.alpha(x, alpha)
 as.hex.code(x)
 }
 \arguments{
-  \item{x}{
-a character vector, a matrix as produced by \code{\link[grDevices]{col2rgb}}, or
-a matrix or data.frame where the first three columns are the red, green, and
-blue values.
-  }
-  \item{alpha}{
-an alpha-transparency level in the range [0,1] (0 means transparent and 1 means
-opaque).
-  }
+  \item{x}{character vector, a matrix as produced by
+    \code{\link[grDevices]{col2rgb}}, or a matrix or data.frame where the first
+    three columns are the red, green, and blue values.}
+
+  \item{alpha}{an alpha-transparency level in the range [0,1] (0 means
+    transparent and 1 means opaque).}
 }
 \details{
-When \code{alpha} is missing, the alpha-transparency is taken from \code{x}. In
-that case, \code{color.with.alpha} is just decoding the colors into a character
-vector of hex colors codes, and not actually changing the opacity of the colors.
+  When \code{alpha} is missing, the alpha-transparency is taken from \code{x}.
+  In that case, \code{color.with.alpha} is just decoding the colors into a
+  character vector of hex colors codes, and not actually changing the opacity
+  of the colors.
 }
 \value{
-A character vector of hex color codes.
+  A character vector of hex color codes.
 }
 \examples{
 example.colors <- c("red", "#FFA50099", "yellow", "green", "blue", "purple")

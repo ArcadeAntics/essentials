@@ -1,11 +1,9 @@
 \name{f.str}
 \alias{f.str}
-\title{
-Use C-Style String Formatting Commands with Interpolation
-}
+\title{Use C-Style String Formatting Commands with Interpolation}
 \description{
-A variant of \code{\link[base]{sprintf}} where values are specified
-\emph{within} the format strings.
+  A variant of \code{\link[base]{sprintf}} where values are specified
+  \emph{within} the format strings.
 }
 \usage{
 f.str(x, envir = parent.frame(),
@@ -14,55 +12,56 @@ f.str(x, envir = parent.frame(),
       simplify = TRUE)
 }
 \arguments{
-  \item{x}{
-a character vector of format strings.
-  }
-  \item{envir}{
-the \code{\link[base]{environment}} in which the values are to be evaluated.
-May also be \code{NULL}, a list, a data frame, a pairlist, or an integer as
-specified to \code{\link[base:sys.parent]{sys.call}}.
-  }
-  \item{enclos}{
-Relevant when \code{envir} is a (pair)list or a data frame. Specifies the
-enclosure, i.e., where \R looks for objects not found in \code{envir}. This
-can be \code{NULL} (interpreted as the base package environment,
-\code{\link[base:environment]{baseenv}()}) or an environment.
-  }
-  \item{simplify}{
-should the result be simplified to a character vector if possible?
-  }
+  \item{x}{a character vector of format strings.}
+
+  \item{envir}{the \code{\link[base]{environment}} in which the values are to
+    be evaluated. May also be \code{NULL}, a list, a data frame, a pairlist, or
+    an integer as specified to \code{\link[base:sys.parent]{sys.call}}.}
+
+  \item{enclos}{Relevant when \code{envir} is a (pair)list or a data frame.
+    Specifies the enclosure, i.e., where \R looks for objects not found in
+    \code{envir}. This can be \code{NULL} (interpreted as the base package
+    environment, \code{\link[base:environment]{baseenv}()}) or an environment.}
+
+  \item{simplify}{should the result be simplified to a character vector if
+    possible?}
 }
 \details{
-Values in the format strings are specified in a similar manner to that of
-\code{\link[base:Quotes]{raw character constants}}: \verb{(...)} with
-\verb{...} any character sequence, except that it must not contain the closing
-delimiter \sQuote{\verb{)}}. The delimiter pairs \verb{[]} and \verb{{}} can
-also be used. For additional flexibility, a number of dashes can be placed
-immediately before the opening delimiter, as long as the same number of dashes
-appear immediately after the closing delimiter.
+  Values in the format strings are specified in a similar manner to that of
+  \code{\link[base:Quotes]{raw character constants}}: \verb{(...)} with
+  \verb{...} any character sequence, except that it must not contain the
+  closing delimiter \sQuote{\verb{)}}. The delimiter pairs \verb{[]} and
+  \verb{{}} can also be used. For additional flexibility, a number of dashes
+  can be placed immediately before the opening delimiter, as long as the same
+  number of dashes appear immediately after the closing delimiter.
 
-A field width or precision (but not both) may be indicated by an asterisk
-\verb{*}: see \strong{Examples} for two methods of specifying such an argument.
+  A field width or precision (but not both) may be indicated by an asterisk
+  \verb{*}: see \strong{Examples} for two methods of specifying such an
+  argument.
 
-These values should appear immediately after the \verb{\%} in the conversion
-specifications, and immediately before the formatting specifications and type.
+  These values should appear immediately after the \verb{\%} in the conversion
+  specifications, and immediately before the formatting specifications and
+  type.
 }
 \value{
-For \code{f.str(simplify = FALSE)}, a list of the same length as \code{x}.
+  For \code{f.str(simplify = FALSE)}, a list of the same length as \code{x}.
 
-For \code{f.str(simplify = TRUE)}:
-if \code{x} has length zero, \code{character(0)}.
-\verb{
-}Otherwise, if \code{x} is length one, the first element of the list.
-\verb{
-}Otherwise, if each element of the list is length one, the list is unlisted.
-\verb{
-}Otherwise, the list is returned as is.
+  For \code{f.str(simplify = TRUE)}:
+
+  \enumerate{
+    \item{if \code{x} has length zero, \code{character(0)}.}
+
+    \item{if \code{x} is length one, the first element of the list.}
+
+    \item{if each element of the list is length one, the list is unlisted.}
+
+    \item{the list is returned as is.}
+  }
 }
 \seealso{
-\code{\link[base]{sprintf}}
+  \code{\link[base]{sprintf}}
 
-\code{glue::glue} for another method of string interpolation.
+  \code{glue::glue} for another method of string interpolation.
 }
 \examples{
 name <- "Fred"

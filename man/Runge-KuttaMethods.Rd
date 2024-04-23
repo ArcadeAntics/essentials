@@ -6,11 +6,9 @@
 \alias{RK2}
 \alias{RungeKuttaMethod}
 \alias{RK4}
-\title{
-Runge-Kutta Methods
-}
+\title{Runge-Kutta Methods}
 \description{
-Performs the Runge-Kutta method on a collection of dependent variables
+  Performs the Runge-Kutta method on a collection of dependent variables
 }
 \usage{
 EulerMethod(independent, initialConditions, fun)
@@ -23,42 +21,42 @@ RungeKuttaMethod(independent, initialConditions, fun)
 RK4(independent, initialConditions, fun)
 }
 \arguments{
-  \item{independent}{
-list or numeric; if a list, the first element will be used
+  \item{independent}{list or numeric; if a list, the first element will be used.
 
-A numeric sequence of independent variable values
+    A numeric sequence of independent variable values.
 
-The advantage of a list is explained in the \bold{Value} section
-  }
-  \item{initialConditions}{
-numeric or complex; initial values for a series of dependent variables
-  }
-  \item{fun}{
-function; accepts at least two arguments, the first an independent variable value,
-the second a series of dependent variable values
-  }
+    The advantage of a list is explained in the \bold{Value} section.}
+
+  \item{initialConditions}{numeric or complex; initial values for a series of
+    dependent variables.}
+
+  \item{fun}{function; accepts at least two arguments, the first an independent
+    variable value, the second a series of dependent variable values.}
 }
 \details{
-Consider a problem given as:
-\deqn{\frac{dx}{dq} = f(q, x), x(q[0]) = x[0]}{dx/dq = f(q, x), x(q0) = x0}
-Here x is an unknown function (scalar or vector) of independent quantity q that
-we wish to approximate. We know that dx/dq, the rate at which x changes, is a function
-of q and x itself. At the initial quantity q0, the corresponding value of x is x0.
-To use any of the Runge-Kutta methods, provide a series of independent quantity
-values as "independent" (the first of which should be q0), the initial quantities
-of x, x0, as "initialConditions", and the function f(q, x) as "fun"
+  Consider a problem given as:
+
+  \deqn{\frac{dx}{dq} = f(q, x), x(q[0]) = x[0]}{dx/dq = f(q, x), x(q0) = x0}
+
+  Here x is an unknown function (scalar or vector) of independent quantity q
+  that we wish to approximate. We know that dx/dq, the rate at which x changes,
+  is a function of q and x itself. At the initial quantity q0, the
+  corresponding value of x is x0. To use any of the Runge-Kutta methods,
+  provide a series of independent quantity values as "independent" (the first
+  of which should be q0), the initial quantities of x, x0, as
+  "initialConditions", and the function f(q, x) as "fun"
 }
 \value{
-The advantage of a list is that a name may be provided to the independent variable.
-For instance, you could say
+  The advantage of a list is that a name may be provided to the independent
+  variable. For instance, you could say:
 
-EulerMethod(independent = seq(0, 1, 0.001), ...)
+  \code{EulerMethod(independent = seq(0, 1, 0.001), ...)}
 
-or you could say
+  or you could say:
 
-EulerMethod(independent = list(t = seq(0, 1, 0.001)), ...)
+  \code{EulerMethod(independent = list(t = seq(0, 1, 0.001)), ...)}
 
-This way the return value will name the independent variable
+  This way the return value will name the independent variable
 }
 \examples{
 # Consider a particle moving in a bowl

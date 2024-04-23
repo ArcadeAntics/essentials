@@ -1,32 +1,26 @@
 \name{wrapper}
 \alias{wrapper}
-\title{
-Wrapper Functions
-}
+\title{Wrapper Functions}
 \description{
-Create a call that can be substituted into a wrapper function.
+  Create a call that can be substituted into a wrapper function.
 }
 \usage{
 wrapper(fun, defaults = NULL, with.pkg = TRUE)
 }
 \arguments{
-  \item{fun}{
-a character string, symbol or call.
-  }
-  \item{defaults}{
-a list of default arguments for the call, or \code{NULL}.
-  }
-  \item{with.pkg}{
-logical; if the function is from a namespace, should the namespace name be used
-in the call?
-  }
+  \item{fun}{a character string, symbol or call.}
+
+  \item{defaults}{a list of default arguments for the call, or \code{NULL}.}
+
+  \item{with.pkg}{logical; if the function is from a namespace, should the
+    namespace name be used in the call?}
 }
 \details{
-A wrapper function is a function whose purpose is to call another function.
-Wrapper functions are useful for hiding details of a function's implementation.
+  A wrapper function is a function whose purpose is to call another function.
+  Wrapper functions are useful for hiding details of a function's implementation.
 }
 \value{
-A call.
+  A call.
 }
 \examples{
 # I don't particularly like that the function data.frame has

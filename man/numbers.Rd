@@ -3,13 +3,11 @@
 \alias{as.numbers}
 \alias{is.numbers}
 \alias{as.numbers.default}
-\title{
-Number Vectors
-}
+\title{Number Vectors}
 \description{
-Creates or coerces objects of type \dQuote{numeric} or \dQuote{complex}.
-\code{is.numbers} is a more general test of an object being interpretable as
-numbers.
+  Creates or coerces objects of type \dQuote{numeric} or \dQuote{complex}.
+  \code{is.numbers} is a more general test of an object being interpretable as
+  numbers.
 }
 \usage{
 numbers(length = 0)
@@ -19,43 +17,41 @@ is.numbers(x)
 \S3method{as.numbers}{default}(x, strict = TRUE, ...)
 }
 \arguments{
-  \item{length}{
-A non-negative integer specifying the desired length. Double values will be
-coerced to integer: supplying an argument of length other than one is an error.
-}
-  \item{x}{
-object to be coerced or tested.
-}
-  \item{strict}{
-\code{TRUE} or \code{FALSE}, should a vector of complex numbers where each
-element is strictly real (real component is NA or NaN or imaginary component is
-NA or NaN or 0) be converted to a vector of real numbers?
-}
-  \item{...}{
-further arguments passed to or from other methods.
-}
+  \item{length}{A non-negative integer specifying the desired length. Double
+    values will be coerced to integer: supplying an argument of length other
+    than one is an error.}
+
+  \item{x}{object to be coerced or tested.}
+
+  \item{strict}{\code{TRUE} or \code{FALSE}, should a vector of complex numbers
+    where each element is strictly real (real component is NA or NaN or
+    imaginary component is NA or NaN or 0) be converted to a vector of real
+    numbers?}
+
+  \item{...}{further arguments passed to or from other methods.}
 }
 \details{
-\code{numbers} is identical to \code{\link[base]{numeric}} and
-\code{\link[base]{double}} (and \code{real}). It creates a double-precision
-vector of the specified length with each element equal to 0.
+  \code{numbers} is identical to \code{\link[base]{numeric}} and
+  \code{\link[base]{double}} (and \code{real}). It creates a double-precision
+  vector of the specified length with each element equal to 0.
 
-\code{as.numbers} attempts to coerce its argument to be of double or complex
-type: like \code{\link{as.vector}} it strips attributes including names.
+  \code{as.numbers} attempts to coerce its argument to be of double or complex
+  type: like \code{\link{as.vector}} it strips attributes including names.
 
-\code{is.numbers} is a more general test of an object being considered numbers,
-meaning the base type of the class is \code{double} or \code{integer} or
-\code{complex} \var{and} values can reasonably be regarded as numbers (e.g.,
-arithmetic on them makes sense, and comparison should be done via the base
-type).
+  \code{is.numbers} is a more general test of an object being considered
+  numbers, meaning the base type of the class is \code{double} or
+  \code{integer} or \code{complex} \var{and} values can reasonably be regarded
+  as numbers (e.g., arithmetic on them makes sense, and comparison should be
+  done via the base type).
 }
 \value{
-for \code{numbers} see \code{\link[base]{double}}.
+  for \code{numbers} see \code{\link[base]{double}}.
 
-\code{as.numbers} returns either a \code{double} or \code{complex} vector.
+  \code{as.numbers} returns either a \code{double} or \code{complex} vector.
 
-\code{is.numbers} returns \code{TRUE} if its argument is of \code{\link{mode}}
-"numeric" or "complex" and not a factor, and \code{FALSE} otherwise.
+  \code{is.numbers} returns \code{TRUE} if its argument is of
+  \code{\link{mode}} "numeric" or "complex" and not a factor, and \code{FALSE}
+  otherwise.
 }
 \examples{
 x <- 1:5

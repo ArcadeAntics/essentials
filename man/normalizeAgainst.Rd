@@ -1,33 +1,28 @@
 \name{normalizeAgainst}
 \alias{normalizeAgainst}
-\title{
-Normalize File Paths Against a Different Directory
-}
+\title{Normalize File Paths Against a Different Directory}
 \description{
-Convert file paths to canonical form, using a different working directory. By
-default, the different working directory would be the executing script's
-directory.
+  Convert file paths to canonical form, using a different working directory. By
+  default, the different working directory would be the executing script's
+  directory.
 }
 \usage{
 normalizeAgainst(..., n = 0, against = this.dir(verbose = FALSE, n = n + 1))
 }
 \arguments{
-  \item{\dots}{
-arguments passed to \code{\link[base]{normalizePath}()}.
-  }
-  \item{n}{
-argument passed to \code{\link[this.path]{this.dir}()}.
-  }
-  \item{against}{
-character string (or possibly \code{NULL}). The directory against which file
-paths will be normalized.
-  }
+  \item{\dots}{arguments passed to \code{\link[base]{normalizePath}()}.}
+
+  \item{n}{argument passed to \code{\link[this.path]{this.dir}()}.}
+
+  \item{against}{character string (or possibly \code{NULL}). The directory
+    against which file paths will be normalized.}
 }
 \details{
-When \code{against} is a character string, the working directory is changed to
-\code{against}, then the paths are \code{\link[base:normalizePath]{normalized}},
-and then the working directory is changed back to its previous value.
+  When \code{against} is a character string, the working directory is changed
+  to \code{against}, then the paths are
+  \code{\link[base:normalizePath]{normalized}}, and then the working directory
+  is changed back to its previous value.
 }
 \value{
-A character vector, see \code{\link[base]{normalizePath}}.
+  A character vector, see \code{\link[base]{normalizePath}}.
 }

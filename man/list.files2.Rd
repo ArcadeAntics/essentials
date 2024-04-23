@@ -2,21 +2,19 @@
 \alias{list.files2}
 \alias{dir2}
 \alias{list.dirs2}
-\title{
-List the Files in a Directory/Folder
-}
+\title{List the Files in a Directory/Folder}
 \description{
-Unlike \code{\link[base]{list.files}} and
-\code{\link[base:list.files]{list.dirs}}, paths will not be converted to the
-native encoding, but instead to UTF-8.
+  Unlike \code{\link[base]{list.files}} and
+  \code{\link[base:list.files]{list.dirs}}, paths will not be converted to the
+  native encoding, but instead to UTF-8.
 
-In Windows, when the C runtime is not \code{"ucrt"}, \code{list.files2} and
-\code{list.dirs2} will use \href{https://www.python.org/downloads/}{python},
-so make sure you have it installed.
+  In Windows, when the C runtime is not \code{"ucrt"}, \code{list.files2} and
+  \code{list.dirs2} will use \href{https://www.python.org/downloads/}{python},
+  so make sure you have it installed.
 
-Under Unix-alikes, or when the C runtime on Windows is \code{"ucrt"},
-\code{list.files2} and \code{list.dirs2} will just call
-\code{\link[base]{list.files}}.
+  Under Unix-alikes, or when the C runtime on Windows is \code{"ucrt"},
+  \code{list.files2} and \code{list.dirs2} will just call
+  \code{\link[base]{list.files}}.
 }
 \usage{
 list.files2(path = ".", pattern = NULL, all.files = FALSE,
@@ -31,22 +29,21 @@ list.dirs2(path = ".", full.names = TRUE, recursive = TRUE)
 }
 \arguments{
   \item{path, pattern, all.files, full.names, recursive, ignore.case, include.dirs, no..}{
-See \code{\link[base]{list.files}}.
-  }
+    See \code{\link[base]{list.files}}.}
 }
 \value{
-A character vector containing the names of the files in the specified
-directories (empty if there were no files). If a path does not exist or is not
-a directory or is unreadable it is skipped.
+  A character vector containing the names of the files in the specified
+  directories (empty if there were no files). If a path does not exist or is
+  not a directory or is unreadable it is skipped.
 
-\code{list.dirs2} implicitly has \code{all.files = TRUE}, and if
-\code{recursive = TRUE}, the answer includes \code{path} itself (provided it
-is a readable directory).
+  \code{list.dirs2} implicitly has \code{all.files = TRUE}, and if
+  \code{recursive = TRUE}, the answer includes \code{path} itself (provided it
+  is a readable directory).
 
-\code{dir2} is an alias for \code{list.files2}.
+  \code{dir2} is an alias for \code{list.files2}.
 }
 \seealso{
-\code{\link[base]{list.files}}
+  \code{\link[base]{list.files}}
 }
 \examples{
 list.files2(R.home())

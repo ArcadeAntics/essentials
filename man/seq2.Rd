@@ -1,46 +1,40 @@
 \name{seq2}
 \alias{seq2}
-\title{
-Sequence Generation
-}
+\title{Sequence Generation}
 \description{
-Generate regular sequences.
+  Generate regular sequences.
 }
 \usage{
 seq2(from, to, by, length.out, along.with, endpoint, ...)
 }
 \arguments{
-  \item{from, to}{
-the starting and (maximal) end values of the sequence. Of length 1 unless
-just \code{from} is supplied.
-  }
-  \item{by}{
-number: increment of the sequence.
-  }
-  \item{length.out}{
-desired length of the sequence. A negative number will return a zero-length
-array, while a non-negative number will be rounded up if fractional.
-  }
-  \item{along.with}{
-take the length from the length of this argument.
-  }
-  \item{endpoint}{
-if the last element of the result is equal to \code{to}, should it be kept?
-  }
-  \item{\dots}{
-unused, to match the signature of \code{\link[base:seq]{seq.default}} and
-\code{\link[base:seq]{seq.int}}.
-  }
+  \item{from, to}{the starting and (maximal) end values of the sequence. Of
+  length 1 unless just \code{from} is supplied.}
+
+  \item{by}{number: increment of the sequence.}
+
+  \item{length.out}{desired length of the sequence. A negative number will
+    return a zero-length array, while a non-negative number will be rounded up
+    if fractional.}
+
+  \item{along.with}{take the length from the length of this argument.}
+
+  \item{endpoint}{if the last element of the result is equal to \code{to},
+    should it be kept?}
+
+  \item{\dots}{unused, to match the signature of
+    \code{\link[base:seq]{seq.default}} and \code{\link[base:seq]{seq.int}}.}
 }
 \details{
-A negative \code{length.out} will return a zero-length array, unlike
-\code{seq} where an error would be raised.
+  A negative \code{length.out} will return a zero-length array, unlike
+  \code{seq} where an error would be raised.
 
-Additionally, specifying \code{to - from} and \code{by} of opposite signs will
-return a zero-length array, unlike \code{seq} where an error would be raised.
+  Additionally, specifying \code{to - from} and \code{by} of opposite signs
+  will return a zero-length array, unlike \code{seq} where an error would be
+  thrown.
 }
 \value{
-A vector of type \code{"integer"} or \code{"double"}.
+  A vector of type \code{"integer"} or \code{"double"}.
 }
 \examples{seq2(from =  26, endpoint = TRUE )
 seq2(from =  26, endpoint = FALSE)

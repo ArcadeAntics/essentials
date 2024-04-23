@@ -1,28 +1,25 @@
 \name{strip}
 \alias{strip}
-\title{
-Remove Leading and Trailing White Spaces
-}
+\title{Remove Leading and Trailing White Spaces}
 \description{
-\code{strip} removes leading and trailing white space from each element of a
-character vector. White space characters include tab, newline, vertical tab,
-form feed, carriage return, space and possible other locale-dependent
-characters.
+  \code{strip} removes leading and trailing white space from each element of a
+  character vector. White space characters include tab, newline, vertical tab,
+  form feed, carriage return, space and possible other locale-dependent
+  characters.
 }
 \usage{
 strip(x)
 }
 \arguments{
-  \item{x}{
-a character vector, or an object which can be coerced by \code{as.character} to
-a character vector. \code{\link[base:LongVectors]{Long vectors}} are supported.
-}
+  \item{x}{a character vector, or an object which can be coerced by
+    \code{as.character} to a character vector.
+    \code{\link[base:LongVectors]{Long vectors}} are supported.}
 }
 \value{
-\code{strip} returns a character vector of the same length and with the same
-attributes as \code{x} (after possible coercion to character). Elements of
-character vectors \code{x} which are not substituted will be returned unchanged
-(including any declared encoding).
+  \code{strip} returns a character vector of the same length and with the same
+  attributes as \code{x} (after possible coercion to character). Elements of
+  character vectors \code{x} which are not substituted will be returned
+  unchanged (including any declared encoding).
 }
 \examples{
 x <- c(

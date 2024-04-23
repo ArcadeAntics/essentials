@@ -20,7 +20,7 @@ ArgumentParser(program = NA, usage = NA, description = NA, epilogue = NA,
         indent.epilogue = indent,
         exdent.epilogue = exdent,
     style = NA, wrap.help = FALSE, help.help = default.help("help"),
-    ..., help.message = NULL)
+    ..., help.message = NULL, n = 0)
 }
 \arguments{
   \item{program}{
@@ -45,19 +45,23 @@ logical. Should the messages be \code{\link[base:strwrap]{wrapped}} when
 printing the help message for the argument parser?
   }
   \item{indent, indent.description, indent.epilogue}{
-a non-negative integer giving the indentation of the first line in a paragraph.
+a non-negative integer giving the indentation of the first line in a
+paragraph.
   }
   \item{exdent, exdent.description, exdent.epilogue}{
 a non-negative integer giving the indentation of the subsequent lines in a
 paragraph.
   }
   \item{style}{
-
+integer. How to stylize the help message.
   }
   \item{help.message}{
 character vector or \code{NULL}. The help message to display. If \code{NULL},
 the help message will be created from \code{usage}, \code{description},
 \code{epilogue}, and any arguments provided by \code{\link{add.argument}}.
+  }
+  \item{n}{
+argument passed to \code{\link[this.path]{try.this.path}()}.
   }
 }
 \details{

@@ -89,7 +89,7 @@ cat_file <- function (file, show.all = FALSE, number.nonblank = FALSE, show.ends
     if (is.null(outfile))
         Lines
     else {
-        writeLines(Lines, outfile, useBytes = !.utf8locale)
+        writeLines(Lines, outfile, useBytes = !l10n_info()[["UTF-8"]])
         invisible(Lines)
     }
 }

@@ -448,7 +448,7 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
             write.dcf(desc, tmpfile, indent = 8L, width = 72L)
         }
         if (!file.rename(tmpfile, PACKAGES_file))
-            stop(sprinf("unable to rename file '%s' to '%s'", tmpfile, PACKAGES_file))
+            stop(sprintf("unable to rename file '%s' to '%s'", tmpfile, PACKAGES_file))
 
 
         archive_path <- file.path(tar_path, "Archive", pkgname)

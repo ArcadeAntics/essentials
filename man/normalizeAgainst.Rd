@@ -9,11 +9,14 @@ default, the different working directory would be the executing script's
 directory.
 }
 \usage{
-normalizeAgainst(..., against = this.dir(verbose = FALSE))
+normalizeAgainst(..., n = 0, against = this.dir(verbose = FALSE, n = n + 1))
 }
 \arguments{
   \item{\dots}{
 arguments passed to \code{\link[base]{normalizePath}()}.
+  }
+  \item{n}{
+argument passed to \code{\link[this.path]{this.dir}()}.
   }
   \item{against}{
 character string (or possibly \code{NULL}). The directory against which file

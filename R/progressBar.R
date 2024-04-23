@@ -1,12 +1,12 @@
-setProgressBarMethod <- function (name, definition)
+setProgressBarMethod <- evalq(envir = new.env(), {
+    progressBars <- list()
+                        function (name, definition)
 {
     name <- as.character(as.symbol(name))
     definition <- match.fun(definition)
     progressBars[[name]] <<- definition
     invisible()
 }
-evalq(envir = environment(setProgressBarMethod) <- new.env(), {
-    progressBars <- list()
 })
 
 
@@ -26,7 +26,8 @@ function(min = 0, max = 1, initial = 0, char = "=", width = NA,
     utils::txtProgressBar(min = min, max = max, initial = initial,
         char = char, width = width, title = title, label = label,
         style = style, file = file)
-})
+}
+)
 
 
 setProgressBarMethod("win",

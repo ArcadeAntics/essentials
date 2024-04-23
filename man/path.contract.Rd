@@ -8,7 +8,7 @@ Contract a path name, for example by replacing the user's home directory (if
 defined on that platform) with a leading tilde.
 }
 \usage{
-path.contract(path, ignore.case = os.windows)
+path.contract(path, ignore.case = os.windows, home = "~")
 }
 \arguments{
   \item{path}{
@@ -17,6 +17,9 @@ character vector containing one or more path names.
   \item{ignore.case}{
 \code{TRUE} or \code{FALSE}, should case be ignored when replacing the user's
 home directory?
+  }
+  \item{home}{
+character string, the path to contract against.
   }
 }
 \details{

@@ -1,20 +1,14 @@
 {
     essentials:::.update_DESCRIPTION_Date()
     essentials:::.check_this(  ## essentials
-        special = TRUE,
+        # special = TRUE,
 
-        check = FALSE, no.stop.on.test.error = TRUE,
+        check = TRUE, no.stop.on.test.error = TRUE,
         as.cran = TRUE, `_R_CHECK_CRAN_INCOMING_` = TRUE,
 
         chdir = TRUE
     )
 }
-
-
-essentials::delayedAssign2("x", compiler::compile(quote(5 + 6)))
-this.path:::.PRINFO(x)
-x
-this.path:::.PRINFO(x)
 
 
 jswitch("a",

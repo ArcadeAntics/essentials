@@ -1,6 +1,6 @@
 Package: essentials
-Version: 0.3.0.24
-Date: 2024-04-23
+Version: 0.3.0.25
+Date: 2024-06-03
 License: MIT + file LICENSE
 Title: Essential Functions not Included in Base R
 Description: Functions for converting objects to scalars (vectors of
@@ -9,7 +9,7 @@ Description: Functions for converting objects to scalars (vectors of
 Author: Iris Simmons
 Maintainer: Iris Simmons <ikwsimmo@gmail.com>
 Imports: graphics, grDevices, methods, utils, this.path
-Suggests: tools
+Suggests: tools, jsonlite
 Enhances: tcltk
 URL: https://github.com/ArcadeAntics/essentials
 BugReports: https://github.com/ArcadeAntics/essentials/issues

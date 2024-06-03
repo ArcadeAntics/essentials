@@ -46,8 +46,11 @@ R_xlen_t *dispatchLengths3(SEXP x, SEXP rho, R_xlen_t length_x)
 
 
     if (length_x != xlength(lengths_x))
-        error("'length(X)' (%.0f) and 'length(lengths(X))' (%.0f) are not equal",
-            (double) length_x, (double) xlength(lengths_x));
+        error(
+            "'length(X)' (%lld) and 'length(lengths(X))' (%lld) are not equal",
+            (long long int) length_x,
+            (long long int) xlength(lengths_x)
+        );
 
 
     R_xlen_t *value = (R_xlen_t *)

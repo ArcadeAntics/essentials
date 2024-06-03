@@ -234,20 +234,20 @@ void unpackset(SEXP x, SEXP assignfun, SEXP value, SEXP rho, SEXP env)
             /* there is no starred expression */
             if (starred_indx == -1) {
                 if (length_value < length_x) {
-                    error("not enough values to unpack (expected %.0f, got %.0f)",
-                        (double) length_x, (double) length_value);
+                    error("not enough values to unpack (expected %lld, got %lld)",
+                        (long long int) length_x, (long long int) length_value);
                     return;
                 }
                 if (length_value > length_x) {
-                    error("too many values to unpack (expected %.0f)",
-                        (double) length_x);
+                    error("too many values to unpack (expected %lld)",
+                        (long long int) length_x);
                     return;
                 }
             }
             else {
                 if (length_value < length_x - 1) {
-                    error("not enough values to unpack (expected at least %.0f, got %.0f)",
-                        (double) length_x - 1, (double) length_value);
+                    error("not enough values to unpack (expected at least %lld, got %lld)",
+                        (long long int) (length_x - 1), (long long int) length_value);
                     return;
                 }
             }

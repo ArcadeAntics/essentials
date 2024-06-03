@@ -4,16 +4,13 @@
 \alias{list.dirs2}
 \title{List the Files in a Directory/Folder}
 \description{
-  Unlike \code{\link[base]{list.files}} and
-  \code{\link[base:list.files]{list.dirs}}, paths will not be converted to the
-  native encoding, but instead to UTF-8.
+  On Windows, when the C runtime is not \code{"ucrt"}, \code{list.files2} and
+  \code{list.dirs2} list all the files or directories in UTF-8 rather than the
+  native encoding. It uses \CRANpkg{jsonlite} and
+  \href{https://www.python.org/downloads/}{python}, so make sure you have them
+  installed.
 
-  In Windows, when the C runtime is not \code{"ucrt"}, \code{list.files2} and
-  \code{list.dirs2} will use \href{https://www.python.org/downloads/}{python},
-  so make sure you have it installed.
-
-  Under Unix-alikes, or when the C runtime on Windows is \code{"ucrt"},
-  \code{list.files2} and \code{list.dirs2} will just call
+  Otherwise, \code{list.files2} and \code{list.dirs2} will just call
   \code{\link[base]{list.files}}.
 }
 \usage{

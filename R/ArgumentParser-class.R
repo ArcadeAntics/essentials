@@ -39,19 +39,8 @@ subparsers <- methods::setRefClass(
         description     = "list"                   ,
         program         = "character"              ,
         required        = "logical"                ,
-        value           = "list"                   )
-#     ,
-#     validity = function (object)
-# {
-#     c(
-#         if (length(object$style) != 1L)
-#             gettextf("invalid 'style', must be of length 1, got %d", length(object$style))
-#         else if (!object$style %in% STYLES)
-#             gettextf("invalid 'style', must be one of %s", paste(STYLES, collapse = ", ")),
-#         if (!all(vapply(object$parent.commands, base::inherits, "essentials_Refcharacter", FUN.VALUE = NA)))
-#             gettext("invalid 'parent.commands', must be a list of \"essentials_Refcharacter\" objects")
-#     )
-# }
+        value           = "list"
+    )
 )
 
 
@@ -84,7 +73,8 @@ ArgumentGroup <- methods::setRefClass(
         type                         = "character"                   ,
         description                  = "list"                        ,
         argument.groups              = "list"                        ,
-        formal.command.args          = "essentials_FormalCommandArgs")
+        formal.command.args          = "essentials_FormalCommandArgs"
+    )
 )
 
 
@@ -104,7 +94,8 @@ ArgumentParser <- methods::setRefClass(
 
         parent.commands     = "list"                        ,  # for subparsers only
         commands            = "essentials_Refcharacter"     ,
-        help                = "list"                        )
+        help                = "list"
+    )
 )
 
 
@@ -121,7 +112,7 @@ add.parser = function (commands, program = NA, ..., help = NA,
 
 
     styl2 <- as.integer(style)[1L]
-    if (!styl2 %in% STYLES)
+    if (!(styl2 %in% STYLES))
         styl2 <- .self$style
 
 
@@ -130,36 +121,44 @@ add.parser = function (commands, program = NA, ..., help = NA,
 
     command2 <- install(commands)
     if (!length(command2))
-        stop(gettext("invalid 'commands', must provide at least one"))
-    if (any(i <- !isName(command2))) {
+        stop("invalid 'commands', must provide at least one")
+    if (any(i <- !.is_name(command2))) {
         stop(sprintf(ngettext(sum(i),
-            "invalid command %s, does not match 'name.pattern'",
-            "invalid commands %s, do not match 'name.pattern'"),
+            "invalid command %s, does not match '.name_pattern'",
+            "invalid commands %s, do not match '.name_pattern'"),
             paste(dQuote(command2[i]), collapse = ", ")))
     }
 
 
     valu2$parent.commands <- c(.self$parent.commands, list(.self$commands))
     valu2$commands <- Refcharacter(value = command2)
-    valu2$help <- as.description(help, wrap = wrap.help)
+    valu2$help <- .as_description(help, wrap = wrap.help)
 
 
     otags <- lapply(.self$value, function(xx) xx[["commands"]][["value"]])
     f <- rep(seq_along(otags), lengths(otags))
-    i <- unlist(lapply(lengths(otags), "seq_len"))
+    i <- unlist(lapply(lengths(otags), seq_len))
     otags <- unlist(otags)
     N <- match(command2, otags, nomatch = 0L)
     if (any(N)) {
         if (is.na(overwrite))
-            warning(sprintf(ngettext(sum(N > 0L),
-                "overwriting definition of command %s",
-                "overwriting definitions of commands %s"),
-                paste(dQuote(command2[N > 0L]), collapse = ", ")))
+            warning(sprintf(
+                ngettext(
+                    sum(N > 0L),
+                    "overwriting definition of command %s",
+                    "overwriting definitions of commands %s"
+                ),
+                paste(dQuote(command2[N > 0L]), collapse = ", ")
+            ))
         else if (!overwrite)
-            stop(sprintf(ngettext(sum(N > 0L),
-                "invalid command %s, already in use",
-                "invalid commands %s, already in use"),
-                paste(dQuote(command2[N > 0L]), collapse = ", ")))
+            stop(sprintf(
+                ngettext(
+                    sum(N > 0L),
+                    "invalid command %s, already in use",
+                    "invalid commands %s, already in use"
+                ),
+                paste(dQuote(command2[N > 0L]), collapse = ", ")
+            ))
         N <- split(i[N], f[N])
         i <- as.integer(names(N))
         for (j in seq_along(i)) {
@@ -202,9 +201,9 @@ reorder = function (first = character(), last = character())
 )
 
 
-as.description <- function (x = NA, wrap = TRUE, indent = 0, exdent = 0)
+.as_description <- function (x = NA, wrap = TRUE, indent = 0, exdent = 0)
 {
-    x <- format.help(x)
+    x <- .format_help(x)
     wrap <- as.logical(wrap)[1L]
     if (is.na(wrap))
         wrap <- TRUE
@@ -222,15 +221,16 @@ as.description <- function (x = NA, wrap = TRUE, indent = 0, exdent = 0)
 # if (trailingOnly) x$trailingArgs else x$args
 
 
-commands <- function (x)
-c(vapply(x$parent.commands[-1L], function(xx) {
-    xx[["value"]][[1L]]
-}, ""), if (length(x$commands[["value"]]))
-    x$commands[["value"]][[1L]]
-else character())
+.commands <- function (x)
+{
+    c(
+        vapply(x$parent.commands[-1L], function(x) x[["value"]][[1L]], ""),
+        if (length(x$commands[["value"]])) x$commands[["value"]][[1L]]
+    )
+}
 
 
-makeHelpMessage <- function (x, style = NULL, cmds = commands(x))
+.make_help_message <- function (x, style = NULL, cmds = .commands(x))
 {
     value <- character(0)
 
@@ -241,11 +241,18 @@ makeHelpMessage <- function (x, style = NULL, cmds = commands(x))
     required <- x$subparsers$required
     usag2 <- x$usage
     if (is.na(usag2) || !nzchar(usag2))
-        usag2 <- paste(c("Usage:", x$program, cmds, "[arguments]", if (length(sub.commands)) {
-            c(if (required)
-                "command"
-            else "[command]", "...")
-        }), collapse = " ")
+        usag2 <- paste(
+            c(
+                "Usage:",
+                x$program,
+                cmds,
+                "[arguments]",
+                if (length(sub.commands)) {
+                    if (required) "command ..." else "[command ...]"
+                }
+            ),
+            collapse = " "
+        )
     value <- c(value, usage = usag2)
 
 
@@ -330,10 +337,19 @@ makeHelpMessage <- function (x, style = NULL, cmds = commands(x))
     }
     else stop("invalid 'style'; should never happen, please report!")
     if (length(tags)) {
-        nc <- nchar(tags, type = "width")
+        nc <- nchar(tags, "width")
         tags <- paste0("  ", tags, strrep(" ", max(nc) - nc), "  ")
-        indent <- max(nchar(tags, type = "width"))
-        helps[wraps] <- vapply(strwrap(helps[wraps], width = max(10, getOption("width") - indent - 1), simplify = FALSE), "paste", collapse = "\n", FUN.VALUE = "")
+        indent <- max(nchar(tags, "width"))
+        helps[wraps] <- vapply(
+            strwrap(
+                helps[wraps],
+                width = max(10, getOption("width") - indent - 1),
+                simplify = FALSE
+            ),
+            paste,
+            "",
+            collapse = "\n"
+        )
         helps <- gsub("\n", paste0("\n", strrep(" ", indent)), helps)
 
 
@@ -352,17 +368,25 @@ makeHelpMessage <- function (x, style = NULL, cmds = commands(x))
 
 
     if (length(sub.commands)) {
-        helps <- lapply(x$subparsers$value, "[[", "help")
-        wraps <- vapply(helps, "[[", "wrap", FUN.VALUE = NA)
-        helps <- vapply(helps, "[[", "x", FUN.VALUE = "")
+        helps <- lapply(x$subparsers$value, `[[`, "help")
+        wraps <- vapply(helps, `[[`, NA, "wrap")
+        helps <- vapply(helps, `[[`, "", "x")
 
 
         tags <- sub.commands
         tags <- sprintf("  %s  ", format(tags, justify = "left"))
-        indent <- max(nchar(tags, type = "width"))
-        helps[wraps] <- vapply(strwrap(helps[wraps],
-            width = getOption("width") - indent - 1, exdent = 2,
-            simplify = FALSE), "paste", collapse = "\n", FUN.VALUE = "")
+        indent <- max(nchar(tags, "width"))
+        helps[wraps] <- vapply(
+            strwrap(
+                helps[wraps],
+                width = getOption("width") - indent - 1,
+                exdent = 2,
+                simplify = FALSE
+            ),
+            paste,
+            "",
+            collapse = "\n"
+        )
         helps <- gsub("\n", paste0("\n", strrep(" ", indent)), helps, fixed = TRUE)
 
 
@@ -381,21 +405,22 @@ makeHelpMessage <- function (x, style = NULL, cmds = commands(x))
     if (nzchar(e$x) && e$wrap)
         e$x <- paste(strwrap(e$x, indent = e$indent, exdent = e$exdent), collapse = "\n")
     value <- c(value, epilogue = e$x)
-    return(value)
+    value
 }
 
 
-default.help <- function (x)
+.default_help <- function (x)
 {
-    switch(x, help = {
+    switch(x,
+    help = {
         if (.Platform$OS.type == "windows") {
             "Print usage message and exit"
         } else "Print short help message and exit"
-    }, skip = {
-        "Skip the rest of the command line"
-    }, version = {
-        "Print version info and exit"
-    }, stop("invalid 'x'; should never happen, please report!"))
+    },
+    skip = "Skip the rest of the command line",
+    version = "Print version info and exit",
+    stop("invalid 'x'; should never happen, please report!")
+    )
 }
 
 
@@ -412,12 +437,12 @@ add.argument = function (..., action = NULL, nargs = NULL, constant, default,
         stop("... must not be empty")
     tags <- shorts <- longs <- character()
     for (x in x) {
-        if (isNameOrFlag(x)) {
+        if (.is_name_or_flag(x)) {
             if (startsWith(x, "--"))
-                longs <- c(longs, getTag(x))
+                longs <- c(longs, .get_tag(x))
             else if (startsWith(x, "-"))
-                shorts <- c(shorts, getTag(x))
-            else tags <- c(tags, getTag(x))
+                shorts <- c(shorts, .get_tag(x))
+            else tags <- c(tags, .get_tag(x))
         }
         else stop(gettextf("unused argument '%s', is not a valid short flag, long flag, or name",
             x))
@@ -448,7 +473,7 @@ add.argument = function (..., action = NULL, nargs = NULL, constant, default,
 
 
     hel2 <- if (!is.null(help))
-        format.help(help)
+        .format_help(help)
 
 
     nargs <- parse.nargs(nargs)
@@ -590,12 +615,12 @@ add.argument = function (..., action = NULL, nargs = NULL, constant, default,
     })
 
 
-    exi2 <- format.help(exit)
+    exi2 <- .format_help(exit)
 
 
-    f.str.help <- !is.null(hel2) && grepl("%", hel2, fixed = TRUE)
-    f.str.exit <- grepl("%", exi2, fixed = TRUE)
-    if (f.str.help || f.str.exit) {
+    f_str_help <- !is.null(hel2) && grepl("%", hel2, fixed = TRUE)
+    f_str_exit <- grepl("%", exi2, fixed = TRUE)
+    if (f_str_help || f_str_exit) {
 ##        print(parent.frame())
         envir <- new.env(parent = parent.frame())
 
@@ -651,12 +676,12 @@ add.argument = function (..., action = NULL, nargs = NULL, constant, default,
         envir$DESTINATION <- destination
 
 
-        if (f.str.help) {
+        if (f_str_help) {
             hel2 <- f.str(hel2, envir)
             if (length(hel2) != 1)
                 stop("invalid 'help', did not evaluate to a character string when interpolated and formatted")
         }
-        if (f.str.exit) {
+        if (f_str_exit) {
             exi2 <- f.str(exi2, envir)
             if (length(exi2) != 1)
                 stop("invalid 'exit', did not evaluate to a character string when interpolated and formatted")
@@ -664,8 +689,13 @@ add.argument = function (..., action = NULL, nargs = NULL, constant, default,
     }
 
 
-    value <- list(tags = tags, short.flags = shorts, long.flags = longs,
-        action = action, nargs = nargs)
+    value <- list(
+        tags = tags,
+        short.flags = shorts,
+        long.flags = longs,
+        action = action,
+        nargs = nargs
+    )
     if (action == "store_const")
         value <- c(value, list(constant = constant))
 
@@ -685,9 +715,9 @@ add.argument = function (..., action = NULL, nargs = NULL, constant, default,
 
 
     if (length(tags)) {
-        otags <- lapply(.self$formal.command.args$value, "[[", "tags")
+        otags <- lapply(.self$formal.command.args$value, `[[`, "tags")
         f <- rep(seq_along(otags), lengths(otags))
-        i <- unlist(lapply(otags, "seq_along"))
+        i <- unlist(lapply(otags, seq_along))
         otags <- unlist(otags)
         N <- match(tags, otags, nomatch = 0L)
         if (any(N)) {
@@ -710,9 +740,9 @@ add.argument = function (..., action = NULL, nargs = NULL, constant, default,
         }
     }
     if (length(shorts)) {
-        otags <- lapply(.self$formal.command.args$value, "[[", "short.flags")
+        otags <- lapply(.self$formal.command.args$value, `[[`, "short.flags")
         f <- rep(seq_along(otags), lengths(otags))
-        i <- unlist(lapply(otags, "seq_along"))
+        i <- unlist(lapply(otags, seq_along))
         otags <- unlist(otags)
         N <- match(shorts, otags, nomatch = 0L)
         if (any(N)) {
@@ -735,9 +765,9 @@ add.argument = function (..., action = NULL, nargs = NULL, constant, default,
         }
     }
     if (length(longs)) {
-        otags <- lapply(.self$formal.command.args$value, "[[", "long.flags")
+        otags <- lapply(.self$formal.command.args$value, `[[`, "long.flags")
         f <- rep(seq_along(otags), lengths(otags))
-        i <- unlist(lapply(otags, "seq_along"))
+        i <- unlist(lapply(otags, seq_along))
         otags <- unlist(otags)
         N <- match(longs, otags, nomatch = 0L)
         if (any(N)) {
@@ -759,9 +789,9 @@ add.argument = function (..., action = NULL, nargs = NULL, constant, default,
             }
         }
     }
-    i <- lengths(lapply(.self$formal.command.args$value, "[[", "tags")) |
-        lengths(lapply(.self$formal.command.args$value, "[[", "short.flags")) |
-        lengths(lapply(.self$formal.command.args$value, "[[", "long.flags"))
+    i <- lengths(lapply(.self$formal.command.args$value, `[[`, "tags")) |
+        lengths(lapply(.self$formal.command.args$value, `[[`, "short.flags")) |
+        lengths(lapply(.self$formal.command.args$value, `[[`, "long.flags"))
     if (!all(i))
         .self$formal.command.args$value <- .self$formal.command.args$value[i]
 
@@ -804,11 +834,11 @@ add.argument.group = function (title = NA, description = NA, wrap = TRUE, requir
 
     I2 <- Refinteger(value = max(0L, vapply(.self$argument.groups, function(xx) {
         xx[["ID"]][["value"]]
-    }, FUN.VALUE = 0L)) + 1L)
+    }, 0L)) + 1L)
     value <- new("essentials_ArgumentGroup", program = .self$program, title = titl2,
         ID = I2, required = require2, required.recursive = required.recursiv2,
         mutually.exclusive = mutually.exclusiv2, mutually.exclusive.recursive = mutually.exclusive.recursiv2,
-        type = typ2, description = as.description(description, wrap = wrap),
+        type = typ2, description = .as_description(description, wrap = wrap),
         formal.command.args = .self$formal.command.args)
     if (inherits(.self, "essentials_ArgumentGroup")) {
         value$parent.titles <- c(.self$parent.titles, .self$title)
@@ -826,19 +856,19 @@ add.mutually.exclusive.group = function (...)
 
 
 add.help = function (names.or.flags = c("-h", "--help"), action = "help",
-    help = default.help("help"), wrap = FALSE, ...)
+    help = .default_help("help"), wrap = FALSE, ...)
 .self$add.argument(names.or.flags, action = "help", help = help,
     wrap = wrap, ...),
 
 
 add.skip = function (names.or.flags = "--args", action = "skip",
-    help = default.help("skip"), wrap = FALSE, ...)
+    help = .default_help("skip"), wrap = FALSE, ...)
 .self$add.argument(names.or.flags, action = "skip", help = help,
     wrap = wrap, ...),
 
 
 add.version = function (names.or.flags = "--version", action = "exit",
-    help = default.help("version"), wrap = FALSE, exit, ...)
+    help = .default_help("version"), wrap = FALSE, exit, ...)
 .self$add.argument(names.or.flags, action = "exit", help = help,
     wrap = wrap, exit = exit, ...)
 
@@ -850,7 +880,7 @@ ArgumentParser$methods(sharedMethods)
 ArgumentGroup$methods(sharedMethods)
 
 
-terminhate <- function (..., save = "default", status = 0, runLast = TRUE, do_warning = status)
+.terminhate <- function (..., save = "default", status = 0, runLast = TRUE, do_warning = status)
 {
     if (interactive())
         stop(errorCondition(...))
@@ -873,18 +903,18 @@ add.parser = function (...)
 
 
 print.help = function (message = "help requested", ..., do_terminhate = FALSE,
-    style = NULL, cmds = commands(.self))
+    style = NULL, cmds = .commands(.self))
 {
     if (length(.self$help.message))
         value <- .self$help.message
     else {
-        value <- makeHelpMessage(.self, style = style, cmds = cmds)
+        value <- .make_help_message(.self, style = style, cmds = cmds)
         value <- value[nzchar(value)]
         value <- paste(value, collapse = "\n\n")
     }
     cat(value, "\n", sep = "")
     if (do_terminhate)
-        terminhate(message = message, ...)
+        .terminhate(message = message, ...)
     else invisible(value)
 },
 
@@ -896,7 +926,7 @@ add.subparsers = function (title = NA, description = NA, program = NA, required 
     if (is.na(titl2))
         titl2 <- "Commands:"
 
-    descriptio2 <- as.description(description, wrap = wrap,
+    descriptio2 <- .as_description(description, wrap = wrap,
         indent = indent, exdent = exdent)
 
 
@@ -920,7 +950,7 @@ add.subparsers = function (title = NA, description = NA, program = NA, required 
 parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warnPartialMatchArgs", FALSE), n = 0L)
 {
     if (!missing(args)) args <- asArgs(args)
-    add.arg <- quote(x[[i]]$value <- c(x[[i]]$value, if (!is.null(val) && j == len) {  # hasValue(arg) && last.flag
+    add.arg <- quote(x[[i]]$value <- c(x[[i]]$value, if (!is.null(val) && j == len) {  # .has_value(arg) && last.flag
         switch(x[[i]]$action, store_const = {
             if (!is.na(val <- as.logical(val)))
                 val
@@ -934,11 +964,11 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
                 !val
             else x[[i]]$default
         }, count = , help = , exit = , skip = {
-            stop(gettextf("option '%s' does not accept an argument",
+            stop(sprintf("option '%s' does not accept an argument",
                 arg))
         }, val)
     }
-    else {                                                                          # !hasValue(arg) || !last.flag
+    else {                                                                             # !.has_value(arg) || !last.flag
         switch(x[[i]]$action, store_const = {
             TRUE
         }, store_true = {
@@ -981,7 +1011,7 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
     init.context <- quote({
 
 
-        # parser <- this.path::ArgumentParser()
+        # parser <- essentials::ArgumentParser()
         # `parser a` <- parser$add.parser(letters[1:5])
         # `parser f` <- parser$add.parser(letters[6:9])
         # context <- parser
@@ -990,7 +1020,7 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
         subs <- lapply(context$subparsers$value, function(xx) {
             xx[["commands"]][["value"]]
         })
-        subs1 <- rep(vapply(subs, "[", 1L, FUN.VALUE = ""), lengths(subs))
+        subs1 <- rep(vapply(subs, `[`, "", 1L), lengths(subs))
         sub.ids <- rep(seq_along(subs), lengths(subs))
         subs <- unlist(subs)
 
@@ -998,20 +1028,20 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
         x <- context$formal.command.args$value
 
 
-        shorts <- lapply(x, "[[", "short.flags")
+        shorts <- lapply(x, `[[`, "short.flags")
         short.ids <- rep(seq_along(shorts), lengths(shorts))
         shorts <- unlist(shorts)
-        byte.ids <- nchar(shorts, type = "bytes") == 1L
+        byte.ids <- nchar(shorts, "bytes") == 1L
         byte.flags <- shorts[byte.ids]
         byte.ids <- short.ids[byte.ids]
 
 
-        longs <- lapply(x, "[[", "long.flags")
+        longs <- lapply(x, `[[`, "long.flags")
         long.ids <- rep(seq_along(longs), lengths(longs))
         longs <- unlist(longs)
 
 
-        pos <- which(lengths(lapply(x, "[[", "tags")) > 0L)
+        pos <- which(lengths(lapply(x, `[[`, "tags")) > 0L)
         num.pos <- length(pos)
         cur.pos <- 1L
     })
@@ -1028,20 +1058,20 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
             exit <- paste(strwrap(exit, width = getOption("width") - 1),
                 collapse = "\n")
         cat(exit, "\n", sep = "")
-        terminhate(message = paste(metavariable, "requested"),
+        .terminhate(message = paste(metavariable, "requested"),
             call = this.call, do_warning = FALSE)
     }
     check.groups <- function() {
-        provided <- lengths(lapply(x, "[[", "value")) > 0L
+        provided <- lengths(lapply(x, `[[`, "value")) > 0L
         getIDs <- function(y) {
-            paste(vapply(y, "[[", "value", FUN.VALUE = 0L), collapse = "/")
+            paste(vapply(y, `[[`, 0L, "value"), collapse = "/")
         }
         names(provided) <- vapply(x, function(xx) getIDs(xx[["group"]]), "")
         fun <- function(group) {
             ID <- getIDs(c(group$parent.IDs, list(group$ID)))
             sub.IDs <- paste(ID, vapply(group$argument.groups, function(xx) {
                 xx[["ID"]][["value"]]
-            }, FUN.VALUE = 0L), sep = "/")
+            }, 0L), sep = "/")
 
 
             provided2 <- c(list(provided[names(provided) == ID]), lapply(sub.IDs, function(sub.ID) provided[startsWith(names(provided), sub.ID)]))
@@ -1049,7 +1079,7 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
 
 
             num.formals <- lengths(provided2)
-            num.provided <- vapply(provided2, "sum", FUN.VALUE = 0)
+            num.provided <- vapply(provided2, sum, 0)
 
 
             title2 <- if (!is.na(group$title))
@@ -1087,10 +1117,10 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
                             title2))
                 }
             }
-            lapply(group$argument.groups, "fun")
+            lapply(group$argument.groups, fun)
             invisible()
         }
-        lapply(context$argument.groups, "fun")
+        lapply(context$argument.groups, fun)
         invisible()
     }
     check.args <- function() {
@@ -1174,11 +1204,7 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
             }
             else {
                 if (grepl("^file://", FILE)) {
-                    con <- file(FILE)
-                    on.exit(close(con))
-                    FILE <- summary.connection(con)$description
-                    on.exit()
-                    close(con)
+                    FILE <- this.path:::.file_URL_path_1(FILE)
                 }
                 if (try.both) {
                     FILE <- tryCatch({
@@ -1200,11 +1226,7 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
             }
             else {
                 if (grepl("^file://", FILE)) {
-                    con <- file(FILE)
-                    on.exit(close(con))
-                    FILE <- summary.connection(con)$description
-                    on.exit()
-                    close(con)
+                    FILE <- this.path:::.file_URL_path_1(FILE)
                 }
                 if (has.wd) {
                     on.exit(setwd(owd))
@@ -1248,7 +1270,7 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
 
     args.table <- make.args.table(args)
     oargs <- args
-    this.call <- sys.call(sys.nframe())
+    this.call <- sys.call()
     allArgs <- list()
     context <- .self
     eval(init.context)
@@ -1256,13 +1278,13 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
     n <- 0L
     while (n < N) {
         arg <- args[[n <- n + 1L]]
-        if (isFlag(arg)) {
-            tag <- getTag(arg)
-            val <- if (hasValue(arg))
-                getValue(arg)
+        if (.is_flag(arg)) {
+            tag <- .get_tag(arg)
+            val <- if (.has_value(arg))
+                .get_value(arg)
             j <- len <- 1L
             do_break <- FALSE
-            if (isLongFlag(arg)) {
+            if (.is_long_flag(arg)) {
                 k <- charmatch(tag, longs)
                 if (is.na(k))
                     stop(gettextf("unused argument '%s'", arg))
@@ -1363,7 +1385,7 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
         stop(gettextf("a sub-command is required"))
     trailing <- args[-seq_len(n)]
     x <- allArgs
-    destinations <- vapply(x, "[[", "destination", FUN.VALUE = "")
+    destinations <- vapply(x, `[[`, "", "destination")
     x <- x[!is.na(destinations)]
     destinations <- destinations[!is.na(destinations)]
     nm <- unique(destinations)
@@ -1371,9 +1393,9 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
     names(value) <- nm
     for (dest in rev(nm)) {
         vals <- x[destinations == dest]
-        defs <- lapply(vals, "[[", "default")
-        vals <- lapply(vals, "[[", "value")
-        vals <- vals[!vapply(vals, "is.null", FUN.VALUE = NA)]
+        defs <- lapply(vals, `[[`, "default")
+        vals <- lapply(vals, `[[`, "value")
+        vals <- vals[!vapply(vals, is.null, NA)]
         vals <- c(vals, defs)
         for (n in seq_along(vals)) {
             if (!identical(vals[[n]], quote(expr = ))) {
@@ -1399,7 +1421,7 @@ parse.args = function (args = progArgs(), warnPartialMatchArgs = getOption("warn
 
 show = function ()
 {
-    cat("An argument", if (length(command2 <- commands(.self)))
+    cat("An argument", if (length(command2 <- .commands(.self)))
         sprintf("subparser (deriving from %s)\n",
             paste(command2, collapse = " "))
     else "parser\n")
@@ -1418,13 +1440,23 @@ show = function ()
             paste(xx[["commands"]][["value"]], collapse = ", ")
         }, "")
         helps <- lapply(.self$subparsers$value, function(x) x$help)
-        wraps <- vapply(helps, "[[", "wrap", FUN.VALUE = NA)
-        helps <- vapply(helps, "[[", "x", FUN.VALUE = "")
+        wraps <- vapply(helps, `[[`, NA, "wrap")
+        helps <- vapply(helps, `[[`, "", "x")
 
 
         tags <- sprintf("  %s  ", format(tags, justify = "left"))
-        indent <- max(nchar(tags, type = "width"))
-        helps[wraps] <- vapply(strwrap(helps[wraps], width = getOption("width") - indent - 1, exdent = 2, simplify = FALSE), "paste", collapse = "\n", FUN.VALUE = "")
+        indent <- max(nchar(tags, "width"))
+        helps[wraps] <- vapply(
+            strwrap(
+                helps[wraps],
+                width = getOption("width") - indent - 1,
+                exdent = 2,
+                simplify = FALSE
+            ),
+            paste,
+            "",
+            collapse = "\n",
+        )
         helps <- gsub("\n", paste0("\n", strrep(" ", indent)), helps)
 
 
@@ -1509,7 +1541,7 @@ ArgumentParser <- function (program = NA, usage = NA, description = NA, epilogue
     add.help = TRUE, wrap = TRUE, indent = 0, exdent = 0, wrap.description = wrap,
     indent.description = indent, exdent.description = exdent,
     wrap.epilogue = wrap, indent.epilogue = indent, exdent.epilogue = exdent,
-    style = NA, wrap.help = FALSE, help.help = default.help("help"), ...,
+    style = NA, wrap.help = FALSE, help.help = .default_help("help"), ...,
     help.message = NULL, n = 0L)
 {
     .program <- as.character(program)[1L]
@@ -1520,24 +1552,24 @@ ArgumentParser <- function (program = NA, usage = NA, description = NA, epilogue
         else if (!grepl("^(ftp|ftps|http|https)://", .program))
             .program <- basename2(.program)
     }
-    .usage <- format.help(usage)
-    .description <- as.description(description, wrap = wrap.description,
+    .usage <- .format_help(usage)
+    .description <- .as_description(description, wrap = wrap.description,
         indent = indent.description, exdent = exdent.description)
-    .epilogue <- as.description(epilogue, wrap = wrap.epilogue,
+    .epilogue <- .as_description(epilogue, wrap = wrap.epilogue,
         indent = indent.epilogue, exdent = exdent.epilogue)
     .style <- as.integer(style)[1L]
-    if (!.style %in% 1:2)
+    if (!(.style %in% 1:2))
         .style <- 1L
     if (is.null(help.message))
         .help.message <- character()
-    else .help.message <- format.help(help.message)
+    else .help.message <- .format_help(help.message)
     value <- new("essentials_ArgumentParser", program = .program, usage = .usage,
         description = .description, epilogue = .epilogue, style = .style,
         help.message = .help.message)
     if (add.help)
         value$add.help(wrap = wrap.help, help = help.help, ...)
     value$add.subparsers()
-    return(value)
+    value
 }
 
 

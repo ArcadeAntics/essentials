@@ -143,11 +143,11 @@ SEXP do_rk4(SEXP independent, SEXP initialConditions, SEXP fun, SEXP xname)
     R_xlen_t tmp1 = xlength(independent),
              tmp2 = xlength(initialConditions);
     if (tmp1 > INT_MAX)
-        error("'length(independent)' (%.0f) cannot be greater than '.Machine$integer.max' (%d)",
-            (double) tmp1, INT_MAX);
+        error("'length(independent)' (%lld) cannot be greater than '.Machine$integer.max' (%d)",
+            (long long int) tmp1, INT_MAX);
     if (tmp2 > INT_MAX)
-        error("'length(initialConditions)' (%.0f) cannot be greater than '.Machine$integer.max' (%d)",
-            (double) tmp2, INT_MAX);
+        error("'length(initialConditions)' (%lld) cannot be greater than '.Machine$integer.max' (%d)",
+            (long long int) tmp2, INT_MAX);
     int np = 0;
     int length_independent       = (int) tmp1,
         length_initialConditions = (int) tmp2;

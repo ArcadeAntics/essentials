@@ -51,8 +51,13 @@ R_xlen_t * get_lengths(SEXP x, R_xlen_t length_x, const char *name)
     SEXP expr = PROTECT(lang2(lengthsSymbol, lang2(R_QuoteSymbol, x)));
     SEXP tmp = PROTECT(eval(expr, R_BaseEnv));
     if (xlength(tmp) != length_x)
-        error("'length(%s)' (%.0f) and 'length(lengths(%s))' (%.0f) are not equal",
-            name, (double) length_x, name, (double) xlength(tmp));
+        error(
+            "'length(%s)' (%lld) and 'length(lengths(%s))' (%lld) are not equal",
+            name,
+            (long long int) length_x,
+            name,
+            (long long int) xlength(tmp)
+        );
 
 
     R_xlen_t *lengths_x;
@@ -252,9 +257,9 @@ SEXP do_mfor(SEXP call, SEXP op, SEXP args, SEXP rho)
         if (n_vars != n_seqs)
             error(
                 (n_vars > n_seqs) ?
-                    "not enough sequences to unpack (expected %.0f, got %.0f)" :
-                      "too many sequences to unpack (expected %.0f, got %.0f)",
-                                                   (double) n_vars,     (double) n_seqs
+                    "not enough sequences to unpack (expected %lld, got %lld)" :
+                      "too many sequences to unpack (expected %lld, got %lld)",
+                                            (long long int) n_vars,     (long long int) n_seqs
             );
 
 

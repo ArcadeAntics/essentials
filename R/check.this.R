@@ -13,93 +13,40 @@
 }
 
 
-switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
-    alt.expr = invisible())
+.switch2 <- function (EXPR, TRUE_expr = invisible(), FALSE_expr = invisible(),
+    alt_expr = invisible())
 {
     if (is.character(EXPR)) {
-        switch(EXPR, T = , `TRUE` = , True = , true = {
-            TRUE.expr
-        }, F = , `FALSE` = , False = , false = {
-            FALSE.expr
-        }, if (!is.na(EXPR))
-            alt.expr
-        else if (EXPR) {
-        })
+        switch(EXPR,
+        T = ,
+        `TRUE` = ,
+        True = ,
+        true = TRUE_expr,
+        F = ,
+        `FALSE` = ,
+        False = ,
+        false = FALSE_expr,
+        if (!is.na(EXPR)) alt_expr else if (EXPR) NULL)
     }
     else if (EXPR)
-        TRUE.expr
-    else FALSE.expr
+        TRUE_expr
+    else FALSE_expr
 }
 
 
 .check_this <- function (
-    force = FALSE,
-    keep.empty.dirs = FALSE,
-    build.build.vignettes = TRUE, build.no.build.vignettes = !build.build.vignettes,
-    build.manual = TRUE, build.no.manual = !build.manual,
-    build.resave.data = FALSE, build.no.resave.data = FALSE,
-    compact.vignettes = FALSE,
-    compression = NULL,
-    md5 = FALSE,
-    log = FALSE,
+    build_opts = NULL,
 
     INSTALL = TRUE,
-    INSTALL.clean = FALSE,
-    preclean = FALSE,
-    debug = FALSE,
-    INSTALL.library = NULL,
-    configure = TRUE, no.configure = !configure,
-    docs = TRUE, no.docs = !docs,
-    html = FALSE, no.html = FALSE,
-    latex = FALSE,
-    example = FALSE,
-    fake = FALSE,
-    no.lock = FALSE, lock = FALSE,
-    pkglock = FALSE,
-    build = FALSE,
-    install.tests = FALSE,
-    no.R = FALSE, no.libs = FALSE, no.data = FALSE, no.help = FALSE, no.demo = FALSE, no.exec = FALSE, no.inst = FALSE,
-    multiarch = TRUE, no.multiarch = !multiarch,
-    libs.only = FALSE,
-    data.compress = NULL,
-    INSTALL.resave.data = FALSE,
-    compact.docs = FALSE,
-    with.keep.source = FALSE, without.keep.source = FALSE, keep.source = NA,
-    with.keep.parse.data = FALSE, without.keep.parse.data = FALSE, keep.parse.data = NA,
-    byte.compile = FALSE, no.byte.compile = FALSE,
-    staged.install = FALSE, no.staged.install = FALSE,
-    test.load = TRUE, no.test.load = !test.load,
-    clean.on.error = TRUE, no.clean.on.error = !clean.on.error,
-    merge.multiarch = FALSE,
-    use.vanilla = FALSE,
-    use.LTO = FALSE, no.use.LTO = FALSE,
+    INSTALL_opts = NULL,
 
     check = TRUE,
-    check.library = NULL,
-    output = NULL,
-    check.clean = TRUE, check.no.clean = !check.clean,
-    codoc = TRUE, no.codoc = !codoc,
-    examples = TRUE, no.examples = !examples,
-    install = TRUE, no.install = !install,
-    tests = TRUE, no.tests = !tests,
-    check.manual = TRUE, check.no.manual = !check.manual,
-    vignettes = TRUE, no.vignettes = !vignettes,
-    check.build.vignettes = TRUE, check.no.build.vignettes = !check.build.vignettes,
-    ignore.vignettes = FALSE,
-    run.dontrun = FALSE,
-    run.donttest = FALSE,
-    use.gct = FALSE,
-    use.valgrind = FALSE,
-    timings = FALSE,
-    install.args = NULL,
-    test.dir = NULL,
-    no.stop.on.test.error = FALSE,
-    check.subdirs = NULL,
-    as.cran = FALSE,
+    check_opts = NULL,
     `_R_CHECK_CRAN_INCOMING_` = NULL,
 
     chdir = FALSE, n = 0L, file = this.dir(verbose = FALSE, n = n + 1L),
-    special = !missing(repos), repos = path.join(if (file == ".") "" else file, "..", "PACKAGES"))
+    repos = path.join(if (file == ".") "" else file, "..", "PACKAGES"),
+    special = !missing(repos))
 {
     # check.this               package:essentials                R Documentation
     #
@@ -120,13 +67,13 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
     #
     #     build.vignettes = TRUE, no.build.vignettes = !build.vignettes,
     #     manual = TRUE, no.manual = !manual,
-    #     resave.data = FALSE, build.no.resave.data = FALSE,
+    #     resave.data = FALSE, no_resave_data = FALSE,
     #
     #     build = FALSE,
-    #     multiarch = TRUE, no.multiarch = !multiarch,
+    #     multiarch = TRUE, no_multiarch = !multiarch,
     #     keep.source = NA,
     #
-    #     check = TRUE, as.cran = FALSE,
+    #     check = TRUE, as_cran = FALSE,
     #
     #     chdir = FALSE, file = here()
     #
@@ -138,11 +85,11 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
     #
     #
     # build.vignettes, no.build.vignettes, manual, no.manual, resave.data,
-    # build.no.resave.data
+    # no_resave_data
     #
     #     further arguments passed to 'R CMD build'
     #
-    # build, multiarch, no.multiarch, keep.source
+    # build, multiarch, no_multiarch, keep.source
     #
     #     further arguments passed to 'R CMD INSTALL'
     #
@@ -150,7 +97,7 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
     #
     #     should 'R CMD check' be run?
     #
-    # as.cran
+    # as_cran
     #
     #     further arguments passed to 'R CMD check' (if check is TRUE)
     #
@@ -172,122 +119,243 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
     #     character string; directory of the local repository
 
 
-    if (special) build <- FALSE
+    make_build_opts <- function(
+        ...,
+        force = FALSE,
+        keep_empty_dirs = FALSE,
+        no_build_vignettes = FALSE,
+        no_manual = FALSE,
+        resave_data = FALSE, no_resave_data = FALSE,
+        compact_vignettes = FALSE,
+        compression = NULL,
+        md5 = FALSE,
+        log = FALSE,
+        user = NULL)
+    {
+        dots <- list(...)
+        n <- names(dots)
+        if (!is.null(n) && length(i <- which(nzchar(n)))) {
+            f <- setdiff(names(formals()), "...")
+            f <- utils::capture.output(print(f, quote = FALSE, max = 99))
+            warning(
+                "named argument(s) ",
+                paste(dQuote(n[i]), collapse = ", "),
+                "\ndo not match names of formals:\n",
+                paste(f, collapse = "\n")
+            )
+            names(dots) <- NULL
+        }
+        if (!all(vapply(dots, is.character, NA))) {
+            stop("non-character argument(s)")
+        }
+        c(
+            if (force) "--force",
+            if (keep_empty_dirs) "--keep-empty-dirs",
+            if (no_build_vignettes) "--no-build-vignettes",
+            if (no_manual) "--no-manual",
+            .switch2(resave_data,
+            TRUE_expr = "--resave-data",
+            FALSE_expr = if (no_resave_data) "--no-resave-data",
+            alt_expr = paste0("--resave-data=", match.arg(resave_data, c("no", "best", "gzip")))
+            ),
+            .switch2(compact_vignettes,
+            TRUE_expr = "--compact-vignettes",
+            alt_expr = paste0("--compact-vignettes=", match.arg(compact_vignettes, c("no", "qpdf", "gs", "gs+qpdf", "both")))
+            ),
+            if (!is.null(compression))
+                paste0("--compression=", match.arg(compression, c("gzip", "none", "bzip2", "xz"))),
+            if (md5) "--md5",
+            if (log) "--log",
+            if (!is.null(user))
+                paste0("--user=", as.scalar.string(user)),
+            dots,
+            recursive = TRUE,
+            use.names = FALSE
+        )
+    }
 
 
-    build_args <- c(
-        if (force) "--force",
-        if (keep.empty.dirs) "--keep-empty-dirs",
-        if (build.no.build.vignettes) "--no-build-vignettes",
-        if (build.no.manual)          "--no-manual",
-        switch2(build.resave.data, TRUE.expr = {
-            "--resave-data"
-        }, FALSE.expr = {
-            if (build.no.resave.data)
-                "--no-resave-data"
-        }, alt.expr = {
-            paste0("--resave-data=", match.arg(build.resave.data, c("no", "best", "gzip")))
-        }),
-        switch2(compact.vignettes, TRUE.expr = {
-            "--compact-vignettes"
-        }, alt.expr = {
-            paste0("--compact-vignettes=", match.arg(compact.vignettes, c("no", "qpdf", "gs", "gs+qpdf", "both")))
-        }),
-        if (!is.null(compression))
-            paste0("--compression=", match.arg(compression, c("gzip", "none", "bzip2", "xz"))),
-        if (md5) "--md5",
-        if (log) "--log"
-    )
+    build_opts <- if (is.null(build_opts))
+        make_build_opts()
+    else do.call("make_build_opts", build_opts, quote = TRUE)
+
+
+    make_INSTALL_opts <- function(
+        ...,
+        clean = FALSE,
+        preclean = FALSE,
+        debug = FALSE,
+        library = NULL,
+        no_configure = FALSE,
+        no_docs = FALSE,
+        html = FALSE, no_html = FALSE,
+        latex = FALSE,
+        example = FALSE,
+        fake = FALSE,
+        no_lock = FALSE,
+        lock = FALSE,
+        pkglock = FALSE,
+        build = FALSE,
+        install_tests = FALSE,
+        no_R = FALSE, no_libs = FALSE, no_data = FALSE, no_help = FALSE, no_demo = FALSE, no_exec = FALSE, no_inst = FALSE,
+        no_multiarch = FALSE,
+        libs_only = FALSE,
+        data_compress = NULL,
+        resave_data = FALSE,
+        compact_docs = FALSE,
+        with_keep.source = FALSE, without_keep.source = FALSE,
+        with_keep.parse.data = FALSE, without_keep.parse.data = FALSE,
+        byte_compile = FALSE, no_byte_compile = FALSE,
+        staged_install = FALSE, no_staged_install = FALSE,
+        no_test_load = FALSE,
+        no_clean_on_error = FALSE,
+        merge_multiarch = FALSE,
+        use_vanilla = FALSE,
+        use_LTO = FALSE, no_use_LTO = FALSE)
+    {
+
+
+        if (special) build <- FALSE
+
+
+        dots <- list(...)
+        n <- names(dots)
+        if (!is.null(n) && length(i <- which(nzchar(n)))) {
+            f <- setdiff(names(formals()), "...")
+            f <- utils::capture.output(print(f, quote = FALSE, max = 99))
+            warning(
+                "named argument(s) ",
+                paste(dQuote(n[i]), collapse = ", "),
+                "\ndo not match names of formals:\n",
+                paste(f, collapse = "\n")
+            )
+            names(dots) <- NULL
+        }
+        if (!all(vapply(dots, is.character, NA))) {
+            stop("non-character argument(s)")
+        }
+        c(
+            if (clean) "--clean",
+            if (preclean) "--preclean",
+            if (debug) "--debug",
+            if (!is.null(library))
+                paste0("--library=", as.scalar.string(library)),
+            if (no_configure) "--no-configure",
+            if (no_docs) "--no-docs",
+            if (html) "--html" else if (no_html) "--no-html",
+            if (latex) "--latex",
+            if (example) "--example",
+            if (fake) "--fake",
+            if (no_lock) "--no-lock" else if (lock) "--lock" else if (pkglock) "--pkglock",
+            if (build) "--build",
+            if (install_tests) "--install-tests",
+            if (no_R) "--no-R",
+            if (no_libs) "--no-libs",
+            if (no_data) "--no-data",
+            if (no_help) "--no-help",
+            if (no_demo) "--no-demo",
+            if (no_exec) "--no-exec",
+            if (no_inst) "--no-inst",
+            if (no_multiarch) "--no-multiarch",
+            if (libs_only) "--libs-only",
+            if (!is.null(data_compress))
+                paste0("--data-compress=", match.arg(data_compress, c("gzip", "none", "bzip2", "xz"))),
+            if (resave_data) "--resave-data",
+            if (compact_docs) "--compact-docs",
+            if (with_keep.source) "--with-keep.source" else if (without_keep.source) "--without-keep.source",
+            if (with_keep.parse.data) "--with-keep.parse.data" else if (without_keep.parse.data) "--without-keep.parse.data",
+            if (byte_compile) "--byte-compile" else if (no_byte_compile) "--no-byte-compile",
+            if (staged_install) "--staged-install" else if (no_staged_install) "--no-staged-install",
+            if (no_test_load) "--no-test-load",
+            if (no_clean_on_error) "--no-clean-on-error",
+            if (merge_multiarch) "--merge-multiarch",
+            if (use_vanilla) "--use-vanilla",
+            if (use_LTO) "--use-LTO" else if (no_use_LTO) "--no-use-LTO",
+            dots,
+            recursive = TRUE,
+            use.names = FALSE
+        )
+    }
 
 
     INSTALL <- if (INSTALL) TRUE else FALSE
     if (INSTALL) {
-        keep.source
-        keep.parse.data
-        INSTALL_args <- c(
-            if (INSTALL.clean) "--clean",
-            if (preclean) "--preclean",
-            if (debug) "--debug",
-            if (!is.null(INSTALL.library))
-                paste0("--library=", as.scalar.string(INSTALL.library)),
-            if (no.configure) "--no-configure",
-            if (no.docs) "--no-docs",
-            {
-                if (html)
-                    "--html"
-                else if (no.html)
-                    "--no-html"
-            },
-            if (latex) "--latex",
-            if (example) "--example",
-            if (fake) "--fake",
-            {
-                if (no.lock)
-                    "--no-lock"
-                else if (lock)
-                    "--lock"
-                else if (pkglock)
-                    "--pkglock"
-            },
-            if (build) "--build",
-            if (install.tests) "--install-tests",
-            if (no.R) "--no-R",
-            if (no.libs) "--no-libs",
-            if (no.data) "--no-data",
-            if (no.help) "--no-help",
-            if (no.demo) "--no-demo",
-            if (no.exec) "--no-exec",
-            if (no.inst) "--no-inst",
-            if (no.multiarch) "--no-multiarch",
-            if (libs.only) "--libs-only",
-            if (!is.null(data.compress))
-                paste0("--data-compress=", match.arg(data.compress, c("gzip", "none", "bzip2", "xz"))),
-            if (INSTALL.resave.data) "--resave-data",
-            if (compact.docs) "--compact-docs",
-            {
-                if (with.keep.source)
-                    "--with-keep.source"
-                else if (without.keep.source)
-                    "--without-keep.source"
-                else tryCatch({
-                    if (keep.source)
-                        "--with-keep.source"
-                    else "--without-keep.source"
-                }, error = function(c) NULL)
-            },
-            {
-                if (with.keep.parse.data)
-                    "--with-keep.parse.data"
-                else if (without.keep.parse.data)
-                    "--without-keep.parse.data"
-                else tryCatch({
-                    if (keep.parse.data)
-                        "--with-keep.parse.data"
-                    else "--without-keep.parse.data"
-                }, error = function(c) NULL)
-            },
-            {
-                if (byte.compile)
-                    "--byte-compile"
-                else if (no.byte.compile)
-                    "--no-byte-compile"
-            },
-            {
-                if (staged.install)
-                    "--staged-install"
-                else if (no.staged.install)
-                    "--no-staged-install"
-            },
-            if (no.test.load) "--no-test-load",
-            if (no.clean.on.error) "--no-clean-on-error",
-            if (merge.multiarch) "--merge-multiarch",
-            if (use.vanilla) "--use-vanilla",
-            {
-                if (use.LTO)
-                    "--use-LTO"
-                else if (no.use.LTO)
-                    "--no-use-LTO"
-            }
+        INSTALL_opts <- if (is.null(INSTALL_opts))
+            make_INSTALL_opts()
+        else do.call("make_INSTALL_opts", INSTALL_opts, quote = TRUE)
+    }
+
+
+    make_check_opts <- function(
+        ...,
+        library = NULL,
+        output = NULL,
+        no_clean = FALSE,
+        no_codoc = FALSE,
+        no_examples = FALSE,
+        no_install = FALSE,
+        no_tests = FALSE,
+        no_manual = FALSE,
+        no_vignettes = FALSE,
+        no_build_vignettes = FALSE,
+        ignore_vignettes = FALSE,
+        run_dontrun = FALSE,
+        run_donttest = FALSE,
+        use_gct = FALSE,
+        use_valgrind = FALSE,
+        timings = FALSE,
+        install_args = NULL,
+        test_dir = NULL,
+        no_stop_on_test_error = FALSE,
+        check_subdirs = NULL,
+        as_cran = FALSE)
+    {
+        dots <- list(...)
+        n <- names(dots)
+        if (!is.null(n) && length(i <- which(nzchar(n)))) {
+            f <- setdiff(names(formals()), "...")
+            f <- utils::capture.output(print(f, quote = FALSE, max = 99))
+            warning(
+                "named argument(s) ",
+                paste(dQuote(n[i]), collapse = ", "),
+                "\ndo not match names of formals:\n",
+                paste(f, collapse = "\n")
+            )
+            names(dots) <- NULL
+        }
+        if (!all(vapply(dots, is.character, NA))) {
+            stop("non-character argument(s)")
+        }
+        c(
+            if (!is.null(library))
+                paste0("--library=", as.scalar.string(library)),
+            if (!is.null(output))
+                paste0("--output=", as.scalar.string(output)),
+            if (no_clean) "--no-clean",
+            if (no_codoc) "--no-codoc",
+            if (no_examples) "--no-examples",
+            if (no_install) "--no-install",
+            if (no_tests) "--no-tests",
+            if (no_manual) "--no-manual",
+            if (no_vignettes) "--no-vignettes",
+            if (no_build_vignettes) "--no-build-vignettes",
+            if (ignore_vignettes) "--ignore-vignettes",
+            if (run_dontrun) "--run-dontrun",
+            if (run_donttest) "--run-donttest",
+            if (use_gct) "--use-gct",
+            if (use_valgrind) "--use-valgrind",
+            if (timings) "--timings",
+            if (!is.null(install_args))
+                paste0("--install-args=", install_args),
+            if (!is.null(test_dir))
+                paste0("--test-dir=", as.scalar.string(test_dir)),
+            if (no_stop_on_test_error) "--no-stop-on-test-error",
+            if (!is.null(check_subdirs))
+                paste0("--check-subdirs=", match.arg(check_subdirs, c("default", "yes", "no"))),
+            if (as_cran) "--as-cran",
+            dots,
+            recursive = TRUE,
+            use.names = FALSE
         )
     }
 
@@ -295,35 +363,13 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
     check <- if (check) TRUE else FALSE
     if (check) {
         `_R_CHECK_CRAN_INCOMING_`
-        check_args <- c(
-            if (!is.null(check.library))
-                paste0("--library=", as.scalar.string(check.library)),
-            if (!is.null(output))
-                paste0("--output=", as.scalar.string(output)),
-            if (check.no.clean) "--no-clean",
-            if (no.codoc) "--no-codoc",
-            if (no.examples) "--no-examples",
-            if (no.install) "--no-install",
-            if (no.tests) "--no-tests",
-            if (check.no.manual) "--no-manual",
-            if (no.vignettes) "--no-vignettes",
-            if (check.no.build.vignettes) "--no-build-vignettes",
-            if (ignore.vignettes) "--ignore-vignettes",
-            if (run.dontrun) "--run-dontrun",
-            if (run.donttest) "--run-donttest",
-            if (use.gct) "--use-gct",
-            if (use.valgrind) "--use-valgrind",
-            if (timings) "--timings",
-            if (!is.null(install.args))
-                paste0("--install-args=", install.args),
-            if (!is.null(test.dir))
-                paste0("--test-dir=", as.scalar.string(test.dir)),
-            if (no.stop.on.test.error) "--no-stop-on-test-error",
-            if (!is.null(check.subdirs))
-                paste0("--check-subdirs=", match.arg(check.subdirs, c("default", "yes", "no"))),
-            if (as.cran) "--as-cran"
-        )
+        check_opts <- if (is.null(check_opts))
+            make_check_opts()
+        else do.call("make_check_opts", check_opts, quote = TRUE)
     }
+
+
+    # return(list(build_opts, if (INSTALL) INSTALL_opts, if (check) check_opts))
 
 
     if (!is.character(file) || length(file) != 1L) {
@@ -398,7 +444,7 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
     tar_file <- paste0(pkgname, "_", version, ".tar.gz")
 
 
-    value <- .Rcmd(command = "build", args = c(build_args, file), mustWork = TRUE)
+    value <- .Rcmd(command = "build", args = c(build_opts, file), mustWork = TRUE)
     cat("\n")
 
 
@@ -473,7 +519,7 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
 
 
     if (INSTALL) {
-        value <- .Rcmd(command = "INSTALL", args = c(INSTALL_args, tar_file), mustWork = TRUE)
+        value <- .Rcmd(command = "INSTALL", args = c(INSTALL_opts, tar_file), mustWork = TRUE)
         cat("\n")
     }
     finished <- TRUE
@@ -492,7 +538,7 @@ switch2 <- function (EXPR, TRUE.expr = invisible(), FALSE.expr = invisible(),
                 "TRUE"
             else "FALSE")
         }
-        value <- .Rcmd(command = "check", args = c(check_args, tar_file), mustWork = TRUE)
+        value <- .Rcmd(command = "check", args = c(check_opts, tar_file), mustWork = TRUE)
         cat("\n")
     }
 

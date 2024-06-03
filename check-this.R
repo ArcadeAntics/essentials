@@ -3,8 +3,17 @@
     essentials:::.check_this(  ## essentials
         # special = TRUE,
 
-        check = TRUE, no.stop.on.test.error = TRUE,
-        as.cran = TRUE, `_R_CHECK_CRAN_INCOMING_` = TRUE,
+        build_opts = list(
+            no_build_vignettes = TRUE,
+            user = "iris"
+        ),
+
+        check = FALSE,
+        check_opts = list(
+            no_stop_on_test_error = TRUE,
+            as_cran = TRUE
+        ),
+        `_R_CHECK_CRAN_INCOMING_` = TRUE,
 
         chdir = TRUE
     )

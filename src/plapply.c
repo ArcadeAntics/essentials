@@ -152,9 +152,9 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
                 error("'names(X)' is not NULL or a character vector, but of type '%s'",\
                     type2char(TYPEOF(names_X)));               \
             else if (xlength(names_X) != length_X)             \
-                error("'length(X)' (%.0f) and 'length(names(X))' (%.0f) are not equal",\
-                    (double) length_X,                         \
-                    (double) xlength(names_X));                \
+                error("'length(X)' (%lld) and 'length(names(X))' (%lld) are not equal",\
+                    (long long int) length_X,                  \
+                    (long long int) xlength(names_X));         \
         }                                                      \
     }                                                          \
     else {                                                     \
@@ -194,19 +194,19 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
 #ifdef debug
 
 
-    #define PRINT_LENGTH_X Rprintf("length(X)    = %.0f\n", (double) length_X)
+    #define PRINT_LENGTH_X Rprintf("length(X)    = %lld\n", (long long int) length_X)
     #define PRINT_LENGTHS_X do {                                   \
         Rprintf("lengths(X)   =");                                 \
         for (R_xlen_t i = 0; i < length_X; i++)                    \
-            Rprintf(" %.0f", (double) lengths_X[i]);               \
+            Rprintf(" %lld", (long long int) lengths_X[i]);        \
         Rprintf("\n");                                             \
     } while (0)
-    #define PRINT_COMMONLENGTH_X Rprintf("commonLength = %.0f\n", (double) commonLength)
+    #define PRINT_COMMONLENGTH_X Rprintf("commonLength = %lld\n", (long long int) commonLength)
     #define PRINT_DOTS do {                                        \
         Rprintf("> print(dots)\n");                                \
         eval(lang2(install("print"), dotsSymbol), rho);            \
     } while (0)
-    #define PRINT_LENGTH_DOTS Rprintf("length(dots) = %.0f\n", (double) length_dots)
+    #define PRINT_LENGTH_DOTS Rprintf("length(dots) = %lld\n", (long long int) length_dots)
     #define PRINT_NAMES_DOTS do {                                  \
         Rprintf("> print(names(dots))\n");                         \
         eval(lang2(install("print"), names_dots), rho);            \
@@ -255,13 +255,13 @@ extern SEXP dispatchNames(SEXP x, SEXP rho);
 
     #define CHECK_LENGTH(length, name) do {                        \
         if ((length) > INT_MAX)                                    \
-            error("'length(%s)' (%.0f) cannot be greater than '.Machine$integer.max' (%d)",\
-                name, (double) (length), INT_MAX);                 \
+            error("'length(%s)' (%lld) cannot be greater than '.Machine$integer.max' (%d)",\
+                name, (long long int) (length), INT_MAX);          \
     } while (0)
     #define CHECK_LENGTH_X    CHECK_LENGTH(length_X, "X")
     #define CHECK_LENGTH_DOTS CHECK_LENGTH(length_dots, "dots")
     #define CHECK_NARGS do {                                       \
-        if (((double) INT_MAX) - length_X - length_dots < 0)       \
+        if (((R_xlen_t) INT_MAX) - length_X - length_dots < 0)     \
             error("too many arguments");                           \
     } while (0)
     #define INIT_X_REALINDX1   do {} while (0)
@@ -405,12 +405,12 @@ SEXP do_plapply(SEXP call, SEXP op, SEXP args, SEXP rho)
             UNPROTECT(1);
             if (tmp != R_NilValue) {
                 if (TYPEOF(tmp) != STRSXP)
-                    error("'names(X[[%.0f]])' is not NULL or a character vector, but of type '%s'",
-                        (double) (i + 1), type2char(TYPEOF(tmp)));
+                    error("'names(X[[%lld]])' is not NULL or a character vector, but of type '%s'",
+                        (long long int) (i + 1), type2char(TYPEOF(tmp)));
                 else if (xlength(tmp) != commonLength)
-                    error("'length(X[[%.0f]])' (%.0f) and 'length(names(X[[%.0f]]))' (%.0f) are not equal",
-                        (double) (i + 1), (double) (lengths_X[i]),
-                        (double) (i + 1), (double) commonLength);
+                    error("'length(X[[%lld]])' (%lld) and 'length(names(X[[%lld]]))' (%lld) are not equal",
+                        (long long int) (i + 1), (long long int) (lengths_X[i]),
+                        (long long int) (i + 1), (long long int) commonLength);
                 setAttrib(value, R_NamesSymbol, tmp);
                 break;
             }
@@ -611,12 +611,12 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
                 UNPROTECT(1);
                 if (names != R_NilValue) {
                     if (TYPEOF(names) != STRSXP)
-                        error("'names(X[[%.0f]])' is not NULL or a character vector, but of type '%s'",
-                            (double) (i + 1), type2char(TYPEOF(names)));
+                        error("'names(X[[%lld]])' is not NULL or a character vector, but of type '%s'",
+                            (long long int) (i + 1), type2char(TYPEOF(names)));
                     else if (xlength(names) != commonLength)
-                        error("'length(X[[%.0f]])' (%.0f) and 'length(names(X[[%.0f]]))' (%.0f) are not equal",
-                            (double) (i + 1), (double) (lengths_X[i]),
-                            (double) (i + 1), (double) commonLength);
+                        error("'length(X[[%lld]])' (%lld) and 'length(names(X[[%lld]]))' (%lld) are not equal",
+                            (long long int) (i + 1), (long long int) (lengths_X[i]),
+                            (long long int) (i + 1), (long long int) commonLength);
                     break;
                 }
             }
@@ -683,8 +683,12 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
             }
             PROTECT_WITH_INDEX(tmp, &tmp_index);
             if (xlength(tmp) != length_FUN_VALUE)
-                error("values must be length %.0f,\n but result %.0f is length %.0f",
-                    (double) length_FUN_VALUE, (double) (i + 1), (double) xlength(tmp));
+                error(
+                    "values must be length %lld,\n but result %lld is length %lld",
+                    (long long int) length_FUN_VALUE,
+                    (long long int) (i + 1),
+                    (long long int) xlength(tmp)
+                );
             type_tmp = TYPEOF(tmp);
             if (type_tmp != type_FUN_VALUE) {
                 okay = FALSE;
@@ -695,8 +699,12 @@ SEXP do_pvapply(SEXP call, SEXP op, SEXP args, SEXP rho)
                 case INTSXP: okay = (type_tmp == LGLSXP); break;
                 }
                 if (!okay)
-                    error("values must be type '%s',\n but result %.0f is type '%s'",
-                        type2char(type_FUN_VALUE), (double) (i + 1), type2char(type_tmp));
+                    error(
+                        "values must be type '%s',\n but result %lld is type '%s'",
+                        type2char(type_FUN_VALUE),
+                        (long long int) (i + 1),
+                        type2char(type_tmp)
+                    );
                 REPROTECT(tmp = coerceVector(tmp, type_FUN_VALUE), tmp_index);
             }
             if (use_names && isNull(rowNames)) {

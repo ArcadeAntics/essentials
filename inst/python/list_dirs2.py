@@ -1,73 +1,43 @@
+import json
 import os
+import sys
 
 
-full_names = os.environ['R_ESSENTIALS_LIST_DIRS2_FULL_NAMES'] == 'TRUE'
-recursive  = os.environ['R_ESSENTIALS_LIST_DIRS2_RECURSIVE' ] == 'TRUE'
+with open(sys.argv[1], 'rb') as conn:
+    paths, full_names, recursive = json.load(conn)
 
 
-outfile      = os.environ['R_ESSENTIALS_LIST_DIRS2_OUTFILE']
-outfile      = open(outfile, mode = 'w', encoding = 'UTF-8')
-
-
-##for path in os.environ['R_ESSENTIALS_LIST_DIRS2_PATH'].split('\t'):
-##    n = len(path) + 1
-##    first = True
-##    for root, dirs, files in os.walk(path):
-##        if first:
-##            first = False
-##            if recursive:
-##                if full_names:
-##                    outfile.write(path + '\n')
-##                else:
-##                    outfile.write('.\n')
-##            root = ''
-##            if full_names:
-##                root = path + '/' + root
-##            outfile.writelines(root + dir + '\n' for dir in dirs)
-##            if not recursive:
-##                break
-##        else:
-##            root = root[n:].replace('\\', '/') + '/'
-##            if full_names:
-##                root = path + '/' + root
-##            outfile.writelines(root + dir + '\n' for dir in dirs)
-
-
-if recursive:
-    if full_names:
-        for path in os.environ['R_ESSENTIALS_LIST_DIRS2_PATH'].split('\t'):
-            n = len(path) + 1
-            first = True
-            for root, dirs, files in os.walk(path):
-                if first:
-                    first = False
-                    outfile.write(path + '\n')
-                    root = path + '/'
-                else:
-                    root = path + '/' + root[n:].replace('\\', '/') + '/'
-                outfile.writelines(root + dir + '\n' for dir in dirs)
-    else:
-        for path in os.environ['R_ESSENTIALS_LIST_DIRS2_PATH'].split('\t'):
-            n = len(path) + 1
-            first = True
-            for root, dirs, files in os.walk(path):
-                if first:
-                    first = False
-                    outfile.write('.\n')
-                    outfile.writelines(dir + '\n' for dir in dirs)
-                else:
-                    root = root[n:].replace('\\', '/') + '/'
-                    outfile.writelines(root + dir + '\n' for dir in dirs)
-else:
-    if full_names:
-        for path in os.environ['R_ESSENTIALS_LIST_DIRS2_PATH'].split('\t'):
-            for root, dirs, files in os.walk(path):
-                root = path + '/'
-                outfile.writelines(root + dir + '\n' for dir in dirs)
-                break
-    else:
-        for path in os.environ['R_ESSENTIALS_LIST_DIRS2_PATH'].split('\t'):
-            for root, dirs, files in os.walk(path):
-                outfile.writelines(dir + '\n' for dir in dirs)
-                break
-outfile.close()
+with open(sys.argv[1], mode = 'w', encoding = 'UTF-8', newline = '\n') as conn:
+    
+    
+    def list_dirs(path, offset, recursive):
+        try:
+            scandir_iterator = os.scandir(path)
+        except OSError:
+            pass
+        else:
+            for dir_entry in scandir_iterator:
+                if dir_entry.is_dir():
+                    x = path + dir_entry.name
+                    conn.write(x[offset:] + '\n')
+                    if recursive:
+                        x += '/'
+                        list_dirs(x, offset, recursive)
+    
+    
+    for path in paths:
+        if not os.path.isdir(path):
+            continue
+        if recursive:
+            if full_names:
+                conn.write(path + '\n')
+            else:
+                conn.write('\n')
+        n = len(path)
+        if (n == 2 and path[1] == ':') or \
+           (n >= 1 and (path[n - 1] == '/' or path[n - 1] == '\\')):
+            pass
+        else:
+            path += '/'
+            n += 1
+        list_dirs(path, 0 if full_names else n, recursive)

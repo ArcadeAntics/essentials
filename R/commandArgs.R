@@ -1,65 +1,65 @@
-tag <- "([[:alpha:]][-.[:alnum:]_]*|\\.([-.[:alpha:]_][-.[:alnum:]_]*)?)"
-value <- "(=(.*))"
+.tag_pattern <- "([[:alpha:]][-.[:alnum:]_]*|\\.(?:[-.[:alpha:]_][-.[:alnum:]_]*)?)"
+.value_pattern <- "(?:=(.*))"
 
 
-name.pattern <- paste0("^", tag, "$")
-name.or.flag.pattern <- paste0("^-{0,2}", tag, value, "?$")
-name.or.flag.wv.pattern <- paste0("^-{0,2}", tag, value, "$")
-flag.pattern <- paste0("^--?", tag, value, "?$")
+.name_pattern <- paste0("^", .tag_pattern, "$")
+.name_or_flag_pattern <- paste0("^-{0,2}", .tag_pattern, .value_pattern, "?$")
+.name_or_flag_with_value_pattern <- paste0("^-{0,2}", .tag_pattern, .value_pattern, "$")
+.flag_pattern <- paste0("^--?", .tag_pattern, .value_pattern, "?$")
 
 
-isName <- function (x)
+.is_name <- function (x)
 {
-    grepl(name.pattern, x)
+    grepl(.name_pattern, x)
 }
 
 
-isNameOrFlag <- function (x)
+.is_name_or_flag <- function (x)
 {
-    grepl(name.or.flag.pattern, x)
+    grepl(.name_or_flag_pattern, x)
 }
 
 
-isFlag <- function (x)
+.is_flag <- function (x)
 {
-    grepl(flag.pattern, x)
+    grepl(.flag_pattern, x)
 }
 
 
-isShortFlag <- function (x)
+.is_short_flag <- function (x)
 {
     startsWith(x, "-")
 }
 
 
-isLongFlag <- function (x)
+.is_long_flag <- function (x)
 {
     startsWith(x, "--")
 }
 
 
-getTag <- function (x)
+.get_tag <- function (x)
 {
-    sub(name.or.flag.pattern, "\\1", x)
+    sub(.name_or_flag_pattern, "\\1", x)
 }
 
 
-hasValue <- function (x)
+.has_value <- function (x)
 {
-    grepl(name.or.flag.wv.pattern, x)
+    grepl(.name_or_flag_with_value_pattern, x)
 }
 
 
-getValue <- function (x)
+.get_value <- function (x)
 {
-    sub(name.or.flag.pattern, "\\4", x)
+    sub(.name_or_flag_pattern, "\\2", x)
 }
 
 
 
 
 
-format.help <- function (x)
+.format_help <- function (x)
 {
     x <- as.character(x)
     x[is.na(x)] <- ""
@@ -204,7 +204,7 @@ print.formalCommandArg <- function (x, ..., quote = FALSE)
     print.default(cbind(` ` = y), ..., quote = quote)
     if (length(x$group)) {
         cat("in group\n")
-        print(vapply(x$group, "[[", "value", FUN.VALUE = 0L))
+        print(vapply(x$group, `[[`, 0L, "value"))
     }
     if ("constant" %in% names(x)) {
         cat("with constant\n")

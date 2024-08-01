@@ -91,8 +91,8 @@ SEXP dowhile(SEXP call, SEXP op, SEXP args, SEXP rho, int until)
     else if (xlength(expr) != 2) {
         if (xlength(expr) == 1)
             error("invalid 'expr', 0 expressions within do() which requires 1");
-        else error("invalid 'expr', %d expressions within do() which requires 1\n  instead of: do(expr1, expr2) %s (cond)\n  try:        do({\n                  expr1\n                  expr2\n              }) %s (cond)",
-            xlength(expr) - 1, fun, fun);
+        else error("invalid 'expr', %lld expressions within do() which requires 1\n  instead of: do(expr1, expr2) %s (cond)\n  try:        do({\n                  expr1\n                  expr2\n              }) %s (cond)",
+            (long long int) (xlength(expr) - 1), fun, fun);
     }
 
 
@@ -134,8 +134,8 @@ SEXP dowhile(SEXP call, SEXP op, SEXP args, SEXP rho, int until)
         error("invalid 'cond', must be wrapped with parenthesis\n  instead of: do(expr) %s cond\n  try:        do(expr) %s (cond)",
             fun, fun);
     else if (xlength(cond) != 2)
-        error("invalid 'cond', %d expressions within '()' which requires 1",
-            xlength(cond) - 1);
+        error("invalid 'cond', %lld expressions within '()' which requires 1",
+            (long long int) (xlength(cond) - 1));
 
 
     /* select the expression within '()' */

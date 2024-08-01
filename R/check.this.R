@@ -615,7 +615,7 @@ doc <- function (fun)
         stop(gettextf("in '%s':\n multiple lines that start with \"Date: \"", file))
     if (length(n) < 1L) {}
     else {
-        date <- format(Sys.time(), "Date: %Y-%m-%d", "UTC")
+        date <- strftime(Sys.time(), "Date: %Y-%m-%d", "UTC")
         if (x[[n]] != date) {
             x[[n]] <- date
             tmpfile <- tempfile("DESCRIPTION")

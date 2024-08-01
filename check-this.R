@@ -1,11 +1,15 @@
 {
     essentials:::.update_DESCRIPTION_Date()
     essentials:::.check_this(  ## essentials
-        # special = TRUE,
-
         build_opts = list(
             no_build_vignettes = TRUE,
             user = "iris"
+        ),
+
+        # INSTALL = FALSE,
+        INSTALL_opts = list(
+            # html = TRUE, latex = TRUE,
+            # with_keep.source = TRUE
         ),
 
         check = FALSE,
@@ -15,6 +19,17 @@
         ),
         `_R_CHECK_CRAN_INCOMING_` = TRUE,
 
+        chdir = TRUE
+    )
+}
+
+
+{
+    essentials:::.check_this(
+        special = TRUE,
+        build_opts = list(no_build_vignettes = TRUE, user = "iris"),
+        INSTALL = FALSE,
+        check = FALSE,
         chdir = TRUE
     )
 }

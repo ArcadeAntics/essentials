@@ -1,10 +1,6 @@
 \name{progressBar}
 \alias{progressBar}
 \alias{setProgressBarMethod}
-\alias{getProgress}
-\alias{setProgress}
-\alias{increment}
-\alias{decrement}
 \title{Progress Bars}
 \description{
   Generalized progress bars, with 3 default flavours.
@@ -12,37 +8,34 @@
 \usage{
 progressBar(name = names(progressBars), ...)
 
-getProgress(pb)
-setProgress(pb, ...)
-
 # declare a new progress bar
 setProgressBarMethod(name, definition)
 
-increment(x, ...)
-decrement(x, ...)
+\S3method{close}{progressBar}(con, ...)
 }
 \arguments{
   \item{name}{character string, which kind of progress bar to make or set a
-    method. By default, one of \code{"tk"}, \code{"txt"}, and \code{"win"}
-    (Windows exclusive).}
+    method. By default, one of \code{"txt"}, \code{"win"} (Windows exclusive),
+    and \code{"tk"}.}
+
+  \item{\dots}{Further arguments passed to other methods.}
 
   \item{definition}{a function that will create a progress bar corresponding to
     \code{name}.}
 
-  \item{pb, x}{a progress bar object.}
-
-  \item{\dots}{Further arguments passed to other methods.}
+  \item{con}{progress bar to be closed.}
 }
 \value{
-  For \code{progressBar}, a progress bar object.
-
-  For \code{getProgress}, \code{setProgress}, \code{increment}, and
-  \code{decrement}, a length-one numeric vector giving the previous value
-  (visibly for \code{getProgress}).
+  A \code{"progressBar"} object.
 }
 \seealso{
-  \code{\link[tcltk]{tkProgressBar}}, \code{\link[utils]{txtProgressBar}}, and
-  \code{winProgressBar} on Windows.
+  \code{\link[utils]{txtProgressBar}}
+
+#ifdef windows
+  \code{\link[utils]{winProgressBar}}
+#endif
+
+  \code{\link[tcltk]{tkProgressBar}}
 }
 \examples{
 # if we use 'tryCatch', we can make use 'finally' to guarantee the progress bar
@@ -54,7 +47,9 @@ tryCatch({
     else "txt", max = 20, style = 3)
     for (i in 1:20) {
         Sys.sleep(0.05)
-        increment(pb)
+        pb$increment()
     }
-}, finally = close(pb))
+}, finally = {
+    close(pb)
+})
 }

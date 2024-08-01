@@ -202,29 +202,10 @@ export(.pvapply, pvapply)
 # progressBar.R             ----
 
 
-export(setProgressBarMethod, progressBar, getProgress, setProgress, increment, decrement)
+export(setProgressBarMethod, progressBar)
 
 
-S3method(getProgress, tkProgressBar)
-S3method(getProgress, txtProgressBar)
-S3method(getProgress, winProgressBar)
-
-
-S3method(setProgress, tkProgressBar)
-S3method(setProgress, txtProgressBar)
-S3method(setProgress, winProgressBar)
-
-
-S3method(increment, default)
-S3method(increment, tkProgressBar)
-S3method(increment, txtProgressBar)
-S3method(increment, winProgressBar)
-
-
-S3method(decrement, default)
-S3method(decrement, tkProgressBar)
-S3method(decrement, txtProgressBar)
-S3method(decrement, winProgressBar)
+S3method(close, progressBar)
 
 
 # pseduoglobalenv.R         ----
